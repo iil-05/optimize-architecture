@@ -90,7 +90,7 @@ export class IconRegistry {
         const IconComponent = (LucideIcons as any)[iconName];
         if (IconComponent) {
           const iconDef: IconDefinition = {
-            id: iconName.toLowerCase(),
+            id: iconName, // Keep original case for Lucide icon names
             name: iconName,
             category: category as any,
             component: IconComponent,

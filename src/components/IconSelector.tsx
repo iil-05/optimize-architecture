@@ -55,7 +55,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({ currentIcon, onSelect, onCl
   const handleIconClick = (icon: IconDefinition) => {
     setSelectedIcon(icon.id);
     optimizedStorage.addToRecentlyUsedIcons(icon.id);
-    onSelect(icon.id);
+    onSelect(icon.name); // Use icon.name instead of icon.id for Lucide icons
   };
 
   const handleToggleFavorite = (iconId: string, event: React.MouseEvent) => {

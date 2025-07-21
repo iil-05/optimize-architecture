@@ -192,14 +192,14 @@ const ServicesGrid: React.FC<ServicesGridProps> = ({ content, isEditing, onChang
                       }}
                       title="Click to change icon"
                     >
-                      <IconComponent className="w-8 h-8 text-white" key={service.icon} />
+                      <IconComponent className="w-8 h-8 text-white" />
                     </button>
                   ) : (
                     <motion.div
-                      key={service.icon}
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ duration: 0.3 }}
+                      key={service.icon}
                     >
                       <IconComponent className="w-8 h-8 text-white" />
                     </motion.div>

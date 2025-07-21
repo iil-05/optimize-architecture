@@ -184,14 +184,14 @@ const FeaturesList: React.FC<FeaturesListProps> = ({ content, isEditing, onChang
                       }}
                       title="Click to change icon"
                     >
-                      <IconComponent className="w-6 h-6" style={{ color: theme?.colors?.primary || '#3b82f6' }} key={feature.icon} />
+                      <IconComponent className="w-6 h-6" style={{ color: theme?.colors?.primary || '#3b82f6' }} />
                     </button>
                   ) : (
                     <motion.div
-                      key={feature.icon}
                       initial={{ scale: 0, rotate: -180 }}
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ duration: 0.3 }}
+                      key={feature.icon}
                     >
                       <IconComponent className="w-6 h-6" style={{ color: theme?.colors?.primary || '#3b82f6' }} />
                     </motion.div>
