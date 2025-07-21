@@ -1,0 +1,1104 @@
+{
+  "site": {
+    "title": "Templates.uz — Veb-saytingizni tez va oson yarating!",
+    "description": "Templates.uz bilan ajoyib va moslashtirilgan veb-saytlarni qisqa vaqt ichida yarating! Drag & drop qurilish vositasi, tayyor shablonlar va professional dasturchi xizmatlari."
+  },
+  "header": {
+    "logo": "Templates.uz",
+    "nav": {
+      "home": "Bosh sahifa",
+      "templates": "Shablonlar",
+      "pricing": "Narxlar",
+      "services": "Xizmatlar",
+      "contact": "Aloqa",
+      "dashboard": "Boshqaruv paneli",
+      "billing": "Toʻlovlar",
+      "team": "Jamoa"
+    },
+    "language": {
+      "english": "English",
+      "russian": "Русский",
+      "uzbek": "O'zbek",
+      "tajik": "Тоҷикӣ"
+    },
+    "auth": {
+      "login": "Kirish",
+      "signup": "Ro'yxatdan o'tish",
+      "dashboard": "Boshqaruv paneli"
+    },
+    "profile": {
+      "profile": "Profil",
+      "settings": "Sozlamalar",
+      "support": "Yordam",
+      "logout": "Chiqish"
+    }
+  },
+  "hero": {
+    "badge": "Yangi platforma ishga tushdi!",
+    "title": {
+      "line1": "Veb-saytingizni",
+      "line2": "tez va oson yarating"
+    },
+    "description": "Templates.uz bilan ajoyib va moslashtirilgan veb-saytlarni qisqa vaqt ichida yarating! Drag & drop qurilish vositasi, tayyor shablonlar va professional dasturchi xizmatlari.",
+    "cta": {
+      "primary": "Yangi veb-sayt yaratish",
+      "secondary": "Variantlarni ko'rish"
+    },
+    "options": {
+      "dragDrop": {
+        "title": "Drag & Drop Veb-sayt Quruvchisi",
+        "description": "Kodlashsiz veb-saytingizni yaratish uchun bloklarni sichqoncha bilan suring.",
+        "cta": "Boshlash"
+      },
+      "templates": {
+        "title": "Tayyor Shablonlardan Veb-sayt Yaratish",
+        "description": "Keng tanlovimizdan o'zingizga mos shablonni tanlang va o'z didingizga moslang.",
+        "cta": "Boshlash"
+      },
+      "developer": {
+        "title": "Professional Dasturchi Xizmatlaridan Foydalanish",
+        "description": "Tajribali dasturchlar tomonidan sizga moslashtirilgan tez, xavfsiz va noyob veb-sayt yaratamiz.",
+        "cta": "Siznikini yarataylik!"
+      }
+    }
+  },
+  "features": {
+    "badge": "Nega bizni tanlaysiz?",
+    "title": {
+      "line1": "Nega aynan",
+      "line2": "biz?"
+    },
+    "description": "Templates.uz platformasi kuchli vositalar va moslashuvchan sozlash imkoniyatlari bilan eng yaxshi veb-sayt yaratish tajribasini taklif etadi.",
+    "items": {
+      "dragDrop": {
+        "title": "Drag & Drop Quruvchi",
+        "description": "Kod yozmasdan veb-saytingizni sozlang. Elementlarni oson joylashtiring va qayta tartibga soling.",
+        "link": "Batafsil"
+      },
+      "templates": {
+        "title": "Tayyor Shablonlar",
+        "description": "150 dan ortiq professional ishlab chiqilgan shablonlardan tanlang va ularni o'z didingizga moslang.",
+        "link": "Batafsil"
+      },
+      "developer": {
+        "title": "Dasturchi Xizmatlari",
+        "description": "Bizning professional dasturchlarimiz sizning shaxsiy maqsadlaringizga moslashtirilgan maxsus veb-sayt yaratadi.",
+        "link": "Batafsil"
+      },
+      "responsive": {
+        "title": "Mobil Moslashuvchan",
+        "description": "Sizning veb-saytingiz barcha qurilmalarda mukammal ko'rinadi — avtomatik moslashuvchan texnologiya bilan!",
+        "link": "Batafsil"
+      },
+      "speed": {
+        "title": "Yuqori Tezlik",
+        "description": "Sahifalar optimallashtirilgan kod va CDN qo'llab-quvvatlash bilan 90% tezroq yuklanadi. Ajoyib foydalanuvchi tajribasi!",
+        "link": "Batafsil"
+      },
+      "support": {
+        "title": "24/7 Qo'llab-quvvatlash",
+        "description": "Bizning jamoamiz sizga doimo yordam berishga tayyor — elektron pochta, chat yoki telefon orqali!",
+        "link": "Batafsil"
+      }
+    }
+  },
+  "howItWorks": {
+    "badge": "Oddiy jarayon",
+    "title": {
+      "line1": "Qanday",
+      "line2": "ishlaydi?"
+    },
+    "description": "Faqat 3 qadamda o'z saytingizni yarating!",
+    "steps": {
+      "choose": {
+        "title": "Shablonni tanlang",
+        "description": "Bizning kolleksiyamizdan mos shablonni tanlang yoki jamoamizdan maxsus dizayn so'rang."
+      },
+      "content": {
+        "title": "Kontentingizni qo'shing",
+        "description": "Oddiy interfeys orqali matn, rasm va videolaringizni yuklang va sozlang."
+      },
+      "publish": {
+        "title": "Saytingizni nashr eting",
+        "description": "Bir marta bosish bilan veb-saytingizni internetda ishga tushiring. Domen yoki hosting haqida tashvishlanmang!"
+      }
+    }
+  },
+  "faq": {
+    "badge": "Savollar",
+    "title": {
+      "line1": "Tez-tez so'raladigan",
+      "line2": "savollar"
+    },
+    "description": "Templates.uz platformasi, drag & drop quruvchi, shablonlar va bizning dasturchi xizmatlarimiz haqida eng ko'p so'raladigan savollarga javoblar.",
+    "items": {
+      "whatIs": {
+        "question": "Templates.uz nima va qanday ishlaydi?",
+        "answer": "Templates.uz - bu oddiy va tez veb-sayt yaratish uchun qulay platforma. Siz tayyor shablonlardan foydalanishingiz yoki kod yozmasdan drag & drop quruvchi orqali kerakli veb-saytingizni yaratishingiz mumkin!"
+      },
+      "dragDrop": {
+        "question": "Drag & drop quruvchi veb-sayt yaratishda qanday yordam beradi?",
+        "answer": "Drag & drop quruvchi sahifada rasm, matn, video, tugmalar kabi elementlarni oson joylashtirish va sozlash imkonini beradi. Kod yozmasdan - veb-sayt dizaynini vizual tarzda yaratishingiz mumkin."
+      },
+      "templates": {
+        "question": "Templates.uz da qanday shablonlar mavjud?",
+        "answer": "Bizda biznes, shaxsiy portfolio, onlayn do'kon, blog va boshqa yo'nalishlar uchun professional shablonlar mavjud. Har bir shablonni o'z ehtiyojlaringizga moslashtirishingiz mumkin."
+      },
+      "services": {
+        "question": "Qanday dasturchi xizmatlarini taklif qilasiz?",
+        "answer": "Backend va frontend ishlab chiqish, API integratsiyasi, admin panel yaratish, xavfsizlik va tezlik optimizatsiyasi - barchasi bizning professional xizmatlarimizga kiritilgan!"
+      },
+      "technologies": {
+        "question": "Backend uchun qanday texnologiyalardan foydalanasiz?",
+        "answer": "Biz ishonchli va kengaytiriladigan backend tizimlarini yaratish uchun Laravel (PHP), Node.js va Python kabi zamonaviy texnologiyalar, shuningdek MySQL va MongoDB ma'lumotlar bazalaridan foydalanamiz."
+      },
+      "technical": {
+        "question": "Templates.uz dan foydalanish uchun texnik bilim kerakmi?",
+        "answer": "Texnik bilim talab qilinmaydi! Templates.uz ham yangi boshlovchilar, ham professionallar uchun qulay. Agar maxsus xususiyatlar kerak bo'lsa - bizning dasturchi jamoamiz sizga yordam beradi."
+      },
+      "time": {
+        "question": "Veb-sayt yaratish qancha vaqt oladi?",
+        "answer": "Tayyor shablonlar va drag & drop bilan oddiy veb-saytni bir necha daqiqada yaratishingiz mumkin. Maxsus ishlab chiqish loyihalari 5-10 ish kunini oladi."
+      }
+    },
+    "stillQuestions": {
+      "title": "Hali ham savollaringiz bormi?",
+      "description": "Bizning jamoamiz sizga doimo yordam berishga tayyor!",
+      "cta": "Biz bilan bog'laning"
+    }
+  },
+  "testimonials": {
+    "badge": "Mijozlar sharhlari",
+    "title": {
+      "line1": "Mijozlar",
+      "line2": "sharhlari"
+    },
+    "description": "Templates.uz platformasining mamnun foydalanuvchilarining tajribasi bilan tanishing",
+    "items": {
+      "sarah": {
+        "name": "Sara Jonson",
+        "position": "Biznes egasi",
+        "company": "Gullar dunyosi",
+        "comment": "Templates.uz bilan kichik biznesimiz uchun ajoyib veb-sayt yaratdik. Mijozlarimizga yoqdi va sotuvlarimiz 40% ga oshdi!"
+      },
+      "michael": {
+        "name": "Maykl Chen",
+        "position": "Grafik dizayner",
+        "company": "Frilanser",
+        "comment": "Men dasturchi emasman, lekin Templates.uz orqali professional portfolio veb-saytimni bir necha soatda yaratdim. Ajoyib platforma!"
+      },
+      "emily": {
+        "name": "Emili Rodriges",
+        "position": "Restoran menejeri",
+        "company": "Oziq-ovqat markazi",
+        "comment": "Restoranimiz uchun chiroyli veb-sayt yaratdik. Onlayn buyurtma tizimi vaqtni tejadi va ko'proq mijozlarni jalb qildi. Texnik yordam jamoasi ham ajoyib!"
+      }
+    },
+    "cta": {
+      "title": "Siz ham mamnun mijozlarimizga qo'shiling!",
+      "description": "Bugun veb-saytingizni yaratishni boshlang va biznesingizni rivojlantiring.",
+      "button": "Hozir boshlash"
+    }
+  },
+  "templates": {
+    "title": "Shablon galereyasi",
+    "subtitle": "Tez boshlash uchun {{count}} ta professional shablondan tanlang",
+    "searchPlaceholder": "Shablonlarni qidirish...",
+    "sortMostPopular": "Eng mashhur",
+    "sortNewest": "Eng yangi",
+    "sortHighestRated": "Eng yuqori baholangan",
+    "noTemplatesFound": "Shablonlar topilmadi",
+    "noTemplatesFoundDesc": "Qidirayotgan narsangizni topish uchun qidiruv so'zlarini yoki filtrlarni o'zgartirib ko'ring.",
+    "preview": "Ko'rib chiqish",
+    "useTemplate": "Shablondan foydalanish",
+    "category": "Kategoriya",
+    "sections": "Bo'limlar",
+    "downloads": "Yuklab olishlar",
+    "rating": "Reyting",
+    "includedSections": "Kiritilgan bo'limlar",
+    "tags": "Teglar",
+    "readyToStart": "Boshlashga tayyormisiz?",
+    "readyToStartDesc": "Ushbu shablon ajoyib veb-sayt yaratish uchun kerak bo'lgan hamma narsani o'z ichiga oladi.",
+    "useThisTemplate": "Ushbu shablondan foydalaning",
+    "categories": {
+      "all": "Barcha shablonlar",
+      "business": "Biznes",
+      "portfolio": "Portfolio",
+      "ecommerce": "Elektron tijorat",
+      "personal": "Shaxsiy",
+      "photography": "Fotografiya",
+      "music": "Musiqa",
+      "restaurant": "Restoran",
+      "education": "Ta'lim",
+      "automotive": "Avtomobil",
+      "realestate": "Ko'chmas mulk",
+      "gaming": "O'yinlar"
+    },
+    "filters": "Filtrlar",
+    "pro": "Pro"
+  },
+  "pricing": {
+    "title": {
+      "line1": "Narxlar",
+      "line2": "Rejalar"
+    },
+    "badge": "Narx rejalari",
+    "description": "Har qanday byudjet uchun moslashuvchan narxlar",
+    "plans": {
+      "free": {
+        "name": "Bepul",
+        "description": "Yangi boshlovchilar uchun mukammal",
+        "price": "$0",
+        "period": "/oy",
+        "features": [
+          "1 ta veb-sayt",
+          "5 MB saqlash",
+          "Asosiy xususiyatlar: Shablon, Slayder, Forma, Video, Rasm, Muharrir",
+          "Subdomen: site.templates.uz",
+          "Elektron tijorat ❌",
+          "Premium qo'llab-quvvatlash ❌"
+        ],
+        "button": "Boshlash"
+      },
+      "starter": {
+        "name": "Boshlang'ich",
+        "description": "Kichik loyihalar uchun ajoyib",
+        "price": "$3",
+        "period": "/oy",
+        "features": [
+          "3 ta veb-sayt",
+          "100 MB saqlash",
+          "Barcha asosiy xususiyatlar",
+          "Telegram bot orqali tahrirlash",
+          "Subdomen + Favicon",
+          "Elektron tijorat ❌"
+        ],
+        "button": "Boshlash"
+      },
+      "standard": {
+        "name": "Standart",
+        "description": "O'sib borayotgan biznes uchun",
+        "price": "$8",
+        "period": "/oy",
+        "features": [
+          "5 ta veb-sayt",
+          "500 MB saqlash",
+          "Maxsus domen (mysite.uz)",
+          "Oddiy admin panel",
+          "Barcha asosiy xususiyatlar",
+          "Kengaytirilgan analitika ❌"
+        ],
+        "button": "Rejani tanlash",
+        "popular": "Eng mashhur"
+      },
+      "pro": {
+        "name": "Professional",
+        "description": "Professional foydalanuvchilar uchun",
+        "price": "$15",
+        "period": "/oy",
+        "features": [
+          "10 ta veb-sayt",
+          "1 GB saqlash",
+          "To'liq admin panel",
+          "SEO va analitika",
+          "Foydalanuvchi ro'yxatdan o'tishi",
+          "Barcha asosiy xususiyatlar"
+        ],
+        "button": "Rejani tanlash"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Katta loyihalar uchun mukammal reja",
+        "price": "$29",
+        "period": "/oy",
+        "features": [
+          "Cheksiz veb-saytlar",
+          "3 GB saqlash",
+          "Ustuvor texnik yordam",
+          "Ko'p tilli veb-saytlar",
+          "Valyuta konvertatsiyasi",
+          "Maxsus integratsiyalar",
+          "Eksklyuziv shablonlar"
+        ],
+        "button": "Rejani tanlash"
+      }
+    },
+    "note": "Yillik to'lov bilan 2 oy bepul!",
+    "learnMore": "Batafsil"
+  },
+  "services": {
+    "badge": "Professional xizmatlar",
+    "title": {
+      "line1": "Bizning ishlab chiqish",
+      "line2": "xizmatlarimiz"
+    },
+    "description": "Orzuingizdagi veb-saytni ishga tushiring - domenlardan to'liq biznes veb-saytlarigacha! Bizning professional jamoamiz barcha talablaringizni qondiradi.",
+    "items": {
+      "domain": {
+        "title": "Domen ro'yxatdan o'tkazish",
+        "price": "$10",
+        "period": "/yil",
+        "description": "Professional domen xizmati bilan brendingizni mustahkamlang",
+        "features": [
+          "Shaxsiy domen (masalan: yoursite.com)",
+          "Domen boshqaruvi va sozlamalar",
+          "Maxfiylik himoyasi (WHOIS)",
+          "24/7 texnik yordam va ko'mak"
+        ]
+      },
+      "website": {
+        "title": "Veb-sayt yaratish",
+        "price": "$99",
+        "period": "/bir martalik",
+        "description": "Zamonaviy va moslashuvchan dizayn bilan professional veb-sayt",
+        "features": [
+          "Maxsus dizayn (5 sahifagacha)",
+          "Mobil moslashuvchan dizayn",
+          "Asosiy SEO optimizatsiya",
+          "1 oy bepul qo'llab-quvvatlash"
+        ]
+      },
+      "personal": {
+        "title": "Shaxsiy veb-sayt yaratish",
+        "price": "$150",
+        "period": "/bir martalik",
+        "description": "Portfolio va shaxsiy brending uchun noyob dizayn",
+        "features": [
+          "Noyob dizayn (3 sahifagacha)",
+          "Aloqa formasi integratsiyasi",
+          "Ijtimoiy tarmoqlar integratsiyasi",
+          "1 oy bepul qo'llab-quvvatlash"
+        ]
+      },
+      "maintenance": {
+        "title": "Veb-sayt xizmat ko'rsatish",
+        "price": "$50",
+        "period": "/oy",
+        "description": "Veb-saytingizni doimo yangi va xavfsiz saqlang",
+        "features": [
+          "Kontent o'zgarishlari (10 tagacha)",
+          "Xavfsizlik yaxshilanishi",
+          "Tezlik optimizatsiyasi",
+          "Oylik zaxira nusxalar"
+        ]
+      },
+      "launch": {
+        "title": "Veb-sayt ishga tushirish",
+        "price": "$75",
+        "period": "/bir martalik",
+        "description": "Veb-saytingizni internetda jonli qilish uchun to'liq xizmat",
+        "features": [
+          "Hosting sozlash va konfiguratsiya",
+          "SSL sertifikat o'rnatish",
+          "DNS sozlamalari va domen ulanishi",
+          "Ishga tushirish testi va tekshirish"
+        ]
+      },
+      "backend": {
+        "title": "Backend ishlab chiqish",
+        "price": "$200+",
+        "period": "/bir martalik",
+        "description": "Kuchli va ishonchli backend tizimlarini yaratish",
+        "features": [
+          "Laravel/PHP bilan backend ishlab chiqish",
+          "Ma'lumotlar bazasi integratsiyasi (MySQL, PostgreSQL)",
+          "API integratsiyalar va xizmatlar",
+          "Admin panel sozlash va boshqarish"
+        ]
+      },
+      "business": {
+        "title": "To'liq biznes veb-sayt",
+        "price": "$499+",
+        "period": "/bir martalik",
+        "description": "Katta biznes uchun professional va to'liq yechim",
+        "features": [
+          "Premium dizayn (10+ sahifa)",
+          "Ilg'or SEO va optimizatsiya",
+          "Elektron tijorat yoki bron qilish tizimi",
+          "To'liq admin panel va boshqarish",
+          "Ijtimoiy tarmoqlar integratsiyasi",
+          "3 oy bepul qo'llab-quvvatlash",
+          "Maxsus hosting va xavfsizlik"
+        ],
+        "popular": "Eng mashhur"
+      }
+    },
+    "buttons": {
+      "getStarted": "Boshlash",
+      "contactNow": "Hozir bog'laning"
+    },
+    "customProject": {
+      "title": "Maxsus loyiha rejalashtiryapsizmi?",
+      "description": "Bizning professional jamoamiz sizning noyob talablaringizga moslashtirilgan yechimlar yaratadi. Keling, birgalikda ajoyib narsalar yarataylik!",
+      "buttons": {
+        "contact": "Darhol bog'laning",
+        "telegram": "Telegram orqali"
+      }
+    }
+  },
+  "contact": {
+    "badge": "Biz bilan bog'laning",
+    "title": {
+      "line1": "Keling, veb-saytingizni",
+      "line2": "birgalikda yarataylik"
+    },
+    "description": "Bizning ishlab chiqish xizmatlarimiz haqida savollaringiz bormi yoki loyihani boshlashga tayyormisiz? Bugun biz bilan bog'laning va professional jamoamiz bilan ishlashni boshlang!",
+    "methods": {
+      "title": "Aloqa usullari",
+      "email": {
+        "title": "Elektron pochta",
+        "content": "support@templates.uz",
+        "description": "Bizga xat yuboring"
+      },
+      "phone": {
+        "title": "Telefon",
+        "content": "+998 33 123 77 90",
+        "description": "Bizga qo'ng'iroq qiling"
+      },
+      "telegram": {
+        "title": "Telegram",
+        "content": "@iqbolshoh_777",
+        "description": "Tez javob uchun"
+      },
+      "address": {
+        "title": "Manzil",
+        "content": "Firdavsiy ko'chasi 51, Samarqand",
+        "description": "Bizning ofisimiz"
+      }
+    },
+    "workingHours": {
+      "title": "Ish vaqti",
+      "monday": "Dushanba - Juma",
+      "mondayTime": "9:00 - 18:00",
+      "saturday": "Shanba",
+      "saturdayTime": "10:00 - 16:00",
+      "sunday": "Yakshanba",
+      "sundayTime": "Yopiq",
+      "status": "Hozir onlayn"
+    },
+    "form": {
+      "title": "Xabar yuborish",
+      "fields": {
+        "name": {
+          "label": "To'liq ism *",
+          "placeholder": "Ismingizni kiriting"
+        },
+        "email": {
+          "label": "Elektron pochta manzili *",
+          "placeholder": "your.email@example.com"
+        },
+        "service": {
+          "label": "Qaysi xizmat kerak? *",
+          "placeholder": "Xizmatni tanlang",
+          "options": {
+            "domain": "Domen ro'yxatdan o'tkazish ($10/yil)",
+            "website": "Veb-sayt yaratish ($99/bir martalik)",
+            "updates": "Veb-sayt yangilanishlari ($50/oy)",
+            "launch": "Veb-sayt ishga tushirish ($75/bir martalik)",
+            "backend": "Backend ishlab chiqish ($200/bir martalik)",
+            "personal": "Shaxsiy veb-sayt ($150/bir martalik)",
+            "business": "Biznes veb-sayt ($499/bir martalik)"
+          }
+        },
+        "subject": {
+          "label": "Mavzu",
+          "placeholder": "Yordam kerakmi?"
+        },
+        "message": {
+          "label": "Sizning xabaringiz *",
+          "placeholder": "Loyihangiz haqida yozing yoki savol bering..."
+        }
+      },
+      "button": {
+        "send": "Xabar yuborish",
+        "sending": "Yuborilmoqda..."
+      },
+      "success": "Sizning xabaringiz muvaffaqiyatli yuborildi!",
+      "error": "Xatolik yuz berdi. Iltimos, keyinroq urinib ko'ring."
+    },
+    "cta": {
+      "title": "Orzuingizdagi veb-saytni ishga tushiring!",
+      "description": "Bizning professional jamoamiz barcha talablaringizni qondiradi. Bugun biz bilan bog'laning va ajoyib veb-sayt yaratishni boshlang!",
+      "buttons": {
+        "telegram": "Telegram orqali bog'laning",
+        "call": "Bizga qo'ng'iroq qiling"
+      }
+    }
+  },
+  "footer": {
+    "description": "Bizning platformamiz bilan o'zingiz uchun professional veb-sayt yarating. Tez, oson va ishonchli!",
+    "links": {
+      "title": "Havolalar"
+    },
+    "useful": {
+      "title": "Foydali",
+      "items": {
+        "helpCenter": "Yordam markazi",
+        "terms": "Foydalanish shartlari",
+        "privacy": "Maxfiylik siyosati",
+        "developerServices": "Dasturchi xizmatlari"
+      }
+    },
+    "contactUs": {
+      "title": "Biz bilan bog'laning",
+      "description": "Dasturchi kerakmi? Veb-sayt yaratish, yangilash yoki shaxsiy va biznes veb-saytlari uchun hozir biz bilan bog'laning!"
+    },
+    "newsletter": {
+      "title": "Yangiliklar",
+      "description": "Eng so'nggi yangiliklar va takliflardan xabardor bo'ling",
+      "placeholder": "Sizning elektron pochta manzilingiz",
+      "button": "Obuna bo'lish"
+    },
+    "bottom": {
+      "copyright": "© {{year}} Templates.uz. Barcha huquqlar himoyalangan.",
+      "privacy": "Maxfiylik siyosati",
+      "terms": "Foydalanish shartlari",
+      "online": "Onlayn"
+    }
+  },
+  "common": {
+    "all": "Barchasi",
+    "sort": "Saralash",
+    "more": "Ko'proq",
+    "less": "Kamroq",
+    "cancel": "Bekor qilish",
+    "save": "Saqlash",
+    "edit": "Tahrirlash",
+    "delete": "O'chirish",
+    "preview": "Ko'rib chiqish",
+    "loading": "Yuklanmoqda...",
+    "search": "Qidirish",
+    "filter": "Filtr",
+    "close": "Yopish",
+    "back": "Orqaga",
+    "next": "Keyingi",
+    "previous": "Oldingi",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "ok": "OK",
+    "confirm": "Tasdiqlash",
+    "submit": "Yuborish",
+    "create": "Yaratish",
+    "update": "Yangilash",
+    "remove": "Olib tashlash",
+    "add": "Qo'shish",
+    "view": "Ko'rish",
+    "download": "Yuklab olish",
+    "upload": "Yuklash",
+    "export": "Eksport",
+    "import": "Import",
+    "copy": "Nusxalash",
+    "duplicate": "Dublikat",
+    "share": "Ulashish",
+    "publish": "Nashr qilish",
+    "unpublish": "Nashrdan olib tashlash",
+    "enable": "Yoqish",
+    "disable": "O'chirish",
+    "active": "Faol",
+    "inactive": "Nofaol",
+    "pending": "Kutilmoqda",
+    "completed": "Tugallangan",
+    "failed": "Muvaffaqiyatsiz",
+    "success": "Muvaffaqiyat",
+    "error": "Xato",
+    "warning": "Ogohlantirish",
+    "info": "Ma'lumot"
+  },
+  "billing": {
+    "title": "To'lovlar va obuna",
+    "subtitle": "Rejangiz va to'lovlaringizni boshqaring",
+    "overview": {
+      "projectsUsed": "Ishlatilgan loyihalar",
+      "totalSections": "Jami bo'limlar",
+      "upgradeToPro": "Pro ga yangilash",
+      "upgradeToEnterprise": "Enterprise ga yangilash",
+      "buyMoreCoins": "Ko'proq tanga sotib olish",
+      "nextBilling": "Keyingi to'lov",
+      "nextBillingDate": "2024 yil 15 fevral"
+    },
+    "plans": {
+      "currentPlan": "Joriy reja",
+      "upgradeTo": "{{plan}} ga yangilash",
+      "free": "Bepul",
+      "pro": "Pro",
+      "enterprise": "Korporativ",
+      "forever": "abadiy",
+      "month": "oy",
+      "popular": "Eng mashhur",
+      "features": "Imkoniyatlar",
+      "limitations": "Cheklovlar",
+      "projects": "Loyihalar",
+      "sections": "Loyiha uchun bo'limlar",
+      "templates": "Shablonlar",
+      "export": "HTML eksport",
+      "support": "Yordam",
+      "analytics": "Analitika",
+      "storage": "Saqlash",
+      "domain": "Maxsus domen",
+      "branding": "Brendingni olib tashlash",
+      "collaboration": "Jamoaviy ish",
+      "whiteLabel": "White-label yechim",
+      "api": "API kirish",
+      "integrations": "Maxsus integratsiyalar",
+      "sla": "SLA kafolati"
+    },
+    "history": {
+      "title": "To'lovlar tarixi",
+      "export": "Eksport",
+      "date": "Sana",
+      "description": "Tavsif",
+      "amount": "Miqdor",
+      "status": "Holat",
+      "invoice": "Hisob-faktura",
+      "noHistory": "To'lovlar tarixi yo'q",
+      "noHistoryDesc": "Birinchi xaridingizdan keyin to'lovlar tarixi bu yerda paydo bo'ladi."
+    },
+    "coins": {
+      "balance": "Tanga balansi",
+      "description": "AI funksiyalar uchun mavjud tangalar",
+      "buyMore": "Ko'proq tanga sotib olish",
+      "packages": "Tanga paketlari",
+      "bonus": "bonus",
+      "perCoin": "tanga uchun",
+      "transactionHistory": "Tanga operatsiyalari tarixi",
+      "coins": "tangalar",
+      "noTransactions": "Tanga operatsiyalari yo'q",
+      "noTransactionsDesc": "Tanga operatsiyalari tarixi bu yerda paydo bo'ladi.",
+      "purchase": "Sotib olish",
+      "usage": "Foydalanish",
+      "bestValue": "Eng yaxshi taklif"
+    },
+    "modals": {
+      "upgradePlan": "Rejani yangilash",
+      "upgradeDescription": "{{plan}} rejasiga yangilang va premium funksiyalarni oching.",
+      "upgradeNow": "Hozir yangilash",
+      "purchaseCoins": "Tanga sotib olish",
+      "purchaseCoinsDesc": "AI funksiyalar va premium shablonlar uchun tanga sotib oling.",
+      "purchase": "Sotib olish"
+    }
+  },
+  "dashboard": {
+    "title": "Boshqaruv paneli",
+    "subtitle": "Veb-saytlaringizni yarating va boshqaring",
+    "stats": {
+      "totalSites": "Jami saytlar",
+      "published": "Nashr qilingan",
+      "sections": "Bo'limlar",
+      "storage": "Saqlash"
+    },
+    "projects": {
+      "title": "Sizning veb-saytlaringiz",
+      "subtitle": "Mobil veb-saytlarni yarating va boshqaring",
+      "sortLastUpdated": "Oxirgi yangilanish",
+      "sortDateCreated": "Yaratilgan sana",
+      "sortName": "Nomi",
+      "noWebsitesFound": "Veb-saytlar topilmadi",
+      "createFirst": "Birinchi mobil veb-saytingizni yarating",
+      "noMatch": "\"{{searchTerm}}\" ga mos veb-saytlar yo'q. Boshqa qidiruv so'zini sinab ko'ring.",
+      "createFirstDesc": "Birinchi professional veb-saytingizni yaratish uchun quyidagi tugmani bosing. Bu oson va boshlash uchun atigi bir necha daqiqa vaqt ketadi.",
+      "createFirstButton": "Birinchi saytni yaratish",
+      "sectionsCount": "{{count}} bo'lim",
+      "live": "Jonli",
+      "draft": "Qoralama",
+      "preview": "Ko'rib chiqish",
+      "duplicate": "Dublikat",
+      "delete": "O'chirish",
+      "edit": "Tahrirlash",
+      "searchProjects": "Loyihalarni qidirish...",
+      "newWebsite": "Yangi veb-sayt"
+    },
+    "createModal": {
+      "title": "Yangi veb-sayt yaratish",
+      "subtitle": "Professional veb-saytingizni yarating",
+      "websiteName": "Veb-sayt nomi",
+      "websiteNamePlaceholder": "Mening ajoyib veb-saytim",
+      "websiteUrl": "Veb-sayt URL",
+      "websiteUrlPlaceholder": "mening-saytim",
+      "urlAvailable": "URL mavjud",
+      "urlRules": "Faqat harflar, raqamlar, defis va pastki chiziqlar ruxsat etilgan",
+      "websiteCategory": "Veb-sayt kategoriyasi",
+      "seoKeywords": "SEO kalit so'zlar (ixtiyoriy)",
+      "seoKeywordsPlaceholder": "biznes, veb-sayt, professional, xizmatlar",
+      "seoKeywordsDesc": "Kalit so'zlarni vergul bilan ajrating",
+      "logoUpload": "Logo yuklash (ixtiyoriy)",
+      "chooseLogoFile": "Logo faylini tanlang",
+      "logoUploadDesc": "Tavsiya etiladi: PNG yoki SVG format, maksimal 5MB. Avtomatik ravishda sarlavha, pastki qism va tegishli bo'limlarga qo'shiladi.",
+      "faviconUpload": "Favicon yuklash (ixtiyoriy)",
+      "chooseFaviconFile": "Favicon faylini tanlang",
+      "faviconUploadDesc": "Tavsiya etiladi: ICO, PNG format, 16x16 yoki 32x32 piksel, maksimal 1MB. Brauzer varaqlarida ko'rsatiladi.",
+      "creating": "Yaratilmoqda...",
+      "createWebsite": "Veb-sayt yaratish"
+    }
+  },
+  "editor": {
+    "sectionsCount": "Bo‘limlar soni",
+    "lastSaved": "Oxirgi saqlangan vaqt",
+    "readyToBuild": "Saytingizni yaratishga tayyormiz!",
+    "startDescription": "Bo‘limlar qo‘shing va ularni sozlab, o‘zingizga xos go‘zal sayt yarating.",
+    "addFirstSection": "Birinchi bo‘limingizni qo‘shing",
+    "addSection": "Bo'lim qo'shish",
+    "theme": "Mavzu",
+    "preview": "Ko'rib chiqish",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda...",
+    "done": "Tayyor",
+    "doneEditing": "Tahrirlashni tugatish",
+    "customize": "Sozlash",
+    "export": "Eksport",
+    "exportHtml": "HTML eksport",
+    "emptyState": {
+      "title": "Ajoyib narsa yaratishga tayyormisiz?",
+      "description": "Birinchi bo'limni qo'shishdan boshlang. Mukammal veb-saytingizni yaratish uchun sarlavhalar, qahramonlar, kontent bloklari va boshqalardan tanlang.",
+      "addFirstSection": "Birinchi bo'limni qo'shish"
+    }
+  },
+  "preview": {
+    "livePreviewMode": "Jonli ko'rib chiqish rejimi",
+    "edit": "Tahrirlash",
+    "share": "Ulashish",
+    "publish": "Nashr qilish",
+    "emptyState": {
+      "title": "Sizning veb-saytingiz bo'sh",
+      "description": "Veb-saytingiz jonlanishini ko'rish uchun ba'zi bo'limlar qo'shing",
+      "startBuilding": "Qurishni boshlash"
+    },
+    "previewModeActive": "Ko'rib chiqish rejimi faol"
+  },
+  "profile": {
+    "title": "Profil sozlamalari",
+    "subtitle": "Hisobingiz va afzalliklaringizni boshqaring",
+    "personalInfo": {
+      "title": "Shaxsiy ma'lumotlar",
+      "saving": "Saqlanmoqda...",
+      "save": "Saqlash",
+      "edit": "Tahrirlash",
+      "fullName": "To'liq ism",
+      "email": "Elektron pochta",
+      "company": "Kompaniya",
+      "companyPlaceholder": "Kompaniyangiz nomi",
+      "website": "Veb-sayt",
+      "websitePlaceholder": "https://sizningsaytingiz.com",
+      "bio": "Biografiya",
+      "bioPlaceholder": "O'zingiz haqingizda gapirib bering..."
+    },
+    "preferences": {
+      "title": "Afzalliklar",
+      "theme": "Mavzu",
+      "light": "Yorug'",
+      "dark": "Qorong'u",
+      "auto": "Avto",
+      "language": "Til",
+      "english": "Inglizcha",
+      "spanish": "Ispancha",
+      "french": "Fransuzcha",
+      "german": "Nemischa",
+      "uzbek": "O'zbekcha",
+      "notifications": "Bildirishnomalar",
+      "emailNotifications": "Email bildirishnomalar",
+      "emailNotificationsDesc": "Elektron pochta orqali yangilanishlarni olish",
+      "pushNotifications": "Push bildirishnomalar",
+      "pushNotificationsDesc": "Brauzer bildirishnomalari",
+      "marketingEmails": "Marketing xatlari",
+      "marketingEmailsDesc": "Mahsulot yangilanishlari va maslahatlar"
+    },
+    "security": {
+      "title": "Xavfsizlik",
+      "changePassword": "Parolni o'zgartirish",
+      "changePasswordDesc": "Hisob parolingizni yangilash",
+      "deleteAccount": "Hisobni o'chirish",
+      "deleteAccountDesc": "Hisobingiz va ma'lumotlaringizni butunlay o'chirish",
+      "currentPassword": "Joriy parol",
+      "newPassword": "Yangi parol",
+      "confirmNewPassword": "Yangi parolni tasdiqlash",
+      "updatePassword": "Parolni yangilash",
+      "deleteAccountWarning": "Bu amalni bekor qilib bo'lmaydi. Barcha loyihalaringiz va ma'lumotlaringiz butunlay o'chiriladi."
+    }
+  },
+  "settings": {
+    "title": "Sozlamalar",
+    "subtitle": "Tajribangizni sozlang",
+    "saved": "Saqlandi!",
+    "saving": "Saqlanmoqda...",
+    "saveChanges": "O'zgarishlarni saqlash",
+    "tabs": {
+      "general": "Umumiy",
+      "notifications": "Bildirishnomalar",
+      "privacy": "Maxfiylik",
+      "advanced": "Kengaytirilgan"
+    },
+    "general": {
+      "title": "Umumiy sozlamalar",
+      "language": "Til",
+      "timezone": "Vaqt mintaqasi",
+      "theme": "Mavzu",
+      "light": "Yorug'",
+      "dark": "Qorong'u",
+      "auto": "Avto",
+      "dateFormat": "Sana formati",
+      "timeFormat": "Vaqt formati",
+      "12hour": "12 soat",
+      "24hour": "24 soat"
+    },
+    "notifications": {
+      "title": "Bildirishnoma sozlamalari",
+      "emailNotifications": "Email bildirishnomalar",
+      "emailNotificationsDesc": "Muhim yangilanishlarni elektron pochta orqali olish",
+      "pushNotifications": "Push bildirishnomalar",
+      "pushNotificationsDesc": "Real vaqt yangilanishlari uchun brauzer bildirishnomalari",
+      "marketingEmails": "Marketing xatlari",
+      "marketingEmailsDesc": "Mahsulot yangilanishlari, maslahatlar va reklama kontenti",
+      "projectUpdates": "Loyiha yangilanishlari",
+      "projectUpdatesDesc": "Loyihalar o'zgartirilganda bildirishnomalar",
+      "teamInvites": "Jamoa takliflari",
+      "teamInvitesDesc": "Jamoaviy hamkorlik so'rovlari uchun bildirishnomalar",
+      "systemAlerts": "Tizim ogohlantirishlari",
+      "systemAlertsDesc": "Muhim tizim xizmati va xavfsizlik yangilanishlari",
+      "weeklyDigest": "Haftalik xulosa",
+      "weeklyDigestDesc": "Faoliyatingiz va yutuqlaringiz xulosasi"
+    },
+    "privacy": {
+      "title": "Maxfiylik va xavfsizlik",
+      "profileVisibility": "Profil ko'rinishi",
+      "public": "Ommaviy",
+      "publicDesc": "Hammaga ko'rinadi",
+      "private": "Shaxsiy",
+      "privateDesc": "Faqat sizga ko'rinadi",
+      "teamOnly": "Faqat jamoa",
+      "teamOnlyDesc": "Jamoa a'zolariga ko'rinadi",
+      "showEmail": "Email manzilini ko'rsatish",
+      "showEmailDesc": "Ommaviy profilingizda emailingizni ko'rsatish",
+      "allowIndexing": "Qidiruv tizimlari indeksatsiyasiga ruxsat berish",
+      "allowIndexingDesc": "Qidiruv tizimlariga ommaviy loyihalaringizni indekslashga ruxsat berish",
+      "dataCollection": "Analitika ma'lumotlarini yig'ish",
+      "dataCollectionDesc": "Anonim foydalanish ma'lumotlari bilan xizmatimizni yaxshilashga yordam bering"
+    },
+    "advanced": {
+      "editorSettings": "Muharrir sozlamalari",
+      "autoSave": "Avtomatik saqlash",
+      "autoSaveDesc": "Tahrirlash paytida o'zgarishlarni avtomatik saqlash",
+      "autoSaveInterval": "Avtomatik saqlash oralig'i (soniya)",
+      "showGrid": "Setka ko'rsatish",
+      "showGridDesc": "Muharrirda tekislash setkasini ko'rsatish",
+      "snapToGrid": "Setkaga yopishish",
+      "snapToGridDesc": "Elementlarni setkaga avtomatik tekislash",
+      "keyboardShortcuts": "Klaviatura yorliqlari",
+      "keyboardShortcutsDesc": "Tezkor tahrirlash uchun klaviatura yorliqlarini yoqish",
+      "dataManagement": "Ma'lumotlarni boshqarish",
+      "exportSettings": "Sozlamalarni eksport qilish",
+      "exportSettingsDesc": "Sozlamalaringizni zaxira fayl sifatida yuklab olish",
+      "importSettings": "Sozlamalarni import qilish",
+      "importSettingsDesc": "Zaxira fayldan sozlamalarni tiklash",
+      "resetToDefaults": "Standartga qaytarish",
+      "resetToDefaultsDesc": "Barcha sozlamalarni standart qiymatlarga qaytarish",
+      "resetConfirm": "Barcha sozlamalarni standartga qaytarishni xohlaysizmi? Bu amalni bekor qilib bo'lmaydi.",
+      "developerOptions": "Dasturchi opsiyalari",
+      "debugMode": "Debug rejimi",
+      "debugModeDesc": "Qo'shimcha debug ma'lumotlarini ko'rsatish"
+    }
+  },
+  "support": {
+    "title": "Yordam markazi",
+    "subtitle": "Yordam va qo'llab-quvvatlash oling",
+    "helpQuestion": "Sizga qanday yordam berishimiz mumkin?",
+    "searchPlaceholder": "Yordam maqolalari, qo'llanmalar yoki FAQ qidirish...",
+    "tabs": {
+      "faq": "FAQ",
+      "tickets": "Qo'llab-quvvatlash tiketlari",
+      "tutorials": "Video darslar",
+      "contact": "Biz bilan bog'laning"
+    },
+    "faq": {
+      "browseByCategory": "Kategoriya bo'yicha ko'rish",
+      "noResults": "Natijalar topilmadi",
+      "noResultsDesc": "Qidiruv so'zlaringizni o'zgartirishga harakat qiling yoki boshqa kategoriyalarni ko'ring.",
+      "wasHelpful": "Bu foydali bo'ldimi?",
+      "yes": "Ha",
+      "no": "Yo'q",
+      "views": "ko'rishlar",
+      "helpful": "foydali"
+    },
+    "tickets": {
+      "yourTickets": "Sizning qo'llab-quvvatlash tiketlaringiz",
+      "newTicket": "Yangi tiket",
+      "category": "Kategoriya",
+      "priority": "Ustuvorlik",
+      "created": "Yaratilgan",
+      "noTickets": "Qo'llab-quvvatlash tiketlari yo'q",
+      "noTicketsDesc": "Siz hali hech qanday qo'llab-quvvatlash tiketi yubormadingiz.",
+      "submitFirst": "Birinchi tiketni yuborish"
+    },
+    "tutorials": {
+      "views": "ko'rishlar"
+    },
+    "contact": {
+      "emailSupport": "Email qo'llab-quvvatlash",
+      "emailSupportDesc": "Email orqali yordam olish",
+      "emailSupportText": "Bizga email yuboring va biz ish kunlarida 24 soat ichida javob beramiz.",
+      "telegramBot": "Telegram bot",
+      "telegramBotDesc": "Tezkor chat qo'llab-quvvatlash",
+      "telegramBotText": "Tez javoblar va yordam uchun Telegram'da qo'llab-quvvatlash botimiz bilan suhbatlashing.",
+      "openTelegramBot": "Telegram botni ochish",
+      "responseTimes": "Javob vaqtlari",
+      "responseTimesDesc": "Sizga bo'lgan majburiyatimiz",
+      "24hours": "24 soat",
+      "instant": "Tezkor",
+      "criticalIssues": "Muhim muammolar",
+      "4hours": "4 soat",
+      "documentation": "Hujjatlar",
+      "documentationDesc": "To'liq qo'llanmalar",
+      "documentationText": "Bosqichma-bosqich qo'llanmalar va darslar uchun batafsil hujjatlarimizni ko'ring.",
+      "viewDocumentation": "Hujjatlarni ko'rish"
+    },
+    "ticketForm": {
+      "title": "Qo'llab-quvvatlash tiketi yuborish",
+      "subject": "Mavzu",
+      "subjectPlaceholder": "Muammoingizning qisqacha tavsifi",
+      "category": "Kategoriya",
+      "generalQuestion": "Umumiy savol",
+      "bugReport": "Xato haqida hisobot",
+      "featureRequest": "Funksiya so'rovi",
+      "billingIssue": "To'lov muammosi",
+      "priority": "Ustuvorlik",
+      "low": "Past",
+      "medium": "O'rta",
+      "high": "Yuqori",
+      "urgent": "Shoshilinch",
+      "email": "Email",
+      "emailPlaceholder": "sizning@email.com",
+      "description": "Tavsif",
+      "descriptionPlaceholder": "Iltimos, muammoingiz haqida batafsil ma'lumot bering...",
+      "submitTicket": "Tiket yuborish"
+    }
+  },
+  "team": {
+    "title": "Jamoaviy hamkorlik",
+    "subtitle": "{{count}} jamoa a'zosi • Pro funksiya",
+    "upgradeTitle": "Jamoaviy hamkorlik",
+    "upgradeDescription": "Jamoangiz bilan real vaqtda hamkorlik qiling. A'zolarni taklif qiling, rollar belgilang va ajoyib veb-saytlarni birgalikda yarating.",
+    "upgrade": {
+      "features": {
+        "inviteMembers": "Jamoa a'zolarini taklif qilish",
+        "inviteMembersDesc": "Loyihalaringizga dizaynerlar, muharrirlar va kuzatuvchilarni qo'shing",
+        "roleBasedAccess": "Rolga asoslangan kirish",
+        "roleBasedAccessDesc": "Har bir jamoa a'zosi nimani ko'rishi va tahrirlashi mumkinligini nazorat qiling",
+        "realTimeCollab": "Real vaqt hamkorligi",
+        "realTimeCollabDesc": "Bir loyiha ustida bir vaqtning o'zida birgalikda ishlang"
+      },
+      "upgradeToPro": "Pro ga yangilash",
+      "backToDashboard": "Boshqaruv paneliga qaytish"
+    },
+    "inviteMember": "A'zo taklif qilish",
+    "tabs": {
+      "members": "Jamoa a'zolari",
+      "invites": "Kutilayotgan takliflar",
+      "settings": "Jamoa sozlamalari"
+    },
+    "searchMembers": "Jamoa a'zolarini qidirish...",
+    "allRoles": "Barcha rollar",
+    "joined": "Qo'shilgan",
+    "lastActive": "Oxirgi faollik",
+    "projects": "loyihalar",
+    "viewDetails": "Tafsilotlarni ko'rish",
+    "remove": "Olib tashlash",
+    "invites": {
+      "invitedAs": "Sifatida taklif qilingan",
+      "by": "tomonidan",
+      "expires": "Muddati tugaydi"
+    },
+    "inviteModal": {
+      "title": "Jamoa a'zosini taklif qilish",
+      "emailAddress": "Email manzili",
+      "emailPlaceholder": "hamkasb@kompaniya.com",
+      "role": "Rol",
+      "personalMessage": "Shaxsiy xabar (ixtiyoriy)",
+      "messagePlaceholder": "Jamoamizga xush kelibsiz! Siz bilan hamkorlik qilishni intiqor bilan kutaman.",
+      "sendInvite": "Taklif yuborish"
+    }
+  },
+  "sectionSelector": {
+    "title": "Bo'limni tanlang",
+    "description": "Saytingizga qo'shmoqchi bo'lgan bo'limni tanlang",
+    "searchPlaceholder": "Bo'limlar bo'yicha qidiring...",
+    "tryAdjusting": "Filtrlarni yoki kalit so'zlarni o'zgartirib ko'ring",
+    "noSectionsFound": "Hech qanday bo'lim topilmadi",
+    "addToWebsite": "Saytga qo‘shish",
+    "sectionsAvailable": "Mavjud bo‘limlar",
+    "cancel": "Bekor qilish"
+  },
+  "sectionControls": {
+    "addAbove": "Yuqoriga qo‘shish",
+    "addBelow": "Pastga qo‘shish"
+  },
+  "themeCustomizer": {
+    "title": "Mavzuni sozlash",
+    "description": "Saytingiz ranglari, shriftlari va uslublarini sozlang.",
+    "colors": "Ranglar",
+    "fonts": "Shriftlar",
+    "fontCollections": "Shrift to‘plamlari",
+    "googleFonts": "Google shriftlar",
+    "colorThemes": "Rang mavzulari",
+    "previewChanges": "O‘zgarishlarni ko‘rish",
+    "currentTheme": "Joriy mavzu",
+    "done": "Tayyor"
+  },
+  "auth": {
+    "login": {
+      "title": "Xush kelibsiz",
+      "subtitle": "Davom etish uchun hisobingizga kiring",
+      "email": "Elektron pochta manzili",
+      "password": "Parol",
+      "rememberMe": "Meni eslab qol",
+      "forgotPassword": "Parolni unutdingizmi?",
+      "signIn": "Kirish",
+      "noAccount": "Hisobingiz yo'qmi?",
+      "signUpHere": "Bu yerda ro'yxatdan o'ting",
+      "orContinueWith": "Yoki davom eting",
+      "google": "Google",
+      "facebook": "Facebook",
+      "backToHome": "Bosh sahifaga qaytish"
+    },
+    "register": {
+      "title": "Hisob yaratish",
+      "subtitle": "Bizga qo'shiling va ajoyib veb-saytlar yaratishni boshlang",
+      "fullName": "To'liq ism",
+      "email": "Elektron pochta manzili",
+      "password": "Parol",
+      "confirmPassword": "Parolni tasdiqlang",
+      "createAccount": "Hisob yaratish",
+      "alreadyHaveAccount": "Allaqachon hisobingiz bormi?",
+      "signInHere": "Bu yerda kiring",
+      "acceptTerms": "Men quyidagilar bilan roziman",
+      "termsOfService": "Xizmat shartlari",
+      "and": "va",
+      "privacyPolicy": "Maxfiylik siyosati",
+      "passwordRequirements": {
+        "atLeast8": "Kamida 8 ta belgi",
+        "oneUppercase": "Bitta katta harf",
+        "oneLowercase": "Bitta kichik harf",
+        "oneNumber": "Bitta raqam"
+      },
+      "passwordsDoNotMatch": "Parollar mos kelmaydi",
+      "orContinueWith": "Yoki davom eting",
+      "google": "Google",
+      "facebook": "Facebook",
+      "backToHome": "Bosh sahifaga qaytish"
+    },
+    "forgotPassword": {
+      "title": "Parolni unutdingizmi?",
+      "subtitle": "Xavotir olmang! Elektron pochta manzilingizni kiriting va biz sizga parolni tiklash uchun havola yuboramiz.",
+      "email": "Elektron pochta manzili",
+      "sendResetLink": "Tiklash havolasini yuborish",
+      "sending": "Yuborilmoqda...",
+      "checkEmail": "Elektron pochtangizni tekshiring",
+      "emailSent": "Biz parolni tiklash havolasini yubordik",
+      "checkInbox": "Iltimos, pochta qutingizni tekshiring va parolni tiklash uchun ko'rsatmalarga amal qiling.",
+      "didntReceive": "Elektron pochta olmadingizmi?",
+      "checkSpam": "Spam papkangizni tekshiring yoki bir necha daqiqadan so'ng qayta urinib ko'ring.",
+      "sendAnother": "Boshqa elektron pochta yuborish",
+      "backToLogin": "Kirishga qaytish",
+      "securityNotice": "Xavfsizlik haqida xabar",
+      "linkExpires": "Xavfsizligingiz uchun tiklash havolasi 1 soatdan keyin muddati tugaydi. Agar bir necha daqiqa ichida elektron pochta olmagan bo'lsangiz, spam papkangizni tekshiring.",
+      "rememberPassword": "Parolni eslaysizmi?"
+    }
+  }
+}

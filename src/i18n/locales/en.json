@@ -1,0 +1,1104 @@
+{
+  "site": {
+    "title": "Templates.uz — Create your website fast and easy!",
+    "description": "Create amazing and customized websites in no time with Templates.uz! Drag & drop builder, ready-made templates and professional developer services."
+  },
+  "header": {
+    "logo": "Templates.uz",
+    "nav": {
+      "home": "Home",
+      "templates": "Templates",
+      "pricing": "Pricing",
+      "services": "Services",
+      "contact": "Contact",
+      "dashboard": "Dashboard",
+      "billing": "Billing",
+      "team": "Team"
+    },
+    "language": {
+      "english": "English",
+      "russian": "Русский",
+      "uzbek": "Uzbek",
+      "tajik": "Тоҷикӣ"
+    },
+    "auth": {
+      "login": "Login",
+      "signup": "Sign Up",
+      "dashboard": "Dashboard"
+    },
+    "profile": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "support": "Support",
+      "logout": "Logout"
+    }
+  },
+  "hero": {
+    "badge": "New platform launched!",
+    "title": {
+      "line1": "Create your website",
+      "line2": "fast and easy"
+    },
+    "description": "Create amazing and customized websites in no time with Templates.uz! Drag & drop builder, ready-made templates and professional developer services.",
+    "cta": {
+      "primary": "Create New Website",
+      "secondary": "View Options"
+    },
+    "options": {
+      "dragDrop": {
+        "title": "Drag & Drop Website Builder",
+        "description": "Move blocks with your mouse to create your website without any coding.",
+        "cta": "Get Started"
+      },
+      "templates": {
+        "title": "Create Website from Ready Templates",
+        "description": "Choose a template that suits you from our wide selection and customize it to your liking.",
+        "cta": "Get Started"
+      },
+      "developer": {
+        "title": "Use Professional Developer Services",
+        "description": "We'll create a fast, secure and unique website tailored to you by experienced developers.",
+        "cta": "Let's create yours!"
+      }
+    }
+  },
+  "features": {
+    "badge": "Why choose us?",
+    "title": {
+      "line1": "Why exactly",
+      "line2": "us?"
+    },
+    "description": "Templates.uz platform offers the best website creation experience with powerful tools and flexible customization options.",
+    "items": {
+      "dragDrop": {
+        "title": "Drag & Drop Builder",
+        "description": "Configure your website without writing code. Easily place and rearrange elements.",
+        "link": "Learn More"
+      },
+      "templates": {
+        "title": "Ready Templates",
+        "description": "Choose from over 150 professionally designed templates and customize them to your liking.",
+        "link": "Learn More"
+      },
+      "developer": {
+        "title": "Developer Services",
+        "description": "Our professional developers will create a custom website tailored to your personal goals.",
+        "link": "Learn More"
+      },
+      "responsive": {
+        "title": "Mobile Responsive",
+        "description": "Your website will look perfect on all devices — with automatic responsive technology!",
+        "link": "Learn More"
+      },
+      "speed": {
+        "title": "High Speed",
+        "description": "Pages load 90% faster with optimized code and CDN support. Amazing user experience!",
+        "link": "Learn More"
+      },
+      "support": {
+        "title": "24/7 Support",
+        "description": "Our team is always ready to help you — via email, chat or phone!",
+        "link": "Learn More"
+      }
+    }
+  },
+  "howItWorks": {
+    "badge": "Simple process",
+    "title": {
+      "line1": "How does it",
+      "line2": "work?"
+    },
+    "description": "Create your website in just 3 steps!",
+    "steps": {
+      "choose": {
+        "title": "Choose a Template",
+        "description": "Select a suitable template from our collection or request a custom design from our team."
+      },
+      "content": {
+        "title": "Add Your Content",
+        "description": "Upload and configure your text, images and videos through a simple interface."
+      },
+      "publish": {
+        "title": "Publish Your Site",
+        "description": "Launch your website online with a single click. Don't worry about domain or hosting!"
+      }
+    }
+  },
+  "faq": {
+    "badge": "FAQ",
+    "title": {
+      "line1": "Frequently asked",
+      "line2": "questions"
+    },
+    "description": "Answers to the most frequently asked questions about Templates.uz platform, drag & drop builder, templates and our developer services.",
+    "items": {
+      "whatIs": {
+        "question": "What is Templates.uz and how does it work?",
+        "answer": "Templates.uz is a convenient platform for simple and fast website creation. You can use ready-made templates or create your desired website through a drag & drop builder without writing any code!"
+      },
+      "dragDrop": {
+        "question": "How does the drag & drop builder help in website creation?",
+        "answer": "The drag & drop builder allows you to easily place and configure elements like images, text, videos, buttons on the page. Without writing any code — you can create website design visually."
+      },
+      "templates": {
+        "question": "What templates are available on Templates.uz?",
+        "answer": "We have professional templates for business, personal portfolio, online store, blog and other directions. You can customize each template to suit your needs."
+      },
+      "services": {
+        "question": "What developer services do you offer?",
+        "answer": "Backend and frontend development, API integration, admin panel creation, security and speed optimization — all included in our professional services!"
+      },
+      "technologies": {
+        "question": "What technologies do you use for backend?",
+        "answer": "We use modern technologies like Laravel (PHP), Node.js, and Python, as well as MySQL and MongoDB databases to create reliable and scalable backend systems."
+      },
+      "technical": {
+        "question": "Do I need technical knowledge to use Templates.uz?",
+        "answer": "No technical knowledge required! Templates.uz is convenient for both beginners and professionals. If you need special features — our developer team will help you."
+      },
+      "time": {
+        "question": "How long does it take to create a website?",
+        "answer": "With ready templates and drag & drop, you can create a simple website in just a few minutes. Custom development projects take 5-10 business days."
+      }
+    },
+    "stillQuestions": {
+      "title": "Still have questions?",
+      "description": "Our team is always ready to help you!",
+      "cta": "Contact Us"
+    }
+  },
+  "testimonials": {
+    "badge": "Customer Reviews",
+    "title": {
+      "line1": "Customer",
+      "line2": "testimonials"
+    },
+    "description": "Get familiar with the experience of satisfied users of the Templates.uz platform",
+    "items": {
+      "sarah": {
+        "name": "Sarah Johnson",
+        "position": "Business Owner",
+        "company": "Flower World",
+        "comment": "We created an amazing website for our small business with Templates.uz. Our customers loved it, and our sales increased by 40%!"
+      },
+      "michael": {
+        "name": "Michael Chen",
+        "position": "Graphic Designer",
+        "company": "Freelancer",
+        "comment": "I'm not a developer, but I created my professional portfolio website in just a few hours through Templates.uz. Great platform!"
+      },
+      "emily": {
+        "name": "Emily Rodriguez",
+        "position": "Restaurant Manager",
+        "company": "Food Center",
+        "comment": "We created a beautiful website for our restaurant. The online ordering system saved time and attracted more customers. The technical support team is also great!"
+      }
+    },
+    "cta": {
+      "title": "Join our satisfied customers too!",
+      "description": "Start creating your website today and grow your business.",
+      "button": "Start Now"
+    }
+  },
+  "templates": {
+    "title": "Template Gallery",
+    "subtitle": "Choose from {{count}} professional templates to get started quickly",
+    "searchPlaceholder": "Search templates...",
+    "sortMostPopular": "Most Popular",
+    "sortNewest": "Newest",
+    "sortHighestRated": "Highest Rated",
+    "noTemplatesFound": "No templates found",
+    "noTemplatesFoundDesc": "Try adjusting your search terms or filters to find what you're looking for.",
+    "preview": "Preview",
+    "useTemplate": "Use Template",
+    "category": "Category",
+    "sections": "Sections",
+    "downloads": "Downloads",
+    "rating": "Rating",
+    "includedSections": "Included Sections",
+    "tags": "Tags",
+    "readyToStart": "Ready to start?",
+    "readyToStartDesc": "This template includes everything you need to create a stunning website.",
+    "useThisTemplate": "Use This Template",
+    "categories": {
+      "all": "All Templates",
+      "business": "Business",
+      "portfolio": "Portfolio",
+      "ecommerce": "E-commerce",
+      "personal": "Personal",
+      "photography": "Photography",
+      "music": "Music",
+      "restaurant": "Restaurant",
+      "education": "Education",
+      "automotive": "Automotive",
+      "realestate": "Real Estate",
+      "gaming": "Gaming"
+    },
+    "filters": "Filters",
+    "pro": "Pro"
+  },
+  "pricing": {
+    "title": {
+      "line1": "Pricing",
+      "line2": "Plans"
+    },
+    "badge": "Pricing Plans",
+    "description": "Flexible pricing for any budget",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "description": "Perfect for beginners",
+        "price": "$0",
+        "period": "/month",
+        "features": [
+          "1 website",
+          "5 MB storage",
+          "Basic features: Template, Slider, Form, Video, Image, Editor",
+          "Subdomain: site.templates.uz",
+          "E-commerce ❌",
+          "Premium support ❌"
+        ],
+        "button": "Get Started"
+      },
+      "starter": {
+        "name": "Starter",
+        "description": "Great for small projects",
+        "price": "$3",
+        "period": "/month",
+        "features": [
+          "3 websites",
+          "100 MB storage",
+          "All basic features",
+          "Telegram bot editing",
+          "Subdomain + Favicon",
+          "E-commerce ❌"
+        ],
+        "button": "Get Started"
+      },
+      "standard": {
+        "name": "Standard",
+        "description": "For growing businesses",
+        "price": "$8",
+        "period": "/month",
+        "features": [
+          "5 websites",
+          "500 MB storage",
+          "Custom domain (mysite.uz)",
+          "Simple admin panel",
+          "All basic features",
+          "Advanced analytics ❌"
+        ],
+        "button": "Choose Plan",
+        "popular": "Most Popular"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "For professional users",
+        "price": "$15",
+        "period": "/month",
+        "features": [
+          "10 websites",
+          "1 GB storage",
+          "Full admin panel",
+          "SEO and analytics",
+          "User registration",
+          "All basic features"
+        ],
+        "button": "Choose Plan"
+      },
+      "premium": {
+        "name": "Premium",
+        "description": "Perfect plan for large projects",
+        "price": "$29",
+        "period": "/month",
+        "features": [
+          "Unlimited websites",
+          "3 GB storage",
+          "Priority technical support",
+          "Multi-language websites",
+          "Currency conversion",
+          "Custom integrations",
+          "Exclusive templates"
+        ],
+        "button": "Choose Plan"
+      }
+    },
+    "note": "2 months free with annual payment!",
+    "learnMore": "Learn More"
+  },
+  "services": {
+    "badge": "Professional Services",
+    "title": {
+      "line1": "Our Development",
+      "line2": "Services"
+    },
+    "description": "Launch your dream website — from domains to complete business websites! Our professional team meets all your requirements.",
+    "items": {
+      "domain": {
+        "title": "Domain Registration",
+        "price": "$10",
+        "period": "/year",
+        "description": "Strengthen your branding with professional domain service",
+        "features": [
+          "Personal domain (e.g.: yoursite.com)",
+          "Domain management and settings",
+          "Privacy protection (WHOIS)",
+          "24/7 technical support and assistance"
+        ]
+      },
+      "website": {
+        "title": "Website Creation",
+        "price": "$99",
+        "period": "/one-time",
+        "description": "Professional website with modern and responsive design",
+        "features": [
+          "Custom design (up to 5 pages)",
+          "Mobile responsive design",
+          "Basic SEO optimization",
+          "1 month free support"
+        ]
+      },
+      "personal": {
+        "title": "Personal Website Creation",
+        "price": "$150",
+        "period": "/one-time",
+        "description": "Unique design for your portfolio and personal branding",
+        "features": [
+          "Unique design (up to 3 pages)",
+          "Contact form integration",
+          "Social media integration",
+          "1 month free support"
+        ]
+      },
+      "maintenance": {
+        "title": "Website Maintenance",
+        "price": "$50",
+        "period": "/month",
+        "description": "Keep your website always fresh and secure",
+        "features": [
+          "Content changes (up to 10)",
+          "Security enhancements",
+          "Speed optimization",
+          "Monthly backups"
+        ]
+      },
+      "launch": {
+        "title": "Website Launch",
+        "price": "$75",
+        "period": "/one-time",
+        "description": "Complete service to make your website live on the internet",
+        "features": [
+          "Hosting setup and configuration",
+          "SSL certificate installation",
+          "DNS settings and domain connection",
+          "Launch testing and verification"
+        ]
+      },
+      "backend": {
+        "title": "Backend Development",
+        "price": "$200+",
+        "period": "/one-time",
+        "description": "Creating powerful and reliable backend systems",
+        "features": [
+          "Backend development with Laravel/PHP",
+          "Database integration (MySQL, PostgreSQL)",
+          "API integrations and services",
+          "Admin panel setup and management"
+        ]
+      },
+      "business": {
+        "title": "Complete Business Website",
+        "price": "$499+",
+        "period": "/one-time",
+        "description": "Professional and complete solution for large businesses",
+        "features": [
+          "Premium design (10+ pages)",
+          "Advanced SEO and optimization",
+          "E-commerce or booking system",
+          "Complete admin panel and management",
+          "Social media integration",
+          "3 months free support",
+          "Custom hosting and security"
+        ],
+        "popular": "Most Popular"
+      }
+    },
+    "buttons": {
+      "getStarted": "Get Started",
+      "contactNow": "Contact Now"
+    },
+    "customProject": {
+      "title": "Planning a custom project?",
+      "description": "Our professional team creates solutions tailored to your unique requirements. Let's create amazing things together!",
+      "buttons": {
+        "contact": "Contact Immediately",
+        "telegram": "Via Telegram"
+      }
+    }
+  },
+  "contact": {
+    "badge": "Contact Us",
+    "title": {
+      "line1": "Let's create your website",
+      "line2": "together"
+    },
+    "description": "Do you have questions about our development services or are you ready to start a project? Contact us today and start working with our professional team!",
+    "methods": {
+      "title": "Contact Methods",
+      "email": {
+        "title": "Email",
+        "content": "support@templates.uz",
+        "description": "Send us an email"
+      },
+      "phone": {
+        "title": "Phone",
+        "content": "+998 33 123 77 90",
+        "description": "Give us a call"
+      },
+      "telegram": {
+        "title": "Telegram",
+        "content": "@iqbolshoh_777",
+        "description": "For quick response"
+      },
+      "address": {
+        "title": "Address",
+        "content": "Firdavsiy Street 51, Samarkand",
+        "description": "Our office"
+      }
+    },
+    "workingHours": {
+      "title": "Working Hours",
+      "monday": "Monday - Friday",
+      "mondayTime": "9:00 - 18:00",
+      "saturday": "Saturday",
+      "saturdayTime": "10:00 - 16:00",
+      "sunday": "Sunday",
+      "sundayTime": "Closed",
+      "status": "Currently online"
+    },
+    "form": {
+      "title": "Send Message",
+      "fields": {
+        "name": {
+          "label": "Full Name *",
+          "placeholder": "Enter your name"
+        },
+        "email": {
+          "label": "Email Address *",
+          "placeholder": "your.email@example.com"
+        },
+        "service": {
+          "label": "Which service do you need? *",
+          "placeholder": "Select a service",
+          "options": {
+            "domain": "Domain Registration ($10/year)",
+            "website": "Website Creation ($99/one-time)",
+            "updates": "Website Updates ($50/month)",
+            "launch": "Website Launch ($75/one-time)",
+            "backend": "Backend Development ($200/one-time)",
+            "personal": "Personal Website ($150/one-time)",
+            "business": "Business Website ($499/one-time)"
+          }
+        },
+        "subject": {
+          "label": "Subject",
+          "placeholder": "Need help?"
+        },
+        "message": {
+          "label": "Your Message *",
+          "placeholder": "Write about your project or ask a question..."
+        }
+      },
+      "button": {
+        "send": "Send Message",
+        "sending": "Sending..."
+      },
+      "success": "Your message has been sent successfully!",
+      "error": "An error occurred. Please try again later."
+    },
+    "cta": {
+      "title": "Launch your dream website!",
+      "description": "Our professional team meets all your requirements. Contact us today and start creating an amazing website!",
+      "buttons": {
+        "telegram": "Contact via Telegram",
+        "call": "Call Us"
+      }
+    }
+  },
+  "footer": {
+    "description": "Create a professional website for yourself with our platform. Fast, easy and reliable!",
+    "links": {
+      "title": "Links"
+    },
+    "useful": {
+      "title": "Useful",
+      "items": {
+        "helpCenter": "Help Center",
+        "terms": "Terms of Use",
+        "privacy": "Privacy Policy",
+        "developerServices": "Developer Services"
+      }
+    },
+    "contactUs": {
+      "title": "Contact Us",
+      "description": "Need a developer? Contact us now for website creation, updates or personal and business websites!"
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "description": "Stay informed about the latest news and offers",
+      "placeholder": "Your email address",
+      "button": "Subscribe"
+    },
+    "bottom": {
+      "copyright": "© {{year}} Templates.uz. All rights reserved.",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use",
+      "online": "Online"
+    }
+  },
+  "common": {
+    "all": "All",
+    "sort": "Sort",
+    "more": "More",
+    "less": "Less",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "preview": "Preview",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "create": "Create",
+    "update": "Update",
+    "remove": "Remove",
+    "add": "Add",
+    "view": "View",
+    "download": "Download",
+    "upload": "Upload",
+    "export": "Export",
+    "import": "Import",
+    "copy": "Copy",
+    "duplicate": "Duplicate",
+    "share": "Share",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "enable": "Enable",
+    "disable": "Disable",
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "failed": "Failed",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "billing": {
+    "title": "Billing & Subscription",
+    "subtitle": "Manage your plan and payments",
+    "overview": {
+      "projectsUsed": "Projects Used",
+      "totalSections": "Total Sections",
+      "upgradeToPro": "Upgrade to Pro",
+      "upgradeToEnterprise": "Upgrade to Enterprise",
+      "buyMoreCoins": "Buy more coins",
+      "nextBilling": "Next Billing",
+      "nextBillingDate": "February 15, 2024"
+    },
+    "plans": {
+      "currentPlan": "Current Plan",
+      "upgradeTo": "Upgrade to {{plan}}",
+      "free": "Free",
+      "pro": "Pro",
+      "enterprise": "Enterprise",
+      "forever": "forever",
+      "month": "month",
+      "popular": "Most Popular",
+      "features": "Features",
+      "limitations": "Limitations",
+      "projects": "Projects",
+      "sections": "Sections per project",
+      "templates": "Templates",
+      "export": "HTML export",
+      "support": "Support",
+      "analytics": "Analytics",
+      "storage": "Storage",
+      "domain": "Custom domain",
+      "branding": "Remove branding",
+      "collaboration": "Team collaboration",
+      "whiteLabel": "White-label solution",
+      "api": "API access",
+      "integrations": "Custom integrations",
+      "sla": "SLA guarantee"
+    },
+    "history": {
+      "title": "Payment History",
+      "export": "Export",
+      "date": "Date",
+      "description": "Description",
+      "amount": "Amount",
+      "status": "Status",
+      "invoice": "Invoice",
+      "noHistory": "No payment history",
+      "noHistoryDesc": "Your payment history will appear here once you make your first purchase."
+    },
+    "coins": {
+      "balance": "Coin Balance",
+      "description": "Available coins for AI features",
+      "buyMore": "Buy More Coins",
+      "packages": "Coin Packages",
+      "bonus": "bonus",
+      "perCoin": "per coin",
+      "transactionHistory": "Coin Transaction History",
+      "coins": "coins",
+      "noTransactions": "No coin transactions",
+      "noTransactionsDesc": "Your coin transaction history will appear here.",
+      "purchase": "Purchase",
+      "usage": "Usage",
+      "bestValue": "Best Value"
+    },
+    "modals": {
+      "upgradePlan": "Upgrade Plan",
+      "upgradeDescription": "Upgrade to {{plan}} plan and unlock premium features.",
+      "upgradeNow": "Upgrade Now",
+      "purchaseCoins": "Purchase Coins",
+      "purchaseCoinsDesc": "Buy coins to use AI features and premium templates.",
+      "purchase": "Purchase"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Create and manage your websites",
+    "stats": {
+      "totalSites": "Total Sites",
+      "published": "Published",
+      "sections": "Sections",
+      "storage": "Storage"
+    },
+    "projects": {
+      "title": "Your Websites",
+      "subtitle": "Create and manage your mobile-friendly websites",
+      "sortLastUpdated": "Last Updated",
+      "sortDateCreated": "Date Created",
+      "sortName": "Name",
+      "noWebsitesFound": "No websites found",
+      "createFirst": "Create Your First Mobile Website",
+      "noMatch": "No websites match \"{{searchTerm}}\". Try a different search term.",
+      "createFirstDesc": "Click the button below to create your first professional website. It's easy and takes just a few minutes to get started.",
+      "createFirstButton": "Create Your First Site",
+      "sectionsCount": "{{count}} sections",
+      "live": "Live",
+      "draft": "Draft",
+      "preview": "Preview",
+      "duplicate": "Duplicate",
+      "delete": "Delete",
+      "edit": "Edit",
+      "searchProjects": "Search projects...",
+      "newWebsite": "New Website"
+    },
+    "createModal": {
+      "title": "Create New Website",
+      "subtitle": "Build your professional website",
+      "websiteName": "Website Name",
+      "websiteNamePlaceholder": "My Awesome Website",
+      "websiteUrl": "Website URL",
+      "websiteUrlPlaceholder": "my-website",
+      "urlAvailable": "URL is available",
+      "urlRules": "Only letters, numbers, hyphens, and underscores allowed",
+      "websiteCategory": "Website Category",
+      "seoKeywords": "SEO Keywords (Optional)",
+      "seoKeywordsPlaceholder": "business, website, professional, services",
+      "seoKeywordsDesc": "Separate keywords with commas",
+      "logoUpload": "Logo Upload (Optional)",
+      "chooseLogoFile": "Choose logo file",
+      "logoUploadDesc": "Recommended: PNG or SVG format, max 5MB. Will be automatically added to header, footer, and relevant sections.",
+      "faviconUpload": "Favicon Upload (Optional)",
+      "chooseFaviconFile": "Choose favicon file",
+      "faviconUploadDesc": "Recommended: ICO, PNG format, 16x16 or 32x32 pixels, max 1MB. Displayed in browser tabs.",
+      "creating": "Creating...",
+      "createWebsite": "Create Website"
+    }
+  },
+  "editor": {
+    "sectionsCount": "Sections count",
+    "lastSaved": "Last saved",
+    "readyToBuild": "Your website is ready to build!",
+    "startDescription": "Add sections and customize them to create your own beautiful site.",
+    "addFirstSection": "Add your first section",
+    "addSection": "Add Section",
+    "theme": "Theme",
+    "preview": "Preview",
+    "save": "Save",
+    "saving": "Saving...",
+    "done": "Done",
+    "doneEditing": "Done Editing",
+    "customize": "Customize",
+    "export": "Export",
+    "exportHtml": "Export HTML",
+    "emptyState": {
+      "title": "Ready to Build Something Amazing?",
+      "description": "Start by adding your first section. Choose from headers, heroes, content blocks, and more to create your perfect website.",
+      "addFirstSection": "Add Your First Section"
+    }
+  },
+  "preview": {
+    "livePreviewMode": "Live Preview Mode",
+    "edit": "Edit",
+    "share": "Share",
+    "publish": "Publish",
+    "emptyState": {
+      "title": "Your website is empty",
+      "description": "Add some sections to see your website come to life",
+      "startBuilding": "Start Building"
+    },
+    "previewModeActive": "Preview Mode Active"
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your account and preferences",
+    "personalInfo": {
+      "title": "Personal Information",
+      "saving": "Saving...",
+      "save": "Save",
+      "edit": "Edit",
+      "fullName": "Full Name",
+      "email": "Email",
+      "company": "Company",
+      "companyPlaceholder": "Your company name",
+      "website": "Website",
+      "websitePlaceholder": "https://yourwebsite.com",
+      "bio": "Bio",
+      "bioPlaceholder": "Tell us about yourself..."
+    },
+    "preferences": {
+      "title": "Preferences",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto",
+      "language": "Language",
+      "english": "English",
+      "spanish": "Español",
+      "french": "Français",
+      "german": "Deutsch",
+      "uzbek": "O'zbek",
+      "notifications": "Notifications",
+      "emailNotifications": "Email notifications",
+      "emailNotificationsDesc": "Receive updates via email",
+      "pushNotifications": "Push notifications",
+      "pushNotificationsDesc": "Browser notifications",
+      "marketingEmails": "Marketing emails",
+      "marketingEmailsDesc": "Product updates and tips"
+    },
+    "security": {
+      "title": "Security",
+      "changePassword": "Change Password",
+      "changePasswordDesc": "Update your account password",
+      "deleteAccount": "Delete Account",
+      "deleteAccountDesc": "Permanently delete your account and data",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmNewPassword": "Confirm New Password",
+      "updatePassword": "Update Password",
+      "deleteAccountWarning": "This action cannot be undone. All your projects and data will be permanently deleted."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Customize your experience",
+    "saved": "Saved!",
+    "saving": "Saving...",
+    "saveChanges": "Save Changes",
+    "tabs": {
+      "general": "General",
+      "notifications": "Notifications",
+      "privacy": "Privacy",
+      "advanced": "Advanced"
+    },
+    "general": {
+      "title": "General Settings",
+      "language": "Language",
+      "timezone": "Timezone",
+      "theme": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "auto": "Auto",
+      "dateFormat": "Date Format",
+      "timeFormat": "Time Format",
+      "12hour": "12 Hour",
+      "24hour": "24 Hour"
+    },
+    "notifications": {
+      "title": "Notification Preferences",
+      "emailNotifications": "Email Notifications",
+      "emailNotificationsDesc": "Receive important updates via email",
+      "pushNotifications": "Push Notifications",
+      "pushNotificationsDesc": "Browser notifications for real-time updates",
+      "marketingEmails": "Marketing Emails",
+      "marketingEmailsDesc": "Product updates, tips, and promotional content",
+      "projectUpdates": "Project Updates",
+      "projectUpdatesDesc": "Notifications when projects are modified",
+      "teamInvites": "Team Invitations",
+      "teamInvitesDesc": "Notifications for team collaboration requests",
+      "systemAlerts": "System Alerts",
+      "systemAlertsDesc": "Important system maintenance and security updates",
+      "weeklyDigest": "Weekly Digest",
+      "weeklyDigestDesc": "Summary of your activity and achievements"
+    },
+    "privacy": {
+      "title": "Privacy & Security",
+      "profileVisibility": "Profile Visibility",
+      "public": "Public",
+      "publicDesc": "Visible to everyone",
+      "private": "Private",
+      "privateDesc": "Only visible to you",
+      "teamOnly": "Team Only",
+      "teamOnlyDesc": "Visible to team members",
+      "showEmail": "Show Email Address",
+      "showEmailDesc": "Display your email on your public profile",
+      "allowIndexing": "Allow Search Engine Indexing",
+      "allowIndexingDesc": "Let search engines index your public projects",
+      "dataCollection": "Analytics Data Collection",
+      "dataCollectionDesc": "Help improve our service with anonymous usage data"
+    },
+    "advanced": {
+      "editorSettings": "Editor Settings",
+      "autoSave": "Auto Save",
+      "autoSaveDesc": "Automatically save changes while editing",
+      "autoSaveInterval": "Auto Save Interval (seconds)",
+      "showGrid": "Show Grid",
+      "showGridDesc": "Display alignment grid in editor",
+      "snapToGrid": "Snap to Grid",
+      "snapToGridDesc": "Automatically align elements to grid",
+      "keyboardShortcuts": "Keyboard Shortcuts",
+      "keyboardShortcutsDesc": "Enable keyboard shortcuts for faster editing",
+      "dataManagement": "Data Management",
+      "exportSettings": "Export Settings",
+      "exportSettingsDesc": "Download your settings as a backup file",
+      "importSettings": "Import Settings",
+      "importSettingsDesc": "Restore settings from a backup file",
+      "resetToDefaults": "Reset to Defaults",
+      "resetToDefaultsDesc": "Restore all settings to their default values",
+      "resetConfirm": "Are you sure you want to reset all settings to default? This action cannot be undone.",
+      "developerOptions": "Developer Options",
+      "debugMode": "Debug Mode",
+      "debugModeDesc": "Show additional debugging information"
+    }
+  },
+  "support": {
+    "title": "Help Center",
+    "subtitle": "Get help and support",
+    "helpQuestion": "How can we help you?",
+    "searchPlaceholder": "Search for help articles, tutorials, or FAQs...",
+    "tabs": {
+      "faq": "FAQ",
+      "tickets": "Support Tickets",
+      "tutorials": "Video Tutorials",
+      "contact": "Contact Us"
+    },
+    "faq": {
+      "browseByCategory": "Browse by Category",
+      "noResults": "No results found",
+      "noResultsDesc": "Try adjusting your search terms or browse different categories.",
+      "wasHelpful": "Was this helpful?",
+      "yes": "Yes",
+      "no": "No",
+      "views": "views",
+      "helpful": "helpful"
+    },
+    "tickets": {
+      "yourTickets": "Your Support Tickets",
+      "newTicket": "New Ticket",
+      "category": "Category",
+      "priority": "Priority",
+      "created": "Created",
+      "noTickets": "No support tickets",
+      "noTicketsDesc": "You haven't submitted any support tickets yet.",
+      "submitFirst": "Submit Your First Ticket"
+    },
+    "tutorials": {
+      "views": "views"
+    },
+    "contact": {
+      "emailSupport": "Email Support",
+      "emailSupportDesc": "Get help via email",
+      "emailSupportText": "Send us an email and we'll respond within 24 hours during business days.",
+      "telegramBot": "Telegram Bot",
+      "telegramBotDesc": "Instant chat support",
+      "telegramBotText": "Chat with our support bot on Telegram for quick answers and assistance.",
+      "openTelegramBot": "Open Telegram Bot",
+      "responseTimes": "Response Times",
+      "responseTimesDesc": "Our commitment to you",
+      "24hours": "24 hours",
+      "instant": "Instant",
+      "criticalIssues": "Critical Issues",
+      "4hours": "4 hours",
+      "documentation": "Documentation",
+      "documentationDesc": "Comprehensive guides",
+      "documentationText": "Browse our detailed documentation for step-by-step guides and tutorials.",
+      "viewDocumentation": "View Documentation"
+    },
+    "ticketForm": {
+      "title": "Submit Support Ticket",
+      "subject": "Subject",
+      "subjectPlaceholder": "Brief description of your issue",
+      "category": "Category",
+      "generalQuestion": "General Question",
+      "bugReport": "Bug Report",
+      "featureRequest": "Feature Request",
+      "billingIssue": "Billing Issue",
+      "priority": "Priority",
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent",
+      "email": "Email",
+      "emailPlaceholder": "your@email.com",
+      "description": "Description",
+      "descriptionPlaceholder": "Please provide detailed information about your issue...",
+      "submitTicket": "Submit Ticket"
+    }
+  },
+  "team": {
+    "title": "Team Collaboration",
+    "subtitle": "{{count}} team members • Pro feature",
+    "upgradeTitle": "Team Collaboration",
+    "upgradeDescription": "Collaborate with your team in real-time. Invite members, assign roles, and build amazing websites together.",
+    "upgrade": {
+      "features": {
+        "inviteMembers": "Invite Team Members",
+        "inviteMembersDesc": "Add designers, editors, and viewers to your projects",
+        "roleBasedAccess": "Role-Based Access",
+        "roleBasedAccessDesc": "Control what each team member can see and edit",
+        "realTimeCollab": "Real-Time Collaboration",
+        "realTimeCollabDesc": "Work together simultaneously on the same project"
+      },
+      "upgradeToPro": "Upgrade to Pro",
+      "backToDashboard": "Back to Dashboard"
+    },
+    "inviteMember": "Invite Member",
+    "tabs": {
+      "members": "Team Members",
+      "invites": "Pending Invites",
+      "settings": "Team Settings"
+    },
+    "searchMembers": "Search team members...",
+    "allRoles": "All Roles",
+    "joined": "Joined",
+    "lastActive": "Last active",
+    "projects": "projects",
+    "viewDetails": "View Details",
+    "remove": "Remove",
+    "invites": {
+      "invitedAs": "Invited as",
+      "by": "by",
+      "expires": "Expires"
+    },
+    "inviteModal": {
+      "title": "Invite Team Member",
+      "emailAddress": "Email Address",
+      "emailPlaceholder": "colleague@company.com",
+      "role": "Role",
+      "personalMessage": "Personal Message (Optional)",
+      "messagePlaceholder": "Welcome to our team! Looking forward to working with you.",
+      "sendInvite": "Send Invite"
+    }
+  },
+  "sectionSelector": {
+    "title": "Choose a Section",
+    "description": "Pick a section to add to your website",
+    "searchPlaceholder": "Search sections...",
+    "tryAdjusting": "Try adjusting your filters or keywords",
+    "noSectionsFound": "No sections found",
+    "addToWebsite": "Add to Website",
+    "sectionsAvailable": "Sections available",
+    "cancel": "Cancel"
+  },
+  "sectionControls": {
+    "addAbove": "Add Above",
+    "addBelow": "Add Below"
+  },
+  "themeCustomizer": {
+    "title": "Theme Customizer",
+    "description": "Customize your website colors, fonts, and styles.",
+    "colors": "Colors",
+    "fonts": "Fonts",
+    "fontCollections": "Font Collections",
+    "googleFonts": "Google Fonts",
+    "colorThemes": "Color Themes",
+    "previewChanges": "Preview Changes",
+    "currentTheme": "Current Theme",
+    "done": "Done"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account to continue",
+      "email": "Email Address",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "signIn": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUpHere": "Sign up here",
+      "orContinueWith": "Or continue with",
+      "google": "Google",
+      "facebook": "Facebook",
+      "backToHome": "Back to Home"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Join us and start building amazing websites",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "createAccount": "Create Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "signInHere": "Sign in here",
+      "acceptTerms": "I agree to the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "passwordRequirements": {
+        "atLeast8": "At least 8 characters",
+        "oneUppercase": "One uppercase letter",
+        "oneLowercase": "One lowercase letter",
+        "oneNumber": "One number"
+      },
+      "passwordsDoNotMatch": "Passwords do not match",
+      "orContinueWith": "Or continue with",
+      "google": "Google",
+      "facebook": "Facebook",
+      "backToHome": "Back to Home"
+    },
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "subtitle": "No worries! Enter your email address and we'll send you a link to reset your password.",
+      "email": "Email Address",
+      "sendResetLink": "Send Reset Link",
+      "sending": "Sending...",
+      "checkEmail": "Check Your Email",
+      "emailSent": "We've sent a password reset link to",
+      "checkInbox": "Please check your inbox and follow the instructions to reset your password.",
+      "didntReceive": "Didn't receive the email?",
+      "checkSpam": "Check your spam folder or try again in a few minutes.",
+      "sendAnother": "Send Another Email",
+      "backToLogin": "Back to Login",
+      "securityNotice": "Security Notice",
+      "linkExpires": "For your security, the reset link will expire in 1 hour. If you don't receive the email within a few minutes, please check your spam folder.",
+      "rememberPassword": "Remember your password?"
+    }
+  }
+}
