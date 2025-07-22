@@ -35,6 +35,8 @@ import {
   Home,
   Check,
   AlertCircle,
+  Pencil,
+  Settings2,
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { formatRelativeTime } from '../utils/helpers';
@@ -575,9 +577,25 @@ const Dashboard: React.FC = () => {
                           : 'bg-orange-100 text-orange-800 border-2 border-orange-300 shadow-lg'
                           }`}
                       >
-                        <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-1.5 sm:mr-2 animate-pulse ${project.isPublished ? 'bg-green-600' : 'bg-orange-600'
-                          }`}></div>
-                        <span className="font-primary font-bold">{project.isPublished ? '🌐 LIVE' : '📝 DRAFT'}</span>
+                        <div
+                          className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-1.5 sm:mr-2 animate-pulse ${project.isPublished ? 'bg-green-600' : 'bg-orange-600'
+                            }`}
+                        ></div>
+
+                        {/* Icon + Text */}
+                        <span className="font-primary font-bold inline-flex items-center gap-1">
+                          {project.isPublished ? (
+                            <>
+                              <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              LIVE
+                            </>
+                          ) : (
+                            <>
+                              <Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              DRAFT
+                            </>
+                          )}
+                        </span>
                       </motion.span>
                     </div>
 
@@ -649,11 +667,28 @@ const Dashboard: React.FC = () => {
                     </div>
 
                     {/* Website URL */}
-                    <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg">
-                      <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 flex-shrink-0" />
-                      <span className={`text-xs sm:text-sm font-mono truncate ${project.isPublished ? 'text-green-600 font-bold' : 'text-gray-500'}`}>
-                        {project.isPublished ? `${userSiteBaseUrl}/${project.websiteUrl}` : 'Not Published Yet'}
-                      </span>
+                    <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg justify-between">
+                      <div className="flex items-center gap-2 flex-1">
+                        <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 flex-shrink-0" />
+                        <span
+                          className={`text-xs sm:text-sm font-mono truncate ${project.isPublished ? 'text-primary-600 font-bold' : 'text-gray-500'}`}
+                        >
+                          {project.isPublished
+                            ? `${userSiteBaseUrl.replace(/^https?:\/\//, '')}/${project.websiteUrl}`
+                            : 'Not Published Yet'}
+                        </span>
+                      </div>
+                      {project.isPublished && (
+                        <button
+                          onClick={() =>
+                            navigator.clipboard.writeText(`${userSiteBaseUrl}/${project.websiteUrl}`)
+                          }
+                          className="ml-2 px-2 py-1 text-xs rounded-md bg-primary-100 text-primary-700 hover:bg-primary-200 transition"
+                          title="Copy URL"
+                        >
+                          Copy
+                        </button>
+                      )}
                     </div>
 
                     {project.description && (
@@ -691,6 +726,7 @@ const Dashboard: React.FC = () => {
                       >
                         <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                       </motion.button>
+
                       {project.isPublished && (
                         <motion.button
                           onClick={() => {
@@ -699,12 +735,25 @@ const Dashboard: React.FC = () => {
                           }}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm font-primary shadow-lg"
+                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-semibold text-sm font-primary shadow-lg"
                           title="View Published Site"
                         >
                           <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
                         </motion.button>
                       )}
+
+                      {project.isPublished && (
+                        <motion.button
+                          onClick={() => navigate(`/admin/${project.id}`)}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-secondary-600 text-white rounded-xl hover:bg-secondary-700 transition-colors font-semibold text-sm font-primary shadow-lg"
+                          title="Open Admin Panel"
+                        >
+                          <Settings2 className="w-4 h-4" />
+                        </motion.button>
+                      )}
+
                     </div>
                   </div>
                 </motion.div>
@@ -783,7 +832,7 @@ const Dashboard: React.FC = () => {
                   </label>
                   <div className="flex items-center">
                     <span className="px-3 py-3 sm:py-4 bg-gray-100 text-gray-600 rounded-l-xl border border-r-0 border-gray-300 text-sm sm:text-base font-mono">
-                      {userSiteBaseUrl}
+                      {userSiteBaseUrl.replace(/^https?:\/\//, '')}/
                     </span>
                     <input
                       type="text"

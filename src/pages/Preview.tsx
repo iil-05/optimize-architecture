@@ -31,7 +31,7 @@ const Preview: React.FC = () => {
       const project = projects.find(p => p.id === id);
       if (project) {
         setCurrentProject(project);
-        
+
         // Apply project's theme
         if (project.themeId) {
           const theme = themeRegistry.getTheme(project.themeId);
@@ -61,18 +61,18 @@ const Preview: React.FC = () => {
   const handlePublish = () => {
     if (currentProject) {
       // Update project as published
-      updateProject(currentProject.id, { 
+      updateProject(currentProject.id, {
         isPublished: true,
         publishUrl: `${userSiteBaseUrl}/${currentProject.websiteUrl}`
       });
-      
+
       const siteUrl = `${userSiteBaseUrl}/${currentProject.websiteUrl}`;
-      
+
       // Show success message with link
       if (window.confirm(`🎉 Your website has been published!\n\nYou can access it at: ${siteUrl}\n\nWould you like to visit your live website now?`)) {
         window.open(siteUrl, '_blank');
       }
-      
+
       console.log('✅ Website published:', {
         projectId: currentProject.id,
         websiteUrl: currentProject.websiteUrl,
@@ -190,7 +190,7 @@ const Preview: React.FC = () => {
               <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t('preview.publish')}</span>
             </button>
-            
+
             {currentProject.isPublished && (
               <button
                 onClick={() => window.open(`/site/${currentProject.websiteUrl}`, '_blank')}
