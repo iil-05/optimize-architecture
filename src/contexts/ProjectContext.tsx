@@ -47,15 +47,6 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
         console.log('✅ Loaded projects:', savedProjects);
         setProjects(savedProjects);
 
-        // Initialize section templates in storage if not present
-        const existingTemplates = optimizedStorage.getSectionTemplates();
-        if (existingTemplates.length === 0) {
-          console.log('📝 Initializing section templates in storage...');
-          improvedSectionTemplates.forEach(template => {
-            optimizedStorage.saveSectionTemplate(template);
-          });
-        }
-        
       } catch (error) {
         console.error('❌ Error loading data:', error);
         // Start with empty projects array on error
