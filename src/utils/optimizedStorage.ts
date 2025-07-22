@@ -189,7 +189,6 @@ export interface AnalyticsSummary {
   
   // Engagement stats
   topSections: { sectionId: string; interactions: number }[];
-  languageStats: { language: string; count: number }[];
   screenResolutionStats: { resolution: string; count: number }[];
   
   // Performance metrics
@@ -508,13 +507,6 @@ export class OptimizedStorageManager {
       osCount[os] = (osCount[os] || 0) + 1;
     });
 
-    // Language statistics - calculate from actual data
-    const languageCount: { [key: string]: number } = {};
-    visits.forEach(event => {
-      const language = event.data.language || 'Unknown';
-      languageCount[language] = (languageCount[language] || 0) + 1;
-    });
-
     // Screen resolution statistics - calculate from actual data
     const resolutionCount: { [key: string]: number } = {};
     visits.forEach(event => {
@@ -613,7 +605,6 @@ export class OptimizedStorageManager {
         .map(([sectionId, interactions]) => ({ sectionId, interactions }))
         .sort((a, b) => b.interactions - a.interactions)
         .slice(0, 5),
-      languageStats: Object.entries(languageCount).map(([language, count]) => ({ language, count })),
       screenResolutionStats: Object.entries(resolutionCount).map(([resolution, count]) => ({ resolution, count })),
 
       // Performance metrics
