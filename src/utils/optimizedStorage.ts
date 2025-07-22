@@ -305,6 +305,14 @@ export class OptimizedStorageManager {
       };
     }
 
+    // Update deployment status based on isPublished
+    if (project.isPublished && project.deployment.status === 'draft') {
+      project.deployment.status = 'published';
+      project.deployment.publishedUrl = `/site/${project.websiteUrl}`;
+      project.deployment.lastDeployed = new Date();
+    } else if (!project.isPublished && project.deployment.status === 'published') {
+      project.deployment.status = 'draft';
+    }
     projectsData[project.id] = {
       ...project,
       updatedAt: new Date(),

@@ -180,6 +180,16 @@ const Preview: React.FC = () => {
               <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline">{t('preview.publish')}</span>
             </button>
+            
+            {currentProject.isPublished && (
+              <button
+                onClick={() => window.open(`/site/${currentProject.websiteUrl}`, '_blank')}
+                className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-glow font-display text-sm sm:text-base"
+              >
+                <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">View Live</span>
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
