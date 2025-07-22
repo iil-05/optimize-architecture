@@ -13,6 +13,7 @@ import { themeRegistry } from '../core/ThemeRegistry';
 import SectionRenderer from '../components/SectionRenderer';
 import { Project } from '../types';
 import { optimizedStorage } from '../utils/optimizedStorage';
+import { analyticsStorage } from '../utils/analyticsStorage';
 
 const SiteViewer: React.FC = () => {
   const { websiteUrl } = useParams<{ websiteUrl: string }>();
@@ -23,6 +24,7 @@ const SiteViewer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTheme, setActiveTheme] = useState(currentTheme);
+  const [analyticsInitialized, setAnalyticsInitialized] = useState(false);
 
   useEffect(() => {
     const loadWebsite = async () => {
@@ -65,6 +67,9 @@ const SiteViewer: React.FC = () => {
           // Track visit analytics in background
           trackVisit(foundProject.id);
 
+          // Initialize analytics tracking
+          initializeAnalytics(foundProject.id);
+
           setError(null);
         } else {
           console.log('❌ Website found but not published. isPublished:', foundProject.isPublished);
@@ -81,20 +86,172 @@ const SiteViewer: React.FC = () => {
     loadWebsite();
   }, [websiteUrl, projects, updateTheme]);
 
+  // Initialize comprehensive analytics tracking
+  const initializeAnalytics = (projectId: string) => {
+    if (analyticsInitialized) return;
+    
+    try {
+      // Start analytics session
+      analyticsStorage.startSession(projectId);
+      
+      // Track initial page view
+      analyticsStorage.trackPageView(projectId, '/', document.title);
+      
+      // Track scroll interactions
+      let scrollTimeout: NodeJS.Timeout;
+      const trackScroll = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          analyticsStorage.trackInteraction(projectId, 'scroll', 'page', {
+            value: `${Math.round((window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100)}%`
+          });
+        }, 1000);
+      };
+      window.addEventListener('scroll', trackScroll, { passive: true });
+      
+      // Track clicks on important elements
+      const trackClicks = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        const tagName = target.tagName.toLowerCase();
+        
+        // Track clicks on links, buttons, and interactive elements
+        if (['a', 'button'].includes(tagName) || target.onclick || target.getAttribute('role') === 'button') {
+          const elementText = target.textContent?.trim().substring(0, 50) || '';
+          const elementId = target.id || target.className || tagName;
+          
+          analyticsStorage.trackInteraction(projectId, 'click', elementId, {
+            elementText,
+            elementPosition: { x: event.clientX, y: event.clientY }
+          });
+          
+          // Track conversions for specific elements
+          if (tagName === 'a') {
+            const href = target.getAttribute('href');
+            if (href) {
+              if (href.includes('mailto:')) {
+                analyticsStorage.trackConversion(projectId, 'email_click', 1);
+              } else if (href.includes('tel:')) {
+                analyticsStorage.trackConversion(projectId, 'phone_click', 1);
+              } else if (href.startsWith('http') && !href.includes(window.location.hostname)) {
+                analyticsStorage.trackConversion(projectId, 'external_link', 1);
+              }
+            }
+          }
+          
+          // Track social media clicks
+          if (elementText.toLowerCase().includes('facebook') || target.className.includes('facebook')) {
+            analyticsStorage.trackConversion(projectId, 'social_share', 1, { platform: 'facebook' });
+          } else if (elementText.toLowerCase().includes('twitter') || target.className.includes('twitter')) {
+            analyticsStorage.trackConversion(projectId, 'social_share', 1, { platform: 'twitter' });
+          } else if (elementText.toLowerCase().includes('linkedin') || target.className.includes('linkedin')) {
+            analyticsStorage.trackConversion(projectId, 'social_share', 1, { platform: 'linkedin' });
+          } else if (elementText.toLowerCase().includes('instagram') || target.className.includes('instagram')) {
+            analyticsStorage.trackConversion(projectId, 'social_share', 1, { platform: 'instagram' });
+          }
+        }
+      };
+      document.addEventListener('click', trackClicks);
+      
+      // Track form submissions
+      const trackFormSubmissions = (event: Event) => {
+        const form = event.target as HTMLFormElement;
+        const formId = form.id || form.className || 'contact-form';
+        
+        analyticsStorage.trackInteraction(projectId, 'form_submit', formId);
+        analyticsStorage.trackConversion(projectId, 'contact_form', 1, {
+          formId,
+          formAction: form.action || 'unknown'
+        });
+      };
+      document.addEventListener('submit', trackFormSubmissions);
+      
+      // Track time spent on page
+      const startTime = Date.now();
+      const trackTimeSpent = () => {
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        if (timeSpent > 10) { // Only track if user spent more than 10 seconds
+          analyticsStorage.trackInteraction(projectId, 'scroll', 'time_spent', {
+            value: `${timeSpent}s`
+          });
+        }
+      };
+      
+      // Track when user leaves the page
+      window.addEventListener('beforeunload', trackTimeSpent);
+      window.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          trackTimeSpent();
+        }
+      });
+      
+      // Track hover interactions on important elements
+      const trackHovers = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        const tagName = target.tagName.toLowerCase();
+        
+        if (['a', 'button'].includes(tagName)) {
+          const elementText = target.textContent?.trim().substring(0, 30) || '';
+          const elementId = target.id || target.className || tagName;
+          
+          analyticsStorage.trackInteraction(projectId, 'hover', elementId, {
+            elementText
+          });
+        }
+      };
+      
+      // Throttle hover tracking to avoid too many events
+      let hoverTimeout: NodeJS.Timeout;
+      document.addEventListener('mouseover', (event) => {
+        clearTimeout(hoverTimeout);
+        hoverTimeout = setTimeout(() => trackHovers(event), 500);
+      });
+      
+      // Track downloads
+      const trackDownloads = (event: MouseEvent) => {
+        const target = event.target as HTMLElement;
+        if (target.tagName.toLowerCase() === 'a') {
+          const href = target.getAttribute('href');
+          if (href && (href.includes('.pdf') || href.includes('.doc') || href.includes('.zip') || href.includes('download'))) {
+            analyticsStorage.trackConversion(projectId, 'download', 1, {
+              fileName: href.split('/').pop() || 'unknown',
+              fileType: href.split('.').pop() || 'unknown'
+            });
+          }
+        }
+      };
+      document.addEventListener('click', trackDownloads);
+      
+      setAnalyticsInitialized(true);
+      console.log('📊 Advanced analytics tracking initialized for project:', projectId);
+      
+      // Cleanup function
+      return () => {
+        window.removeEventListener('scroll', trackScroll);
+        document.removeEventListener('click', trackClicks);
+        document.removeEventListener('submit', trackFormSubmissions);
+        document.removeEventListener('beforeunload', trackTimeSpent);
+        document.removeEventListener('click', trackDownloads);
+        clearTimeout(scrollTimeout);
+        clearTimeout(hoverTimeout);
+        
+        // End analytics session
+        analyticsStorage.endSession();
+      };
+    } catch (error) {
+      console.error('❌ Error initializing analytics:', error);
+    }
+  };
+
   // Track visit analytics in background
   const trackVisit = (projectId: string) => {
     try {
-      // Track page view analytics
-      optimizedStorage.trackAnalyticsEvent(projectId, 'page_view', {
-        page: '/',
-        referrer: document.referrer || 'direct',
-        timestamp: new Date().toISOString()
-      });
-      
       // Update project view count
       const project = optimizedStorage.getProject(projectId);
       if (project) {
-        project.analytics.views = (project.analytics.views || 0) + 1;
+        if (!project.analytics) {
+          project.analytics = { views: 0, performance: {} };
+        }
+        project.analytics.views = project.analytics.views + 1;
         project.analytics.lastViewed = new Date();
         optimizedStorage.saveProject(project);
       }

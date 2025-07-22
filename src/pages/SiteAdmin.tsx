@@ -302,94 +302,29 @@ import {
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { optimizedStorage } from '../utils/optimizedStorage';
+import { analyticsStorage } from '../utils/analyticsStorage';
 import CommonHeader from '../components/CommonHeader';
-
-// Analytics interfaces
-interface AnalyticsData {
-  id: string;
-  projectId: string;
-  timestamp: Date;
-  type: 'page_view' | 'section_view' | 'interaction' | 'performance' | 'error' | 'conversion';
-  data: {
-    // Page view data
-    page?: string;
-    referrer?: string;
-    userAgent?: string;
-    sessionId?: string;
-    userId?: string;
-    
-    // Section view data
-    sectionId?: string;
-    sectionType?: string;
-    timeSpent?: number;
-    
-    // Interaction data
-    element?: string;
-    action?: string;
-    value?: string;
-    
-    // Performance data
-    loadTime?: number;
-    renderTime?: number;
-    resourceSize?: number;
-    
-    // Error data
-    errorType?: string;
-    errorMessage?: string;
-    stackTrace?: string;
-    
-    // Conversion data
-    conversionType?: string;
-    conversionValue?: number;
-    
-    // Device and location data
-    device?: 'desktop' | 'tablet' | 'mobile';
-    browser?: string;
-    os?: string;
-    country?: string;
-    city?: string;
-    ip?: string;
-  };
-}
-
-interface AnalyticsSummary {
-  totalViews: number;
-  uniqueVisitors: number;
-  averageSessionTime: number;
-  bounceRate: number;
-  topPages: { page: string; views: number }[];
-  topReferrers: { referrer: string; views: number }[];
-  deviceBreakdown: { device: string; percentage: number }[];
-  browserBreakdown: { browser: string; percentage: number }[];
-  countryBreakdown: { country: string; views: number }[];
-  hourlyViews: { hour: number; views: number }[];
-  dailyViews: { date: string; views: number }[];
-  conversionRate: number;
-  performanceMetrics: {
-    averageLoadTime: number;
-    averageRenderTime: number;
-    errorRate: number;
-  };
-}
 
 const SiteAdmin: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { projects, setCurrentProject } = useProject();
+  const { projects, setCurrentProject, updateProject, deleteProject } = useProject();
   
   const [project, setProject] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'content' | 'settings'>('overview');
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
-  const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'content' | 'settings' | 'realtime'>('overview');
+  const [analyticsSummary, setAnalyticsSummary] = useState<any>(null);
   const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year'>('week');
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Initialize analytics storage
-  useEffect(() => {
-    initializeAnalyticsStorage();
-  }, []);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    category: '',
+    seoKeywords: '',
+  });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Load project data
   useEffect(() => {
@@ -402,40 +337,11 @@ const SiteAdmin: React.FC = () => {
   useEffect(() => {
     if (project) {
       loadAnalyticsData();
+      // Set up real-time updates
+      const interval = setInterval(loadAnalyticsData, 30000); // Update every 30 seconds
+      return () => clearInterval(interval);
     }
   }, [project, dateRange]);
-
-  const initializeAnalyticsStorage = () => {
-    try {
-      // Check if analytics table exists
-      const existingAnalytics = localStorage.getItem('templates_uz_analytics_data');
-      if (!existingAnalytics) {
-        // Create analytics table structure
-        const analyticsTable = {
-          data: [],
-          indexes: {
-            projectId: {},
-            timestamp: {},
-            type: {}
-          },
-          metadata: {
-            version: '1.0.0',
-            createdAt: new Date().toISOString(),
-            lastUpdated: new Date().toISOString()
-          }
-        };
-        localStorage.setItem('templates_uz_analytics_data', JSON.stringify(analyticsTable));
-        console.log('✅ Analytics table created in localStorage');
-      }
-
-      // Generate sample analytics data if none exists
-      if (id) {
-        generateSampleAnalytics(id);
-      }
-    } catch (error) {
-      console.error('❌ Error initializing analytics storage:', error);
-    }
-  };
 
   const loadProjectData = () => {
     setLoading(true);
@@ -457,6 +363,15 @@ const SiteAdmin: React.FC = () => {
       if (foundProject) {
         setProject(foundProject);
         setCurrentProject(foundProject);
+        
+        // Initialize edit form
+        setEditForm({
+          name: foundProject.name,
+          description: foundProject.description || '',
+          category: foundProject.category || 'business',
+          seoKeywords: foundProject.seoKeywords?.join(', ') || '',
+        });
+        
         console.log('✅ Project loaded for admin:', foundProject);
       } else {
         console.log('❌ Project not found:', id);
@@ -469,114 +384,11 @@ const SiteAdmin: React.FC = () => {
     }
   };
 
-  const generateSampleAnalytics = (projectId: string) => {
-    try {
-      const analyticsTable = JSON.parse(localStorage.getItem('templates_uz_analytics_data') || '{"data": []}');
-      
-      // Check if we already have data for this project
-      const existingData = analyticsTable.data.filter((item: any) => item.projectId === projectId);
-      if (existingData.length > 0) {
-        return; // Already has data
-      }
-
-      const sampleData: AnalyticsData[] = [];
-      const now = new Date();
-      
-      // Generate data for the last 30 days
-      for (let i = 0; i < 30; i++) {
-        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-        const dailyViews = Math.floor(Math.random() * 50) + 10;
-        
-        for (let j = 0; j < dailyViews; j++) {
-          const timestamp = new Date(date.getTime() + Math.random() * 24 * 60 * 60 * 1000);
-          
-          // Page views
-          sampleData.push({
-            id: `analytics_${Date.now()}_${Math.random()}`,
-            projectId,
-            timestamp,
-            type: 'page_view',
-            data: {
-              page: '/',
-              referrer: ['google.com', 'facebook.com', 'direct', 'twitter.com'][Math.floor(Math.random() * 4)],
-              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-              sessionId: `session_${Math.random()}`,
-              device: ['desktop', 'mobile', 'tablet'][Math.floor(Math.random() * 3)] as any,
-              browser: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)],
-              os: ['Windows', 'macOS', 'Linux', 'iOS', 'Android'][Math.floor(Math.random() * 5)],
-              country: ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia'][Math.floor(Math.random() * 6)],
-              city: ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney'][Math.floor(Math.random() * 6)]
-            }
-          });
-
-          // Performance data
-          if (Math.random() > 0.7) {
-            sampleData.push({
-              id: `perf_${Date.now()}_${Math.random()}`,
-              projectId,
-              timestamp,
-              type: 'performance',
-              data: {
-                loadTime: Math.floor(Math.random() * 3000) + 500,
-                renderTime: Math.floor(Math.random() * 1000) + 100,
-                resourceSize: Math.floor(Math.random() * 2000) + 500
-              }
-            });
-          }
-
-          // Interactions
-          if (Math.random() > 0.5) {
-            sampleData.push({
-              id: `interaction_${Date.now()}_${Math.random()}`,
-              projectId,
-              timestamp,
-              type: 'interaction',
-              data: {
-                element: ['button', 'link', 'form', 'image'][Math.floor(Math.random() * 4)],
-                action: ['click', 'hover', 'scroll', 'submit'][Math.floor(Math.random() * 4)],
-                value: `section_${Math.floor(Math.random() * 10)}`
-              }
-            });
-          }
-
-          // Conversions
-          if (Math.random() > 0.9) {
-            sampleData.push({
-              id: `conversion_${Date.now()}_${Math.random()}`,
-              projectId,
-              timestamp,
-              type: 'conversion',
-              data: {
-                conversionType: ['contact_form', 'newsletter', 'download', 'purchase'][Math.floor(Math.random() * 4)],
-                conversionValue: Math.floor(Math.random() * 100) + 1
-              }
-            });
-          }
-        }
-      }
-
-      // Save to analytics table
-      analyticsTable.data.push(...sampleData);
-      analyticsTable.metadata.lastUpdated = new Date().toISOString();
-      localStorage.setItem('templates_uz_analytics_data', JSON.stringify(analyticsTable));
-      
-      console.log('✅ Sample analytics data generated:', sampleData.length, 'records');
-    } catch (error) {
-      console.error('❌ Error generating sample analytics:', error);
-    }
-  };
-
   const loadAnalyticsData = () => {
     try {
-      const analyticsTable = JSON.parse(localStorage.getItem('templates_uz_analytics_data') || '{"data": []}');
-      const projectAnalytics = analyticsTable.data
-        .filter((item: any) => item.projectId === project.id)
-        .map((item: any) => ({
-          ...item,
-          timestamp: new Date(item.timestamp)
-        }));
-
-      // Filter by date range
+      if (!project) return;
+      
+      // Get date range
       const now = new Date();
       let startDate = new Date();
       
@@ -595,157 +407,211 @@ const SiteAdmin: React.FC = () => {
           break;
       }
 
-      const filteredData = projectAnalytics.filter((item: AnalyticsData) => 
-        item.timestamp >= startDate
-      );
-
-      setAnalyticsData(filteredData);
-      generateAnalyticsSummary(filteredData);
+      // Generate sample data if none exists
+      generateSampleAnalyticsIfNeeded(project.id);
       
-      console.log('✅ Analytics data loaded:', filteredData.length, 'records');
+      // Get analytics summary
+      const summary = analyticsStorage.generateAnalyticsSummary(project.id, { start: startDate, end: now });
+      setAnalyticsSummary(summary);
+      
+      console.log('✅ Analytics data loaded for project:', project.id);
     } catch (error) {
       console.error('❌ Error loading analytics data:', error);
     }
   };
 
-  const generateAnalyticsSummary = (data: AnalyticsData[]) => {
+  const generateSampleAnalyticsIfNeeded = (projectId: string) => {
     try {
-      const pageViews = data.filter(item => item.type === 'page_view');
-      const interactions = data.filter(item => item.type === 'interaction');
-      const conversions = data.filter(item => item.type === 'conversion');
-      const performance = data.filter(item => item.type === 'performance');
-
-      // Calculate unique visitors (simplified)
-      const uniqueVisitors = new Set(pageViews.map(item => item.data.sessionId)).size;
-
-      // Calculate session times (simplified)
-      const sessions = pageViews.reduce((acc: any, item) => {
-        const sessionId = item.data.sessionId!;
-        if (!acc[sessionId]) {
-          acc[sessionId] = { start: item.timestamp, end: item.timestamp };
-        } else {
-          if (item.timestamp < acc[sessionId].start) acc[sessionId].start = item.timestamp;
-          if (item.timestamp > acc[sessionId].end) acc[sessionId].end = item.timestamp;
+      // Check if we already have analytics data for this project
+      const existingData = analyticsStorage.getProjectAnalytics(projectId);
+      if (existingData.sessions.length > 0) {
+        return; // Already has data
+      }
+      
+      console.log('🔄 Generating sample analytics data for project:', projectId);
+      
+      // Generate realistic sample data for the last 30 days
+      const now = new Date();
+      const countries = ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'Canada', 'Brazil', 'India', 'China'];
+      const cities = ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney', 'Toronto', 'São Paulo', 'Mumbai', 'Shanghai'];
+      const browsers = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'];
+      const devices = ['desktop', 'mobile', 'tablet'] as const;
+      const operatingSystems = ['Windows', 'macOS', 'Linux', 'iOS', 'Android'];
+      const referrers = ['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', 'direct', 'bing.com', 'yahoo.com'];
+      
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const dailySessions = Math.floor(Math.random() * 25) + 5; // 5-30 sessions per day
+        
+        for (let j = 0; j < dailySessions; j++) {
+          // Create a realistic session
+          const sessionStart = new Date(date.getTime() + Math.random() * 24 * 60 * 60 * 1000);
+          const sessionDuration = Math.floor(Math.random() * 600) + 30; // 30 seconds to 10 minutes
+          const sessionEnd = new Date(sessionStart.getTime() + sessionDuration * 1000);
+          
+          const country = countries[Math.floor(Math.random() * countries.length)];
+          const city = cities[Math.floor(Math.random() * cities.length)];
+          const browser = browsers[Math.floor(Math.random() * browsers.length)];
+          const device = devices[Math.floor(Math.random() * devices.length)];
+          const os = operatingSystems[Math.floor(Math.random() * operatingSystems.length)];
+          const referrer = referrers[Math.floor(Math.random() * referrers.length)];
+          
+          // Simulate a session with the analytics storage
+          const tempSession = {
+            id: `sample_session_${Date.now()}_${Math.random()}`,
+            projectId,
+            sessionStart,
+            sessionEnd,
+            duration: sessionDuration,
+            pageViews: Math.floor(Math.random() * 5) + 1, // 1-5 page views
+            interactions: Math.floor(Math.random() * 10), // 0-10 interactions
+            device,
+            browser,
+            os,
+            country,
+            city,
+            referrer,
+            userAgent: `Mozilla/5.0 (${os}) ${browser}`,
+            screenResolution: device === 'mobile' ? '375x667' : device === 'tablet' ? '768x1024' : '1920x1080',
+            language: 'en-US',
+            timezone: 'America/New_York',
+            isReturning: Math.random() > 0.7, // 30% returning visitors
+            bounced: Math.random() > 0.6, // 40% bounce rate
+            conversionEvents: [],
+          };
+          
+          // Save session data directly to localStorage
+          const sessions = JSON.parse(localStorage.getItem('templates_uz_analytics_sessions') || '[]');
+          sessions.push(tempSession);
+          localStorage.setItem('templates_uz_analytics_sessions', JSON.stringify(sessions, (key, value) => {
+            if (value instanceof Date) {
+              return { __type: 'Date', value: value.toISOString() };
+            }
+            return value;
+          }));
+          
+          // Generate page views for this session
+          const pages = ['/', '/about', '/services', '/contact', '/portfolio'];
+          for (let k = 0; k < tempSession.pageViews; k++) {
+            const page = k === 0 ? '/' : pages[Math.floor(Math.random() * pages.length)];
+            const pageViewTime = new Date(sessionStart.getTime() + (k * (sessionDuration / tempSession.pageViews) * 1000));
+            
+            const pageView = {
+              id: `sample_pageview_${Date.now()}_${Math.random()}`,
+              projectId,
+              sessionId: tempSession.id,
+              timestamp: pageViewTime,
+              page,
+              title: `Page ${page}`,
+              timeOnPage: Math.floor(Math.random() * 120) + 10, // 10-130 seconds
+              scrollDepth: Math.floor(Math.random() * 100), // 0-100%
+              exitPage: k === tempSession.pageViews - 1,
+              referrer: k === 0 ? referrer : pages[Math.floor(Math.random() * pages.length)],
+              device,
+              browser,
+              os,
+              country,
+              city,
+              loadTime: Math.floor(Math.random() * 3000) + 500, // 500-3500ms
+            };
+            
+            const pageViews = JSON.parse(localStorage.getItem('templates_uz_analytics_pageviews') || '[]');
+            pageViews.push(pageView);
+            localStorage.setItem('templates_uz_analytics_pageviews', JSON.stringify(pageViews, (key, value) => {
+              if (value instanceof Date) {
+                return { __type: 'Date', value: value.toISOString() };
+              }
+              return value;
+            }));
+          }
+          
+          // Generate interactions for this session
+          for (let k = 0; k < tempSession.interactions; k++) {
+            const interactionTime = new Date(sessionStart.getTime() + Math.random() * sessionDuration * 1000);
+            const interactionTypes = ['click', 'scroll', 'hover', 'form_submit'] as const;
+            const elements = ['button', 'link', 'form', 'image', 'nav', 'footer'];
+            
+            const interaction = {
+              id: `sample_interaction_${Date.now()}_${Math.random()}`,
+              projectId,
+              sessionId: tempSession.id,
+              timestamp: interactionTime,
+              type: interactionTypes[Math.floor(Math.random() * interactionTypes.length)],
+              element: elements[Math.floor(Math.random() * elements.length)],
+              elementText: `Sample ${elements[Math.floor(Math.random() * elements.length)]}`,
+              elementPosition: { x: Math.floor(Math.random() * 1920), y: Math.floor(Math.random() * 1080) },
+            };
+            
+            const interactions = JSON.parse(localStorage.getItem('templates_uz_analytics_interactions') || '[]');
+            interactions.push(interaction);
+            localStorage.setItem('templates_uz_analytics_interactions', JSON.stringify(interactions, (key, value) => {
+              if (value instanceof Date) {
+                return { __type: 'Date', value: value.toISOString() };
+              }
+              return value;
+            }));
+          }
+          
+          // Generate conversions (10% of sessions convert)
+          if (Math.random() > 0.9) {
+            const conversionTypes = ['contact_form', 'newsletter', 'download', 'external_link', 'social_share'] as const;
+            const conversionTime = new Date(sessionStart.getTime() + Math.random() * sessionDuration * 1000);
+            
+            const conversion = {
+              id: `sample_conversion_${Date.now()}_${Math.random()}`,
+              projectId,
+              sessionId: tempSession.id,
+              timestamp: conversionTime,
+              type: conversionTypes[Math.floor(Math.random() * conversionTypes.length)],
+              value: Math.floor(Math.random() * 100) + 1,
+              metadata: { source: 'sample_data' },
+            };
+            
+            const conversions = JSON.parse(localStorage.getItem('templates_uz_analytics_conversions') || '[]');
+            conversions.push(conversion);
+            localStorage.setItem('templates_uz_analytics_conversions', JSON.stringify(conversions, (key, value) => {
+              if (value instanceof Date) {
+                return { __type: 'Date', value: value.toISOString() };
+              }
+              return value;
+            }));
+          }
+          
+          // Generate performance metrics
+          const performanceMetric = {
+            id: `sample_performance_${Date.now()}_${Math.random()}`,
+            projectId,
+            timestamp: sessionStart,
+            loadTime: Math.floor(Math.random() * 3000) + 500,
+            domContentLoaded: Math.floor(Math.random() * 1000) + 200,
+            firstContentfulPaint: Math.floor(Math.random() * 2000) + 300,
+            largestContentfulPaint: Math.floor(Math.random() * 4000) + 1000,
+            cumulativeLayoutShift: Math.random() * 0.3,
+            firstInputDelay: Math.floor(Math.random() * 100) + 10,
+            resourceCount: Math.floor(Math.random() * 50) + 10,
+            resourceSize: Math.floor(Math.random() * 2000000) + 500000, // 500KB - 2.5MB
+            cacheHitRate: Math.random() * 100,
+          };
+          
+          const performanceMetrics = JSON.parse(localStorage.getItem('templates_uz_analytics_performance') || '[]');
+          performanceMetrics.push(performanceMetric);
+          localStorage.setItem('templates_uz_analytics_performance', JSON.stringify(performanceMetrics, (key, value) => {
+            if (value instanceof Date) {
+              return { __type: 'Date', value: value.toISOString() };
+            }
+            return value;
+          }));
         }
-        return acc;
-      }, {});
+      }
 
-      const sessionTimes = Object.values(sessions).map((session: any) => 
-        (session.end.getTime() - session.start.getTime()) / 1000 / 60
-      );
-      const averageSessionTime = sessionTimes.length > 0 
-        ? sessionTimes.reduce((a: number, b: number) => a + b, 0) / sessionTimes.length 
-        : 0;
-
-      // Top pages
-      const pageCount = pageViews.reduce((acc: any, item) => {
-        const page = item.data.page || '/';
-        acc[page] = (acc[page] || 0) + 1;
-        return acc;
-      }, {});
-      const topPages = Object.entries(pageCount)
-        .map(([page, views]) => ({ page, views: views as number }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 5);
-
-      const topReferrers = Object.entries(referrerCount)
-        .map(([referrer, views]) => ({ referrer, views: views as number }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 5);
-
-      // Device breakdown
-      const deviceCount = pageViews.reduce((acc: any, item) => {
-        const device = item.data.device || 'desktop';
-        acc[device] = (acc[device] || 0) + 1;
-        return acc;
-      }, {});
-      const totalDeviceViews = Object.values(deviceCount).reduce((a: any, b: any) => a + b, 0);
-      const deviceBreakdown = Object.entries(deviceCount)
-        .map(([device, count]) => ({ 
-          device, 
-          percentage: Math.round((count as number / totalDeviceViews) * 100) 
-        }));
-
-      // Browser breakdown
-      const browserCount = pageViews.reduce((acc: any, item) => {
-        const browser = item.data.browser || 'Unknown';
-        acc[browser] = (acc[browser] || 0) + 1;
-        return acc;
-      }, {});
-      const totalBrowserViews = Object.values(browserCount).reduce((a: any, b: any) => a + b, 0);
-      const browserBreakdown = Object.entries(browserCount)
-        .map(([browser, count]) => ({ 
-          browser, 
-          percentage: Math.round((count as number / totalBrowserViews) * 100) 
-        }));
-
-      // Country breakdown
-      const countryCount = pageViews.reduce((acc: any, item) => {
-        const country = item.data.country || 'Unknown';
-        acc[country] = (acc[country] || 0) + 1;
-        return acc;
-      }, {});
-      const countryBreakdown = Object.entries(countryCount)
-        .map(([country, views]) => ({ country, views: views as number }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 10);
-
-      // Hourly views
-      const hourlyCount = pageViews.reduce((acc: any, item) => {
-        const hour = item.timestamp.getHours();
-        acc[hour] = (acc[hour] || 0) + 1;
-        return acc;
-      }, {});
-      const hourlyViews = Array.from({ length: 24 }, (_, hour) => ({
-        hour,
-        views: hourlyCount[hour] || 0
-      }));
-
-      // Daily views
-      const dailyCount = pageViews.reduce((acc: any, item) => {
-        const date = item.timestamp.toISOString().split('T')[0];
-        acc[date] = (acc[date] || 0) + 1;
-        return acc;
-      }, {});
-      const dailyViews = Object.entries(dailyCount)
-        .map(([date, views]) => ({ date, views: views as number }))
-        .sort((a, b) => a.date.localeCompare(b.date));
-
-      // Performance metrics
-      const loadTimes = performance.map(item => item.data.loadTime || 0).filter(time => time > 0);
-      const renderTimes = performance.map(item => item.data.renderTime || 0).filter(time => time > 0);
-      const errors = data.filter(item => item.type === 'error');
-
-      const summary: AnalyticsSummary = {
-        totalViews: pageViews.length,
-        uniqueVisitors,
-        averageSessionTime,
-        bounceRate: Math.round((uniqueVisitors / pageViews.length) * 100),
-        topPages,
-        topReferrers,
-        deviceBreakdown,
-        browserBreakdown,
-        countryBreakdown,
-        hourlyViews,
-        dailyViews,
-        conversionRate: pageViews.length > 0 ? Math.round((conversions.length / pageViews.length) * 100) : 0,
-        performanceMetrics: {
-          averageLoadTime: loadTimes.length > 0 ? Math.round(loadTimes.reduce((a, b) => a + b, 0) / loadTimes.length) : 0,
-          averageRenderTime: renderTimes.length > 0 ? Math.round(renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length) : 0,
-          errorRate: pageViews.length > 0 ? Math.round((errors.length / pageViews.length) * 100) : 0
-        }
-      };
-
-      setAnalyticsSummary(summary);
-      console.log('✅ Analytics summary generated:', summary);
+      console.log('✅ Sample analytics data generated for project:', projectId);
     } catch (error) {
-      console.error('❌ Error generating analytics summary:', error);
+      console.error('❌ Error generating sample analytics:', error);
     }
   };
 
   const handleRefreshAnalytics = async () => {
     setIsRefreshing(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     loadAnalyticsData();
     setIsRefreshing(false);
@@ -759,8 +625,7 @@ const SiteAdmin: React.FC = () => {
           name: project.name,
           websiteUrl: project.websiteUrl
         },
-        summary: analyticsSummary,
-        rawData: analyticsData,
+        analytics: analyticsSummary,
         exportedAt: new Date().toISOString(),
         dateRange
       };
@@ -776,6 +641,48 @@ const SiteAdmin: React.FC = () => {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('❌ Error exporting analytics:', error);
+    }
+  };
+
+  const handleSaveProject = () => {
+    if (!project) return;
+    
+    const updatedProject = {
+      ...project,
+      name: editForm.name,
+      description: editForm.description,
+      category: editForm.category,
+      seoKeywords: editForm.seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0),
+      updatedAt: new Date(),
+    };
+    
+    updateProject(project.id, updatedProject);
+    setProject(updatedProject);
+    setIsEditing(false);
+  };
+
+  const handleUnpublishProject = () => {
+    if (!project) return;
+    
+    if (window.confirm('Are you sure you want to unpublish this website? It will no longer be accessible to visitors.')) {
+      updateProject(project.id, { isPublished: false });
+      setProject({ ...project, isPublished: false });
+    }
+  };
+
+  const handleDeleteProject = () => {
+    if (!project) return;
+    
+    if (window.confirm('Are you sure you want to permanently delete this website? This action cannot be undone.')) {
+      deleteProject(project.id);
+      navigate('/dashboard');
+    }
+  };
+
+  const handleClearAnalytics = () => {
+    if (window.confirm('Are you sure you want to clear all analytics data? This action cannot be undone.')) {
+      analyticsStorage.clearAllAnalytics();
+      loadAnalyticsData();
     }
   };
 
@@ -824,6 +731,7 @@ const SiteAdmin: React.FC = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { id: 'realtime', label: 'Real-time', icon: Activity },
     { id: 'content', label: 'Content', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
@@ -858,15 +766,25 @@ const SiteAdmin: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-xl border border-green-200">
                 <Globe className="w-4 h-4" />
-                <span className="font-medium font-primary">Live</span>
+                <span className="font-medium font-primary">{project.isPublished ? 'Live' : 'Draft'}</span>
               </div>
               
+              {project.isPublished && (
+                <button
+                  onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  View Site
+                </button>
+              )}
+              
               <button
-                onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
-                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                onClick={() => navigate(`/editor/${project.id}`)}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
               >
-                <ExternalLink className="w-4 h-4" />
-                View Site
+                <Edit className="w-4 h-4" />
+                Edit
               </button>
             </div>
           </div>
@@ -908,7 +826,7 @@ const SiteAdmin: React.FC = () => {
                   </div>
                   <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.totalViews.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.overview.totalPageViews.toLocaleString()}</div>
                 <div className="text-sm text-gray-600 font-primary">Total Views</div>
               </div>
 
@@ -919,7 +837,7 @@ const SiteAdmin: React.FC = () => {
                   </div>
                   <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.uniqueVisitors.toLocaleString()}</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.overview.uniqueVisitors.toLocaleString()}</div>
                 <div className="text-sm text-gray-600 font-primary">Unique Visitors</div>
               </div>
 
@@ -930,7 +848,7 @@ const SiteAdmin: React.FC = () => {
                   </div>
                   <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{Math.round(analyticsSummary.averageSessionTime)}m</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{Math.round(analyticsSummary.overview.averageSessionDuration / 60)}m</div>
                 <div className="text-sm text-gray-600 font-primary">Avg. Session Time</div>
               </div>
 
@@ -941,7 +859,7 @@ const SiteAdmin: React.FC = () => {
                   </div>
                   <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.conversionRate}%</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.overview.conversionRate.toFixed(1)}%</div>
                 <div className="text-sm text-gray-600 font-primary">Conversion Rate</div>
               </div>
             </div>
@@ -952,12 +870,12 @@ const SiteAdmin: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Daily Views</h3>
                 <div className="h-64 flex items-end justify-between gap-2">
-                  {analyticsSummary.dailyViews.slice(-7).map((day, index) => (
+                  {analyticsSummary.traffic.dailyViews.slice(-7).map((day, index) => (
                     <div key={day.date} className="flex-1 flex flex-col items-center">
                       <div
                         className="w-full bg-primary-500 rounded-t-lg transition-all hover:bg-primary-600"
                         style={{
-                          height: `${Math.max((day.views / Math.max(...analyticsSummary.dailyViews.map(d => d.views))) * 200, 10)}px`
+                          height: `${Math.max((day.views / Math.max(...analyticsSummary.traffic.dailyViews.map(d => d.views))) * 200, 10)}px`
                         }}
                       ></div>
                       <div className="text-xs text-gray-600 mt-2 font-primary">
@@ -973,7 +891,7 @@ const SiteAdmin: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Device Breakdown</h3>
                 <div className="space-y-4">
-                  {analyticsSummary.deviceBreakdown.map((device) => {
+                  {analyticsSummary.demographics.devices.map((device) => {
                     const Icon = device.device === 'desktop' ? Monitor : 
                                 device.device === 'mobile' ? Smartphone : Tablet;
                     return (
@@ -1005,7 +923,7 @@ const SiteAdmin: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Pages</h3>
                 <div className="space-y-3">
-                  {analyticsSummary.topPages.map((page, index) => (
+                  {analyticsSummary.behavior.topPages.map((page, index) => (
                     <div key={page.page} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                       <div className="flex items-center gap-3">
                         <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -1014,6 +932,23 @@ const SiteAdmin: React.FC = () => {
                         <span className="font-medium text-gray-900 font-primary">{page.page}</span>
                       </div>
                       <span className="text-sm font-semibold text-gray-600 font-primary">{page.views} views</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Referrers</h3>
+                <div className="space-y-3">
+                  {analyticsSummary.behavior.topReferrers.map((referrer, index) => (
+                    <div key={referrer.referrer} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-green-600 font-primary">{index + 1}</span>
+                        </div>
+                        <span className="font-medium text-gray-900 font-primary">{referrer.referrer}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-600 font-primary">{referrer.visitors} visitors</span>
                     </div>
                   ))}
                 </div>
@@ -1065,6 +1000,14 @@ const SiteAdmin: React.FC = () => {
                     <Download className="w-4 h-4" />
                     Export
                   </button>
+                  
+                  <button
+                    onClick={handleClearAnalytics}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Clear Data
+                  </button>
                 </div>
               </div>
             </div>
@@ -1078,7 +1021,7 @@ const SiteAdmin: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-lg font-bold text-gray-900 font-heading">
-                      {analyticsSummary.performanceMetrics.averageLoadTime}ms
+                      {analyticsSummary.performance.averageLoadTime}ms
                     </div>
                     <div className="text-sm text-gray-600 font-primary">Avg. Load Time</div>
                   </div>
@@ -1086,7 +1029,7 @@ const SiteAdmin: React.FC = () => {
                 <div className="w-full h-2 bg-gray-200 rounded-full">
                   <div
                     className="h-full bg-blue-500 rounded-full transition-all"
-                    style={{ width: `${Math.min((3000 - analyticsSummary.performanceMetrics.averageLoadTime) / 3000 * 100, 100)}%` }}
+                    style={{ width: `${Math.min((3000 - analyticsSummary.performance.averageLoadTime) / 3000 * 100, 100)}%` }}
                   ></div>
                 </div>
               </div>
@@ -1098,35 +1041,35 @@ const SiteAdmin: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-lg font-bold text-gray-900 font-heading">
-                      {analyticsSummary.performanceMetrics.averageRenderTime}ms
+                      {analyticsSummary.performance.averageDOMContentLoaded}ms
                     </div>
-                    <div className="text-sm text-gray-600 font-primary">Avg. Render Time</div>
+                    <div className="text-sm text-gray-600 font-primary">DOM Content Loaded</div>
                   </div>
                 </div>
                 <div className="w-full h-2 bg-gray-200 rounded-full">
                   <div
                     className="h-full bg-green-500 rounded-full transition-all"
-                    style={{ width: `${Math.min((1000 - analyticsSummary.performanceMetrics.averageRenderTime) / 1000 * 100, 100)}%` }}
+                    style={{ width: `${Math.min((1000 - analyticsSummary.performance.averageDOMContentLoaded) / 1000 * 100, 100)}%` }}
                   ></div>
                 </div>
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
+                    <Target className="w-5 h-5 text-yellow-600" />
                   </div>
                   <div>
                     <div className="text-lg font-bold text-gray-900 font-heading">
-                      {analyticsSummary.performanceMetrics.errorRate}%
+                      {analyticsSummary.overview.bounceRate.toFixed(1)}%
                     </div>
-                    <div className="text-sm text-gray-600 font-primary">Error Rate</div>
+                    <div className="text-sm text-gray-600 font-primary">Bounce Rate</div>
                   </div>
                 </div>
                 <div className="w-full h-2 bg-gray-200 rounded-full">
                   <div
-                    className="h-full bg-red-500 rounded-full transition-all"
-                    style={{ width: `${analyticsSummary.performanceMetrics.errorRate}%` }}
+                    className="h-full bg-yellow-500 rounded-full transition-all"
+                    style={{ width: `${analyticsSummary.overview.bounceRate}%` }}
                   ></div>
                 </div>
               </div>
@@ -1136,12 +1079,12 @@ const SiteAdmin: React.FC = () => {
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Hourly Activity</h3>
               <div className="h-64 flex items-end justify-between gap-1">
-                {analyticsSummary.hourlyViews.map((hour) => (
+                {analyticsSummary.traffic.hourlyViews.map((hour) => (
                   <div key={hour.hour} className="flex-1 flex flex-col items-center">
                     <div
                       className="w-full bg-primary-500 rounded-t-lg transition-all hover:bg-primary-600"
                       style={{
-                        height: `${Math.max((hour.views / Math.max(...analyticsSummary.hourlyViews.map(h => h.views))) * 200, 2)}px`
+                        height: `${Math.max((hour.views / Math.max(...analyticsSummary.traffic.hourlyViews.map(h => h.views))) * 200, 2)}px`
                       }}
                     ></div>
                     <div className="text-xs text-gray-600 mt-2 font-primary">
@@ -1156,7 +1099,7 @@ const SiteAdmin: React.FC = () => {
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Geographic Distribution</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {analyticsSummary.countryBreakdown.slice(0, 10).map((country, index) => (
+                {analyticsSummary.demographics.countries.slice(0, 10).map((country, index) => (
                   <div key={country.country} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                     <div className="flex items-center gap-3">
                       <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -1164,7 +1107,197 @@ const SiteAdmin: React.FC = () => {
                       </div>
                       <span className="font-medium text-gray-900 font-primary">{country.country}</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-600 font-primary">{country.views} visits</span>
+                    <span className="text-sm font-semibold text-gray-600 font-primary">{country.visitors} visits</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Browser and OS Statistics */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Browser Distribution</h3>
+                <div className="space-y-3">
+                  {analyticsSummary.demographics.browsers.map((browser, index) => (
+                    <div key={browser.browser} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-blue-600 font-primary">{index + 1}</span>
+                        </div>
+                        <span className="font-medium text-gray-900 font-primary">{browser.browser}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded-full transition-all"
+                            style={{ width: `${browser.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-600 font-primary">{browser.percentage}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Operating Systems</h3>
+                <div className="space-y-3">
+                  {analyticsSummary.demographics.operatingSystems.map((os, index) => (
+                    <div key={os.os} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-purple-600 font-primary">{index + 1}</span>
+                        </div>
+                        <span className="font-medium text-gray-900 font-primary">{os.os}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-purple-500 rounded-full transition-all"
+                            style={{ width: `${os.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-600 font-primary">{os.percentage}%</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            {/* Conversion Funnel */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Conversion Funnel</h3>
+              <div className="space-y-4">
+                {analyticsSummary.conversions.conversionFunnel.map((step, index) => (
+                  <div key={step.step} className="relative">
+                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                          <span className="text-sm font-bold text-primary-600 font-primary">{index + 1}</span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 font-primary">{step.step}</div>
+                          <div className="text-sm text-gray-600 font-primary">{step.visitors} visitors</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-lg font-bold text-gray-900 font-heading">{step.conversionRate}%</div>
+                        <div className="text-sm text-gray-600 font-primary">conversion rate</div>
+                      </div>
+                    </div>
+                    {index < analyticsSummary.conversions.conversionFunnel.length - 1 && (
+                      <div className="flex justify-center py-2">
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Real-time Tab */}
+        {activeTab === 'realtime' && analyticsSummary && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* Real-time Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900 font-heading">
+                      {analyticsSummary.realTime.activeVisitors}
+                    </div>
+                    <div className="text-sm text-gray-600 font-primary">Active Visitors</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-xs text-gray-600 font-primary">Live now</span>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Eye className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900 font-heading">
+                      {analyticsSummary.realTime.currentPageViews.reduce((sum, page) => sum + page.viewers, 0)}
+                    </div>
+                    <div className="text-sm text-gray-600 font-primary">Page Views (5 min)</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 font-primary">Last 5 minutes</div>
+              </div>
+              
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <Target className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900 font-heading">
+                      {analyticsSummary.conversions.totalConversions}
+                    </div>
+                    <div className="text-sm text-gray-600 font-primary">Total Conversions</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 font-primary">All time</div>
+              </div>
+            </div>
+            
+            {/* Current Page Views */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Current Page Views</h3>
+              <div className="space-y-3">
+                {analyticsSummary.realTime.currentPageViews.map((page, index) => (
+                  <div key={page.page} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+                        <span className="text-xs font-bold text-green-600 font-primary">{index + 1}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 font-primary">{page.page}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-semibold text-gray-600 font-primary">{page.viewers} viewers</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Recent Events */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Recent Activity</h3>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {analyticsSummary.realTime.recentEvents.map((event, index) => (
+                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      event.type === 'pageview' ? 'bg-blue-100' :
+                      event.type === 'interaction' ? 'bg-green-100' : 'bg-purple-100'
+                    }`}>
+                      {event.type === 'pageview' && <Eye className="w-4 h-4 text-blue-600" />}
+                      {event.type === 'interaction' && <MousePointer className="w-4 h-4 text-green-600" />}
+                      {event.type === 'conversion' && <Target className="w-4 h-4 text-purple-600" />}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900 font-primary">{event.details}</div>
+                      <div className="text-xs text-gray-600 font-primary">
+                        {event.timestamp.toLocaleTimeString()}
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1248,18 +1381,57 @@ const SiteAdmin: React.FC = () => {
             className="space-y-6"
           >
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 font-heading">Website Settings</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900 font-heading">Website Settings</h2>
+                <div className="flex items-center gap-3">
+                  {!isEditing ? (
+                    <button
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
+                      >
+                        <X className="w-4 h-4" />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveProject}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium font-primary"
+                      >
+                        <Save className="w-4 h-4" />
+                        Save
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
               
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website Name</label>
-                    <input
-                      type="text"
-                      value={project.name}
-                      readOnly
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
-                    />
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.name}
+                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        value={project.name}
+                        readOnly
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
+                      />
+                    )}
                   </div>
                   
                   <div>
@@ -1280,23 +1452,53 @@ const SiteAdmin: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Description</label>
-                  <textarea
-                    value={project.description || 'No description provided'}
-                    readOnly
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 resize-none font-primary"
-                  />
+                  {isEditing ? (
+                    <textarea
+                      value={editForm.description}
+                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none font-primary"
+                      placeholder="Enter website description"
+                    />
+                  ) : (
+                    <textarea
+                      value={project.description || 'No description provided'}
+                      readOnly
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 resize-none font-primary"
+                    />
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category</label>
-                    <input
-                      type="text"
-                      value={project.category || 'General'}
-                      readOnly
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
-                    />
+                    {isEditing ? (
+                      <select
+                        value={editForm.category}
+                        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
+                      >
+                        <option value="business">Business</option>
+                        <option value="personal">Personal</option>
+                        <option value="portfolio">Portfolio</option>
+                        <option value="ecommerce">E-commerce</option>
+                        <option value="education">Education</option>
+                        <option value="photography">Photography</option>
+                        <option value="music">Music</option>
+                        <option value="restaurant">Restaurant</option>
+                        <option value="automotive">Automotive</option>
+                        <option value="realestate">Real Estate</option>
+                        <option value="gaming">Gaming</option>
+                      </select>
+                    ) : (
+                      <input
+                        type="text"
+                        value={project.category || 'General'}
+                        readOnly
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
+                      />
+                    )}
                   </div>
                   
                   <div>
@@ -1308,6 +1510,26 @@ const SiteAdmin: React.FC = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
                     />
                   </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">SEO Keywords</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editForm.seoKeywords}
+                      onChange={(e) => setEditForm({ ...editForm, seoKeywords: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
+                      placeholder="Enter keywords separated by commas"
+                    />
+                  ) : (
+                    <input
+                      type="text"
+                      value={project.seoKeywords?.join(', ') || 'No keywords set'}
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
+                    />
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
@@ -1323,6 +1545,37 @@ const SiteAdmin: React.FC = () => {
                     {project.isPublished ? 'Published' : 'Draft'}
                   </div>
                 </div>
+                
+                {/* Action Buttons */}
+                <div className="border-t border-gray-200 pt-6">
+                  <div className="flex flex-wrap gap-3">
+                    {project.isPublished && (
+                      <button
+                        onClick={handleUnpublishProject}
+                        className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-colors font-medium font-primary"
+                      >
+                        <Globe className="w-4 h-4" />
+                        Unpublish Website
+                      </button>
+                    )}
+                    
+                    <button
+                      onClick={() => navigate(`/editor/${project.id}`)}
+                      className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit Website
+                    </button>
+                    
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Delete Website
+                    </button>
+                  </div>
+                </div>
 
                 <div className="pt-4 border-t border-gray-200">
                   <div className="flex items-center justify-between text-sm text-gray-600">
@@ -1335,6 +1588,42 @@ const SiteAdmin: React.FC = () => {
           </motion.div>
         )}
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md"
+          >
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 font-heading">Delete Website</h3>
+              <p className="text-gray-600 font-primary">
+                Are you sure you want to permanently delete "{project.name}"? This action cannot be undone and will remove all content and analytics data.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteProject}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+              >
+                Delete Forever
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
