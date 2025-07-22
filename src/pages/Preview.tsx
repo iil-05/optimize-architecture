@@ -24,6 +24,8 @@ const Preview: React.FC = () => {
   const [showHeader, setShowHeader] = useState(true);
   const [projectTheme, setProjectTheme] = useState(currentTheme);
 
+  const userSiteBaseUrl = import.meta.env.VITE_USER_SITE_BASE_URL;
+
   useEffect(() => {
     if (id) {
       const project = projects.find(p => p.id === id);
@@ -61,10 +63,10 @@ const Preview: React.FC = () => {
       // Update project as published
       updateProject(currentProject.id, { 
         isPublished: true,
-        publishUrl: `${window.location.origin}/site/${currentProject.websiteUrl}`
+        publishUrl: `${userSiteBaseUrl}/${currentProject.websiteUrl}`
       });
       
-      const siteUrl = `${window.location.origin}/site/${currentProject.websiteUrl}`;
+      const siteUrl = `${userSiteBaseUrl}/${currentProject.websiteUrl}`;
       
       // Show success message with link
       if (window.confirm(`🎉 Your website has been published!\n\nYou can access it at: ${siteUrl}\n\nWould you like to visit your live website now?`)) {

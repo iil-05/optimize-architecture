@@ -1,4 +1,4 @@
-import React, {useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -62,7 +62,7 @@ const Dashboard: React.FC = () => {
   const [sortBy, setSortBy] = useState<'updated' | 'created' | 'name'>('updated');
   const [urlError, setUrlError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  
+
   // Website categories
   const categories = [
     { id: 'business', name: 'Business', icon: Building, description: 'Corporate websites, agencies, consulting' },
@@ -652,7 +652,7 @@ const Dashboard: React.FC = () => {
                     <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg">
                       <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 flex-shrink-0" />
                       <span className="text-xs sm:text-sm text-primary-600 font-mono truncate">
-                        {project.websiteUrl}
+                        {project.isPublished ? `${userSiteBaseUrl}${project.websiteUrl}` : `No Publish`}
                       </span>
                     </div>
 
@@ -783,7 +783,7 @@ const Dashboard: React.FC = () => {
                   </label>
                   <div className="flex items-center">
                     <span className="px-3 py-3 sm:py-4 bg-gray-100 text-gray-600 rounded-l-xl border border-r-0 border-gray-300 text-sm sm:text-base font-mono">
-                      templates.uz/
+                      {userSiteBaseUrl}
                     </span>
                     <input
                       type="text"
