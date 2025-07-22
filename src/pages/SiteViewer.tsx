@@ -218,7 +218,7 @@ const SiteViewer: React.FC = () => {
               className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
             >
               Create Your Own Website
-            </button>
+            </motion.button>
           </div>
         </div>
       ) : (
