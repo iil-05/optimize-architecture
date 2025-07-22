@@ -25,7 +25,6 @@ const SiteViewer: React.FC = () => {
   const [activeTheme, setActiveTheme] = useState(currentTheme);
   const [hasLiked, setHasLiked] = useState(false);
   const [showCoinDonation, setShowCoinDonation] = useState(false);
-  const [sessionStartTime] = useState(Date.now());
 
   useEffect(() => {
     const loadWebsite = async () => {
@@ -35,43 +34,30 @@ const SiteViewer: React.FC = () => {
         return;
       }
 
-      console.log('🔍 Looking for website with URL:', websiteUrl);
+      const allProjects = optimizedStorage.getAllProjects();
+      const foundProject = allProjects.find(p => p.websiteUrl === websiteUrl);
 
-      // Load from optimized storage (accessible without login)
-      const allStoredProjects = optimizedStorage.getAllProjects();
-      const foundProject = allStoredProjects.find(p => p.websiteUrl === websiteUrl);
+      if (foundProject && (foundProject.isPublished || import.meta.env.DEV)) {
+        setProject(foundProject);
 
-      if (foundProject) {
-        console.log('✅ Found project:', foundProject);
-
-        // Check if project is published (always allow in development)
-        if (foundProject.isPublished || import.meta.env.DEV) {
-          setProject(foundProject);
-
-          // Apply project's theme
-          if (foundProject.themeId) {
-            const theme = themeRegistry.getTheme(foundProject.themeId);
-            if (theme) {
-              console.log('🎨 Applying theme:', theme.name);
-              setActiveTheme(theme);
-              updateTheme(foundProject.themeId);
-            }
+        // Apply theme
+        if (foundProject.themeId) {
+          const theme = themeRegistry.getTheme(foundProject.themeId);
+          if (theme) {
+            setActiveTheme(theme);
+            updateTheme(foundProject.themeId);
           }
-
-          // Track visit with accurate data
-          trackVisit(foundProject.id);
-
-          // Check if user has already liked this site
-          const likedSites = JSON.parse(localStorage.getItem('templates_uz_liked_sites') || '[]');
-          setHasLiked(likedSites.includes(foundProject.id));
-
-          setError(null);
-        } else {
-          console.log('❌ Website found but not published. isPublished:', foundProject.isPublished);
-          setError('This website is not published yet');
         }
+
+        // Track visit
+        optimizedStorage.trackEvent(foundProject.id, 'visit');
+
+        // Check if liked
+        const likedSites = JSON.parse(localStorage.getItem('liked_sites') || '[]');
+        setHasLiked(likedSites.includes(foundProject.id));
+
+        setError(null);
       } else {
-        console.log('❌ Website not found');
         setError('Website not found');
       }
 
@@ -81,109 +67,24 @@ const SiteViewer: React.FC = () => {
     loadWebsite();
   }, [websiteUrl, updateTheme]);
 
-  // Track page unload to calculate session duration
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      if (project) {
-        const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 1000);
-        optimizedStorage.trackSimpleEvent(project.id, 'visit', {
-          sessionDuration,
-          pageUrl: window.location.href,
-          exitTime: new Date().toISOString()
-        });
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [project, sessionStartTime]);
-
-  // Track accurate visit with real user data
-  const trackVisit = (projectId: string) => {
-    try {
-      // Capture performance metrics
-      const performanceData: any = {};
-      if (window.performance) {
-        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-        if (navigation) {
-          performanceData.loadTime = Math.round(navigation.loadEventEnd - navigation.fetchStart);
-          performanceData.domContentLoaded = Math.round(navigation.domContentLoadedEventEnd - navigation.fetchStart);
-          performanceData.firstPaint = Math.round(navigation.responseEnd - navigation.fetchStart);
-        }
-      }
-
-      optimizedStorage.trackSimpleEvent(projectId, 'visit', {
-        pageUrl: window.location.href,
-        referrer: document.referrer || undefined,
-        userAgent: navigator.userAgent,
-        timestamp: new Date().toISOString(),
-        sessionStartTime: sessionStartTime,
-        ...performanceData
-      });
-      
-      console.log('📊 Visit tracked for project:', projectId);
-    } catch (error) {
-      console.error('❌ Error tracking visit:', error);
-    }
-  };
-
   const handleLike = () => {
     if (!project || hasLiked) return;
 
-    try {
-      // Track like event
-      optimizedStorage.trackSimpleEvent(project.id, 'like', {
-        timestamp: new Date().toISOString(),
-        pageUrl: window.location.href
-      });
+    optimizedStorage.trackEvent(project.id, 'like');
 
-      // Save to local storage to prevent multiple likes
-      const likedSites = JSON.parse(localStorage.getItem('templates_uz_liked_sites') || '[]');
-      likedSites.push(project.id);
-      localStorage.setItem('templates_uz_liked_sites', JSON.stringify(likedSites));
+    const likedSites = JSON.parse(localStorage.getItem('liked_sites') || '[]');
+    likedSites.push(project.id);
+    localStorage.setItem('liked_sites', JSON.stringify(likedSites));
 
-      setHasLiked(true);
-      console.log('❤️ Like tracked for project:', project.id);
-    } catch (error) {
-      console.error('❌ Error tracking like:', error);
-    }
+    setHasLiked(true);
   };
 
   const handleCoinDonation = (amount: number) => {
     if (!project) return;
 
-    try {
-      // Track coin donation event
-      optimizedStorage.trackSimpleEvent(project.id, 'coin_donation', { 
-        amount,
-        timestamp: new Date().toISOString(),
-        pageUrl: window.location.href
-      });
-
-      setShowCoinDonation(false);
-      console.log('🪙 Coin donation tracked:', { projectId: project.id, amount });
-      
-      // Show success message
-      alert(`Thank you for donating ${amount} coin${amount > 1 ? 's' : ''}! 🪙`);
-    } catch (error) {
-      console.error('❌ Error tracking coin donation:', error);
-    }
-  };
-
-  // Track section interactions
-  const handleSectionInteraction = (sectionId: string, interactionType: string) => {
-    if (!project) return;
-
-    try {
-      optimizedStorage.trackSimpleEvent(project.id, 'section_interaction', {
-        sectionId,
-        interactionType,
-        timestamp: new Date().toISOString(),
-        pageUrl: window.location.href
-      });
-    } catch (error) {
-      console.error('❌ Error tracking section interaction:', error);
-    }
+    optimizedStorage.trackEvent(project.id, 'coin_donation', { amount });
+    setShowCoinDonation(false);
+    alert(`Thank you for donating ${amount} coin${amount > 1 ? 's' : ''}! 🪙`);
   };
 
   if (isLoading) {
@@ -230,10 +131,7 @@ const SiteViewer: React.FC = () => {
             transition={{ delay: 0.3 }}
             className="text-gray-600 mb-8 font-primary leading-relaxed"
           >
-            {error === 'This website is not published yet'
-              ? `The website "${websiteUrl}" exists but hasn't been published yet.`
-              : `The website "${websiteUrl}" doesn't exist or has been removed.`
-            }
+            The website "{websiteUrl}" doesn't exist or has been removed.
           </motion.p>
 
           <motion.div
@@ -266,7 +164,6 @@ const SiteViewer: React.FC = () => {
     <div className="min-h-screen bg-white">
       {/* Floating Action Buttons */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-        {/* Like Button */}
         <motion.button
           onClick={handleLike}
           disabled={hasLiked}
@@ -281,7 +178,6 @@ const SiteViewer: React.FC = () => {
           <Heart className={`w-6 h-6 ${hasLiked ? 'fill-current' : ''}`} />
         </motion.button>
 
-        {/* Coin Donation Button */}
         <motion.button
           onClick={() => setShowCoinDonation(true)}
           whileHover={{ scale: 1.1 }}
@@ -383,8 +279,6 @@ const SiteViewer: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                onClick={() => handleSectionInteraction(section.id, 'click')}
-                onMouseEnter={() => handleSectionInteraction(section.id, 'hover')}
               >
                 <SectionRenderer
                   section={section}
@@ -401,10 +295,7 @@ const SiteViewer: React.FC = () => {
       )}
 
       {/* Powered By Templates.uz */}
-      <section
-        id="powered-by-templates"
-        className="bg-gray-900 text-white h-[120px] flex items-center justify-center px-4"
-      >
+      <section className="bg-gray-900 text-white h-[120px] flex items-center justify-center px-4">
         <div className="max-w-7xl mx-auto w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -412,7 +303,6 @@ const SiteViewer: React.FC = () => {
             viewport={{ once: true }}
             className="flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left"
           >
-            {/* Left: Logo + Text */}
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
                 <Globe className="w-5 h-5 text-white" />
@@ -425,7 +315,6 @@ const SiteViewer: React.FC = () => {
               </div>
             </div>
 
-            {/* Right: CTA buttons */}
             <div className="flex gap-3 flex-wrap justify-center sm:justify-end">
               <a
                 href="/dashboard"
