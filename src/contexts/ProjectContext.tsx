@@ -158,6 +158,15 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
           }
         }
         
+        // If publishing status changed, log the site URL
+        if (updates.isPublished && !project.isPublished) {
+          console.log('🌐 Website published:', {
+            name: updatedProject.name,
+            url: `${window.location.origin}/site/${updatedProject.websiteUrl}`,
+            websiteUrl: updatedProject.websiteUrl
+          });
+        }
+        
         console.log('✅ Project updated:', updatedProject);
         return updatedProject;
       }

@@ -57,7 +57,18 @@ const Preview: React.FC = () => {
   }, []);
 
   const handlePublish = () => {
-    alert(`🎉 Your website has been published!\n\nYou can access it at: ${currentProject?.name.toLowerCase().replace(/\s+/g, '-')}.templates.uz`);
+    if (currentProject) {
+      // Update project as published
+      const siteUrl = `${window.location.origin}/site/${currentProject.websiteUrl}`;
+      alert(`🎉 Your website has been published!\n\nYou can access it at: ${siteUrl}`);
+      
+      // In a real app, you would update the project's published status
+      console.log('Publishing website:', {
+        projectId: currentProject.id,
+        websiteUrl: currentProject.websiteUrl,
+        publishUrl: siteUrl
+      });
+    }
   };
 
   const handleShare = () => {

@@ -17,6 +17,7 @@ import {
   Palette,
   Layers,
   Code,
+  Globe,
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -335,6 +336,16 @@ const Editor: React.FC = () => {
               <Eye className="w-3 h-3 xl:w-4 xl:h-4" />
               {t('editor.preview')}
             </button>
+
+            {currentProject.isPublished && (
+              <button
+                onClick={() => window.open(`/site/${currentProject.websiteUrl}`, '_blank')}
+                className="flex items-center gap-1.5 xl:gap-2 px-4 xl:px-6 py-2.5 xl:py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-semibold shadow-glow font-display text-sm xl:text-base"
+              >
+                <Globe className="w-3 h-3 xl:w-4 xl:h-4" />
+                View Live
+              </button>
+            )}
 
             <button
               onClick={handleSave}

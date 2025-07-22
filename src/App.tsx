@@ -17,6 +17,7 @@ import Settings from './pages/Settings';
 import Team from './pages/Team';
 import Support from './pages/Support';
 import TemplateGallery from './pages/TemplateGallery';
+import SiteViewer from './pages/SiteViewer';
 
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -49,6 +50,9 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+
+              {/* Public site viewer route */}
+              <Route path="/site/:websiteUrl" element={<SiteViewer />} />
 
               <Route path="/" element={<Navigate to="/dashboard" />} />
 
