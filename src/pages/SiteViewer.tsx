@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { 
   Globe, 
   ArrowLeft, 
@@ -12,51 +13,91 @@ import {
   User,
   Building,
   AlertCircle,
-  Loader2
+  Loader2,
+  Star,
+  Calendar,
+  Layers,
+  Palette,
+  Code,
+  Smartphone,
+  Monitor,
+  Tablet
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { themeRegistry } from '../core/ThemeRegistry';
 import SectionRenderer from '../components/SectionRenderer';
+import { Project } from '../types';
 
 const SiteViewer: React.FC = () => {
   const { websiteUrl } = useParams<{ websiteUrl: string }>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { projects } = useProject();
-  const { updateTheme } = useTheme();
-  const [project, setProject] = useState<any>(null);
+  const { updateTheme, currentTheme } = useTheme();
+  
+  const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewCount, setViewCount] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const [activeTheme, setActiveTheme] = useState(currentTheme);
 
   useEffect(() => {
-    if (websiteUrl) {
+    const loadWebsite = async () => {
+      if (!websiteUrl) {
+        setError('No website URL provided');
+        setIsLoading(false);
+        return;
+      }
+
+      console.log('🔍 Looking for website with URL:', websiteUrl);
+      console.log('📋 Available projects:', projects.map(p => ({ id: p.id, name: p.name, websiteUrl: p.websiteUrl, isPublished: p.isPublished })));
+
       // Find project by websiteUrl
-      const foundProject = projects.find(p => p.websiteUrl === websiteUrl && p.isPublished);
+      const foundProject = projects.find(p => 
+        p.websiteUrl === websiteUrl && p.isPublished
+      );
       
       if (foundProject) {
+        console.log('✅ Found published project:', foundProject);
         setProject(foundProject);
         
         // Apply project's theme
         if (foundProject.themeId) {
           const theme = themeRegistry.getTheme(foundProject.themeId);
           if (theme) {
+            console.log('🎨 Applying theme:', theme.name);
+            setActiveTheme(theme);
             updateTheme(foundProject.themeId);
           }
         }
         
-        // Simulate view count increment
+        // Simulate view count increment (in real app, this would be tracked in backend)
         setViewCount(Math.floor(Math.random() * 1000) + 100);
         
         setError(null);
       } else {
+        console.log('❌ Website not found or not published');
         setError('Website not found or not published');
       }
       
       setIsLoading(false);
-    }
+    };
+
+    loadWebsite();
   }, [websiteUrl, projects, updateTheme]);
+
+  // Handle scroll to show/hide header
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowHeader(window.scrollY < 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -102,13 +143,25 @@ const SiteViewer: React.FC = () => {
     return icons[category] || Globe;
   };
 
+  const formatDate = (date: Date) => {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    }).format(new Date(date));
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-12 h-12 text-primary-600 animate-spin mx-auto mb-4" />
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Loading Website...</h2>
-          <p className="text-gray-600">Please wait while we load the website</p>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-6"
+          />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2 font-heading">Loading Website...</h2>
+          <p className="text-gray-600 font-primary">Please wait while we load the website</p>
         </div>
       </div>
     );
@@ -116,29 +169,54 @@ const SiteViewer: React.FC = () => {
 
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="w-10 h-10 text-red-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Website Not Found</h2>
-          <p className="text-gray-600 mb-6">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6"
+          >
+            <AlertCircle className="w-12 h-12 text-red-600" />
+          </motion.div>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-3xl font-bold text-gray-900 mb-4 font-heading"
+          >
+            Website Not Found
+          </motion.h2>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="text-gray-600 mb-8 font-primary leading-relaxed"
+          >
             {error || `The website "${websiteUrl}" doesn't exist or hasn't been published yet.`}
-          </p>
-          <div className="flex gap-3 justify-center">
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
             <button
               onClick={() => navigate('/')}
-              className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors"
+              className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
             >
               Go Home
             </button>
             <button
               onClick={() => navigate('/dashboard')}
-              className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
+              className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
             >
-              Create Website
+              Create Your Website
             </button>
-          </div>
+          </motion.div>
         </div>
       </div>
     );
@@ -147,142 +225,286 @@ const SiteViewer: React.FC = () => {
   const CategoryIcon = getCategoryIcon(project.category);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Floating Header - Only visible on scroll */}
+    <div className="min-h-screen bg-white relative">
+      {/* Floating Header */}
       <motion.div
         initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="fixed top-4 left-4 right-4 z-50 bg-white/95 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200 px-6 py-4"
+        animate={{ y: showHeader ? 0 : -100 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="fixed top-2 sm:top-4 left-2 sm:left-4 right-2 sm:right-4 z-50 bg-white/95 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg border border-gray-200"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <button
               onClick={() => navigate('/')}
-              className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-xl transition-colors group"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 group-hover:text-gray-800" />
             </button>
             
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-                <Globe className="w-5 h-5 text-white" />
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
               <div>
-                <h1 className="font-semibold text-gray-900">{project.name}</h1>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CategoryIcon className="w-4 h-4" />
-                  <span>{project.category}</span>
+                <h1 className="font-semibold text-gray-900 text-sm sm:text-base font-heading">{project.name}</h1>
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+                  <CategoryIcon className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span className="font-primary">{project.category}</span>
                   <span>•</span>
-                  <span>{project.sections.length} sections</span>
+                  <span className="font-primary">{project.sections.length} sections</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Stats - Hidden on mobile */}
+            <div className="hidden md:flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
-                <span>{viewCount}</span>
+                <span className="font-primary">{viewCount}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="w-4 h-4" />
-                <span>Updated {new Date(project.updatedAt).toLocaleDateString()}</span>
+                <span className="font-primary">Updated {formatDate(project.updatedAt)}</span>
               </div>
             </div>
 
+            {/* Action Buttons */}
             <button
               onClick={handleLike}
               className={`p-2 rounded-xl transition-colors ${
                 isLiked ? 'bg-red-100 text-red-600' : 'hover:bg-gray-100 text-gray-600'
               }`}
             >
-              <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isLiked ? 'fill-current' : ''}`} />
             </button>
 
             <button
               onClick={handleShare}
               className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-600"
             >
-              <Share2 className="w-5 h-5" />
+              <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <a
-              href={`/dashboard`}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-sm font-medium"
+              href="/dashboard"
+              className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors text-xs sm:text-sm font-medium font-primary"
             >
-              <ExternalLink className="w-4 h-4" />
-              Create Your Own
+              <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Create Your Own</span>
+              <span className="sm:hidden">Create</span>
             </a>
           </div>
         </div>
       </motion.div>
 
       {/* Website Content */}
-      <div className="pt-24">
+      <div className="pt-16 sm:pt-20">
         {project.sections.length === 0 ? (
           <div className="min-h-screen flex items-center justify-center bg-gray-50">
             <div className="text-center max-w-lg px-4">
-              <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6"
+              >
                 <Globe className="w-10 h-10 text-gray-400" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Website Under Construction</h2>
-              <p className="text-gray-600 mb-8">
+              </motion.div>
+              
+              <motion.h2 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-2xl font-bold text-gray-900 mb-4 font-heading"
+              >
+                Website Under Construction
+              </motion.h2>
+              
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-gray-600 mb-8 font-primary"
+              >
                 This website is currently being built. Check back soon!
-              </p>
-              <button
+              </motion.p>
+              
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
                 onClick={() => navigate('/dashboard')}
-                className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
+                className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
               >
                 Create Your Own Website
-              </button>
+              </motion.button>
             </div>
           </div>
         ) : (
-          project.sections
-            .sort((a: any, b: any) => a.order - b.order)
-            .map((section: any) => (
-              <SectionRenderer
-                key={section.id}
-                section={section}
-                isSelected={false}
-                onSelect={() => {}}
-                isPreview={true}
-                isEditing={false}
-                onEdit={() => {}}
-              />
-            ))
+          <div className="relative">
+            {project.sections
+              .sort((a, b) => a.order - b.order)
+              .map((section, index) => (
+                <motion.div
+                  key={section.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                >
+                  <SectionRenderer
+                    section={section}
+                    isSelected={false}
+                    onSelect={() => {}}
+                    isPreview={true}
+                    theme={activeTheme}
+                    isEditing={false}
+                    onEdit={() => {}}
+                  />
+                </motion.div>
+              ))}
+          </div>
         )}
       </div>
 
-      {/* Footer Attribution */}
-      <div className="bg-gray-900 text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <Globe className="w-4 h-4 text-white" />
+      {/* Website Info Sidebar - Only visible on larger screens */}
+      <div className="hidden xl:block fixed top-24 right-6 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-lg border border-gray-200 p-6 z-40">
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center">
+              <CategoryIcon className="w-6 h-6 text-white" />
             </div>
-            <span className="font-semibold">Templates.uz</span>
+            <div>
+              <h3 className="font-semibold text-gray-900 font-heading">{project.name}</h3>
+              <p className="text-sm text-gray-600 font-primary">{project.category}</p>
+            </div>
           </div>
-          <p className="text-gray-400 text-sm mb-4">
-            This website was created with Templates.uz - The easiest way to build professional websites
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <a
-              href="/dashboard"
-              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+
+          {project.description && (
+            <p className="text-sm text-gray-700 leading-relaxed font-primary">
+              {project.description}
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600 font-primary">{project.sections.length} sections</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600 font-primary">{viewCount} views</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600 font-primary">{formatDate(project.createdAt)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600 font-primary">{formatDate(project.updatedAt)}</span>
+            </div>
+          </div>
+
+          {project.seoKeywords && project.seoKeywords.length > 0 && (
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 mb-2 font-heading">Keywords</h4>
+              <div className="flex flex-wrap gap-1">
+                {project.seoKeywords.slice(0, 6).map((keyword, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-primary-100 text-primary-700 rounded text-xs font-medium font-primary"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="pt-4 border-t border-gray-200">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="w-full px-4 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
             >
-              Create Your Website
-            </a>
-            <a
-              href="/templates"
-              className="px-6 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium"
-            >
-              Browse Templates
-            </a>
+              Create Your Own Website
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Stats Bar */}
+      <div className="xl:hidden fixed bottom-4 left-4 right-4 bg-white/95 backdrop-blur-xl rounded-xl shadow-lg border border-gray-200 p-4 z-40">
+        <div className="flex items-center justify-between text-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <Eye className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600 font-primary">{viewCount}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Layers className="w-4 h-4 text-gray-500" />
+              <span className="text-gray-600 font-primary">{project.sections.length}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <Heart className={`w-4 h-4 ${isLiked ? 'text-red-500 fill-current' : 'text-gray-500'}`} />
+              <span className="text-gray-600 font-primary">{isLiked ? '1' : '0'}</span>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors font-medium font-primary"
+          >
+            Create Yours
+          </button>
+        </div>
+      </div>
+
+      {/* Footer Attribution */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="space-y-6"
+          >
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Globe className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold font-heading">Templates.uz</span>
+            </div>
+            
+            <p className="text-gray-400 text-sm sm:text-base mb-6 max-w-2xl mx-auto font-primary">
+              This website was created with Templates.uz - The easiest way to build professional websites without coding
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="/dashboard"
+                className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+              >
+                Create Your Website
+              </a>
+              <a
+                href="/templates"
+                className="px-6 py-3 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-colors font-medium font-primary"
+              >
+                Browse Templates
+              </a>
+            </div>
+            
+            <div className="pt-6 border-t border-gray-800">
+              <p className="text-gray-500 text-sm font-primary">
+                © 2024 Templates.uz. All rights reserved. | 
+                <a href="/privacy" className="hover:text-white transition-colors ml-1">Privacy Policy</a> | 
+                <a href="/terms" className="hover:text-white transition-colors ml-1">Terms of Service</a>
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </footer>
     </div>
   );
 };
