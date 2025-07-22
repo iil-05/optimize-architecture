@@ -1,6 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   BarChart3,
@@ -9,10 +8,6 @@ import {
   Coins,
   TrendingUp,
   Monitor,
-  Smartphone,
-  Tablet,
-  Globe,
-  Calendar,
   Clock,
   Eye,
   Settings
@@ -31,11 +26,26 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer,
-  Legend
+  ResponsiveContainer
 } from 'recharts';
-import { optimizedStorage, AnalyticsSummary } from '../utils/optimizedStorage';
+import { optimizedStorage } from '../utils/optimizedStorage';
 import { Project } from '../types';
+
+// Memoized chart components for better performance
+const MemoizedAreaChart = React.memo(AreaChart);
+const MemoizedBarChart = React.memo(BarChart);
+const MemoizedPieChart = React.memo(PieChart);
+
+interface AnalyticsSummary {
+  totalVisits: number;
+  uniqueVisitors: number;
+  totalLikes: number;
+  totalCoins: number;
+  deviceStats: Array<{ device: string; count: number; percentage: number }>;
+  browserStats: Array<{ browser: string; count: number; percentage: number }>;
+  dailyStats: Array<{ date: string; visits: number; uniqueVisitors: number }>;
+  hourlyStats: Array<{ hour: number; visits: number }>;
+}
 
 const SiteAdmin: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -45,13 +55,17 @@ const SiteAdmin: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState<'7d' | '30d'>('30d');
 
-  useEffect(() => {
+  // Memoized chart colors to prevent recreation
+  const COLORS = useMemo(() => ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'], []);
+
+  // Optimized data loading
+  const loadData = useCallback(async () => {
     if (!id) {
       navigate('/dashboard');
       return;
     }
 
-    const loadData = () => {
+    try {
       const foundProject = optimizedStorage.getProject(id);
       if (!foundProject) {
         navigate('/dashboard');
@@ -60,14 +74,20 @@ const SiteAdmin: React.FC = () => {
 
       setProject(foundProject);
       
-      // Load analytics
+      // Load analytics efficiently
       const analyticsData = optimizedStorage.getAnalyticsSummary(id);
       setAnalytics(analyticsData);
+    } catch (error) {
+      console.error('Error loading admin data:', error);
+      navigate('/dashboard');
+    } finally {
       setIsLoading(false);
-    };
-
-    loadData();
+    }
   }, [id, navigate]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   // Memoized chart data for performance
   const chartData = useMemo(() => {
@@ -84,14 +104,39 @@ const SiteAdmin: React.FC = () => {
     };
   }, [analytics, timeRange]);
 
-  // Chart colors
-  const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6'];
+  // Memoized stats cards data
+  const statsCards = useMemo(() => [
+    {
+      title: 'Total Visits',
+      value: analytics?.totalVisits.toLocaleString() || '0',
+      icon: Eye,
+      color: 'bg-primary-100 text-primary-600'
+    },
+    {
+      title: 'Unique Visitors',
+      value: analytics?.uniqueVisitors.toLocaleString() || '0',
+      icon: Users,
+      color: 'bg-green-100 text-green-600'
+    },
+    {
+      title: 'Total Likes',
+      value: analytics?.totalLikes.toLocaleString() || '0',
+      icon: Heart,
+      color: 'bg-red-100 text-red-600'
+    },
+    {
+      title: 'Total Coins',
+      value: analytics?.totalCoins.toLocaleString() || '0',
+      icon: Coins,
+      color: 'bg-yellow-100 text-yellow-600'
+    }
+  ], [analytics]);
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Loading analytics...</p>
         </div>
       </div>
@@ -129,9 +174,7 @@ const SiteAdmin: React.FC = () => {
               </button>
               
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-white" />
-                </div>
+                <BarChart3 className="w-8 h-8 text-primary-600" />
                 <div>
                   <h1 className="text-xl font-bold text-gray-900">{project.name} - Analytics</h1>
                   <p className="text-sm text-gray-600">Website performance dashboard</p>
@@ -169,89 +212,37 @@ const SiteAdmin: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Visits</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.totalVisits.toLocaleString()}</p>
+          {statsCards.map((stat, index) => {
+            const IconComponent = stat.icon;
+            return (
+              <div
+                key={stat.title}
+                className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                  </div>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                </div>
               </div>
-              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
-                <Eye className="w-6 h-6 text-primary-600" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Unique Visitors</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.uniqueVisitors.toLocaleString()}</p>
-              </div>
-              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-green-600" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Likes</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.totalLikes.toLocaleString()}</p>
-              </div>
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                <Heart className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Coins</p>
-                <p className="text-3xl font-bold text-gray-900">{analytics.totalCoins.toLocaleString()}</p>
-              </div>
-              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                <Coins className="w-6 h-6 text-yellow-600" />
-              </div>
-            </div>
-          </motion.div>
+            );
+          })}
         </div>
 
         {/* Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Daily Visits Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Daily Visits</h3>
               <TrendingUp className="w-5 h-5 text-primary-600" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={chartData?.daily}>
+              <MemoizedAreaChart data={chartData?.daily}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis 
                   dataKey="date" 
@@ -285,23 +276,18 @@ const SiteAdmin: React.FC = () => {
                   fillOpacity={0.1}
                   strokeWidth={2}
                 />
-              </AreaChart>
+              </MemoizedAreaChart>
             </ResponsiveContainer>
-          </motion.div>
+          </div>
 
           {/* Hourly Traffic Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Hourly Traffic</h3>
               <Clock className="w-5 h-5 text-primary-600" />
             </div>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData?.hourly}>
+              <MemoizedBarChart data={chartData?.hourly}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis 
                   dataKey="hour" 
@@ -324,27 +310,22 @@ const SiteAdmin: React.FC = () => {
                   fill="#ef4444" 
                   radius={[4, 4, 0, 0]}
                 />
-              </BarChart>
+              </MemoizedBarChart>
             </ResponsiveContainer>
-          </motion.div>
+          </div>
         </div>
 
         {/* Device and Browser Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Device Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Device Types</h3>
               <Monitor className="w-5 h-5 text-primary-600" />
             </div>
             <div className="flex items-center justify-between">
               <ResponsiveContainer width="60%" height={200}>
-                <PieChart>
+                <MemoizedPieChart>
                   <Pie
                     data={chartData?.devices}
                     cx="50%"
@@ -359,7 +340,7 @@ const SiteAdmin: React.FC = () => {
                     ))}
                   </Pie>
                   <Tooltip />
-                </PieChart>
+                </MemoizedPieChart>
               </ResponsiveContainer>
               <div className="space-y-3">
                 {chartData?.devices.map((device, index) => (
@@ -376,18 +357,13 @@ const SiteAdmin: React.FC = () => {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Browser Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-          >
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold text-gray-900">Browser Usage</h3>
-              <Globe className="w-5 h-5 text-primary-600" />
+              <Monitor className="w-5 h-5 text-primary-600" />
             </div>
             <div className="space-y-4">
               {chartData?.browsers.map((browser, index) => (
@@ -416,16 +392,11 @@ const SiteAdmin: React.FC = () => {
                 </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Website Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-          className="mt-8 bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-        >
+        <div className="mt-8 bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">Website Information</h3>
             <Settings className="w-5 h-5 text-primary-600" />
@@ -463,10 +434,10 @@ const SiteAdmin: React.FC = () => {
               </span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SiteAdmin;
+export default React.memo(SiteAdmin);

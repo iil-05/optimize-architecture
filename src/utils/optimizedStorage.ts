@@ -1,6 +1,6 @@
 /**
  * Optimized Storage System for Templates.uz
- * High-performance storage with 30-day data retention
+ * High-performance storage with efficient caching and minimal overhead
  */
 
 import { themeRegistry, ThemeDefinition } from '../core/ThemeRegistry';
@@ -40,19 +40,19 @@ export interface UserSettings {
   };
 }
 
-// Lightweight analytics event for 30-day retention
+// Lightweight analytics event
 export interface AnalyticsEvent {
   id: string;
   projectId: string;
   type: 'visit' | 'like' | 'coin_donation';
-  timestamp: number; // Unix timestamp for faster comparison
+  timestamp: number;
   sessionId: string;
   visitorId: string;
   data: {
     device: string;
     browser: string;
     referrer?: string;
-    amount?: number; // for coin donations
+    amount?: number;
   };
 }
 
@@ -62,10 +62,10 @@ export interface AnalyticsSummary {
   uniqueVisitors: number;
   totalLikes: number;
   totalCoins: number;
-  deviceStats: { device: string; count: number; percentage: number }[];
-  browserStats: { browser: string; count: number; percentage: number }[];
-  dailyStats: { date: string; visits: number; uniqueVisitors: number; likes: number }[];
-  hourlyStats: { hour: number; visits: number }[];
+  deviceStats: Array<{ device: string; count: number; percentage: number }>;
+  browserStats: Array<{ browser: string; count: number; percentage: number }>;
+  dailyStats: Array<{ date: string; visits: number; uniqueVisitors: number; likes: number }>;
+  hourlyStats: Array<{ hour: number; visits: number }>;
 }
 
 export class OptimizedStorage {
@@ -74,11 +74,21 @@ export class OptimizedStorage {
     PROJECTS: 'templates_uz_projects',
     USER_SETTINGS: 'templates_uz_user_settings',
     ANALYTICS: 'templates_uz_analytics',
-    SESSIONS: 'templates_uz_sessions',
   };
+
+  // Cache for frequently accessed data
+  private projectsCache: Map<string, StoredProject> = new Map();
+  private urlToProjectCache: Map<string, string> = new Map();
+  private analyticsCache: Map<string, AnalyticsSummary> = new Map();
+  private lastCacheUpdate = 0;
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   // 30-day retention in milliseconds
   private readonly RETENTION_PERIOD = 30 * 24 * 60 * 60 * 1000;
+
+  // Debounce timers
+  private saveTimers: Map<string, NodeJS.Timeout> = new Map();
+  private visitDebounce: Map<string, number> = new Map();
 
   private constructor() {}
 
@@ -93,50 +103,126 @@ export class OptimizedStorage {
     themeRegistry.initialize();
     iconRegistry.initialize();
     sectionRegistry.initialize();
-    this.cleanupOldData();
+    this.loadProjectsToCache();
+    this.scheduleCleanup();
   }
 
-  // Project Management
+  // Optimized project management with caching
   public getAllProjects(): StoredProject[] {
-    return this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    if (this.isCacheValid()) {
+      return Array.from(this.projectsCache.values());
+    }
+    
+    const projects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    this.updateProjectsCache(projects);
+    return projects;
   }
 
   public getProject(projectId: string): StoredProject | null {
+    if (this.projectsCache.has(projectId)) {
+      return this.projectsCache.get(projectId) || null;
+    }
+    
     const projects = this.getAllProjects();
     return projects.find(p => p.id === projectId) || null;
   }
 
-  public saveProject(project: StoredProject): void {
-    const projects = this.getAllProjects();
-    const existingIndex = projects.findIndex(p => p.id === project.id);
-    
-    if (existingIndex >= 0) {
-      projects[existingIndex] = { ...project, updatedAt: new Date() };
-    } else {
-      projects.push(project);
+  // Fast URL-based project lookup
+  public getProjectByUrl(websiteUrl: string): StoredProject | null {
+    if (this.urlToProjectCache.has(websiteUrl)) {
+      const projectId = this.urlToProjectCache.get(websiteUrl);
+      return projectId ? this.getProject(projectId) : null;
     }
     
-    this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projects);
+    const projects = this.getAllProjects();
+    const project = projects.find(p => p.websiteUrl === websiteUrl);
+    
+    if (project) {
+      this.urlToProjectCache.set(websiteUrl, project.id);
+    }
+    
+    return project || null;
+  }
+
+  public saveProject(project: StoredProject): void {
+    // Update cache immediately
+    this.projectsCache.set(project.id, { ...project, updatedAt: new Date() });
+    this.urlToProjectCache.set(project.websiteUrl, project.id);
+    
+    // Debounced save to localStorage
+    this.debouncedSave(this.STORAGE_KEYS.PROJECTS, () => {
+      const projects = Array.from(this.projectsCache.values());
+      this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projects);
+    });
   }
 
   public deleteProject(projectId: string): void {
-    const projects = this.getAllProjects();
-    const filteredProjects = projects.filter(p => p.id !== projectId);
-    this.saveToStorage(this.STORAGE_KEYS.PROJECTS, filteredProjects);
+    this.projectsCache.delete(projectId);
+    
+    // Remove from URL cache
+    for (const [url, id] of this.urlToProjectCache.entries()) {
+      if (id === projectId) {
+        this.urlToProjectCache.delete(url);
+        break;
+      }
+    }
+    
+    // Clear analytics cache
+    this.analyticsCache.delete(projectId);
+    
+    // Save changes
+    const projects = Array.from(this.projectsCache.values());
+    this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projects);
     this.clearAnalyticsForProject(projectId);
   }
 
-  // Optimized Analytics with 30-day retention
-  public trackEvent(projectId: string, type: 'visit' | 'like' | 'coin_donation', data: any = {}): void {
+  // Optimized analytics with debouncing and caching
+  public trackVisit(projectId: string): void {
+    const now = Date.now();
+    const lastVisit = this.visitDebounce.get(projectId) || 0;
+    
+    // Debounce visits within 30 seconds
+    if (now - lastVisit < 30000) {
+      return;
+    }
+    
+    this.visitDebounce.set(projectId, now);
+    this.trackEvent(projectId, 'visit');
+  }
+
+  public trackLike(projectId: string): void {
+    this.trackEvent(projectId, 'like');
+    
+    // Update liked projects list
+    const likedSites = this.getLikedProjects();
+    if (!likedSites.includes(projectId)) {
+      likedSites.push(projectId);
+      localStorage.setItem('liked_sites', JSON.stringify(likedSites));
+    }
+  }
+
+  public trackCoinDonation(projectId: string, amount: number): void {
+    this.trackEvent(projectId, 'coin_donation', { amount });
+  }
+
+  public isProjectLiked(projectId: string): boolean {
+    const likedSites = this.getLikedProjects();
+    return likedSites.includes(projectId);
+  }
+
+  private getLikedProjects(): string[] {
+    try {
+      return JSON.parse(localStorage.getItem('liked_sites') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  private trackEvent(projectId: string, type: 'visit' | 'like' | 'coin_donation', data: any = {}): void {
     try {
       const now = Date.now();
       const sessionId = this.getSessionId();
       const visitorId = this.getVisitorId();
-      
-      // Check for duplicate visits within 30 seconds
-      if (type === 'visit' && this.isDuplicateVisit(projectId, sessionId, now)) {
-        return;
-      }
 
       const event: AnalyticsEvent = {
         id: `${now}_${Math.random().toString(36).substr(2, 5)}`,
@@ -153,41 +239,42 @@ export class OptimizedStorage {
         }
       };
 
+      // Add to analytics efficiently
       const analytics = this.getAnalytics();
       analytics.push(event);
       
-      // Keep only events from last 30 days and limit to 5000 events
+      // Keep only recent events (last 30 days, max 1000 events)
       const cutoff = now - this.RETENTION_PERIOD;
       const filtered = analytics
         .filter(e => e.timestamp > cutoff)
-        .slice(-5000);
+        .slice(-1000);
       
       this.saveToStorage(this.STORAGE_KEYS.ANALYTICS, filtered);
+      
+      // Clear analytics cache for this project
+      this.analyticsCache.delete(projectId);
     } catch (error) {
       console.error('Analytics tracking error:', error);
     }
   }
 
   public getAnalyticsSummary(projectId: string): AnalyticsSummary {
+    // Check cache first
+    if (this.analyticsCache.has(projectId)) {
+      return this.analyticsCache.get(projectId)!;
+    }
+
     const events = this.getAnalytics().filter(e => e.projectId === projectId);
     const visits = events.filter(e => e.type === 'visit');
     const likes = events.filter(e => e.type === 'like');
     const coins = events.filter(e => e.type === 'coin_donation');
 
-    // Unique visitors
+    // Calculate unique visitors efficiently
     const uniqueVisitorIds = new Set(visits.map(v => v.visitorId));
 
     // Device stats
-    const deviceCount: Record<string, number> = {};
-    visits.forEach(e => {
-      deviceCount[e.data.device] = (deviceCount[e.data.device] || 0) + 1;
-    });
-
-    // Browser stats
-    const browserCount: Record<string, number> = {};
-    visits.forEach(e => {
-      browserCount[e.data.browser] = (browserCount[e.data.browser] || 0) + 1;
-    });
+    const deviceCount = this.countBy(visits, e => e.data.device);
+    const browserCount = this.countBy(visits, e => e.data.browser);
 
     // Daily stats (last 30 days)
     const dailyCount: Record<string, { visits: number; uniqueVisitors: Set<string>; likes: number }> = {};
@@ -199,6 +286,7 @@ export class OptimizedStorage {
       dailyCount[date] = { visits: 0, uniqueVisitors: new Set(), likes: 0 };
     }
 
+    // Populate daily stats
     visits.forEach(e => {
       const date = new Date(e.timestamp).toISOString().split('T')[0];
       if (dailyCount[date]) {
@@ -215,14 +303,13 @@ export class OptimizedStorage {
     });
 
     // Hourly stats
-    const hourlyCount: Record<number, number> = {};
-    for (let i = 0; i < 24; i++) hourlyCount[i] = 0;
+    const hourlyCount = Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 }));
     visits.forEach(e => {
       const hour = new Date(e.timestamp).getHours();
-      hourlyCount[hour]++;
+      hourlyCount[hour].visits++;
     });
 
-    return {
+    const summary: AnalyticsSummary = {
       totalVisits: visits.length,
       uniqueVisitors: uniqueVisitorIds.size,
       totalLikes: likes.length,
@@ -243,19 +330,15 @@ export class OptimizedStorage {
         uniqueVisitors: data.uniqueVisitors.size,
         likes: data.likes
       })),
-      hourlyStats: Object.entries(hourlyCount).map(([hour, visits]) => ({
-        hour: parseInt(hour),
-        visits
-      }))
+      hourlyStats: hourlyCount
     };
+
+    // Cache the result
+    this.analyticsCache.set(projectId, summary);
+    return summary;
   }
 
-  public clearAnalyticsForProject(projectId: string): void {
-    const analytics = this.getAnalytics().filter(e => e.projectId !== projectId);
-    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS, analytics);
-  }
-
-  // User Settings
+  // User Settings (optimized)
   public getUserSettings(): UserSettings {
     const defaultSettings: UserSettings = {
       selectedThemeId: 'modern-blue',
@@ -292,7 +375,7 @@ export class OptimizedStorage {
     this.saveUserSettings(settings);
   }
 
-  // Icon Management
+  // Icon Management (optimized)
   public getRecentlyUsedIcons(): IconDefinition[] {
     const settings = this.getUserSettings();
     return settings.recentlyUsedIcons
@@ -330,8 +413,48 @@ export class OptimizedStorage {
   }
 
   // Private helper methods
+  private loadProjectsToCache(): void {
+    const projects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    this.updateProjectsCache(projects);
+  }
+
+  private updateProjectsCache(projects: StoredProject[]): void {
+    this.projectsCache.clear();
+    this.urlToProjectCache.clear();
+    
+    projects.forEach(project => {
+      this.projectsCache.set(project.id, project);
+      this.urlToProjectCache.set(project.websiteUrl, project.id);
+    });
+    
+    this.lastCacheUpdate = Date.now();
+  }
+
+  private isCacheValid(): boolean {
+    return Date.now() - this.lastCacheUpdate < this.CACHE_TTL;
+  }
+
+  private debouncedSave(key: string, saveFunction: () => void): void {
+    const existingTimer = this.saveTimers.get(key);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
+    
+    const timer = setTimeout(() => {
+      saveFunction();
+      this.saveTimers.delete(key);
+    }, 1000);
+    
+    this.saveTimers.set(key, timer);
+  }
+
   private getAnalytics(): AnalyticsEvent[] {
     return this.loadFromStorage(this.STORAGE_KEYS.ANALYTICS) || [];
+  }
+
+  private clearAnalyticsForProject(projectId: string): void {
+    const analytics = this.getAnalytics().filter(e => e.projectId !== projectId);
+    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS, analytics);
   }
 
   private getSessionId(): string {
@@ -352,17 +475,6 @@ export class OptimizedStorage {
     return visitorId;
   }
 
-  private isDuplicateVisit(projectId: string, sessionId: string, timestamp: number): boolean {
-    const analytics = this.getAnalytics();
-    const recentVisit = analytics.find(e => 
-      e.projectId === projectId && 
-      e.sessionId === sessionId && 
-      e.type === 'visit' &&
-      timestamp - e.timestamp < 30000 // 30 seconds
-    );
-    return !!recentVisit;
-  }
-
   private getDevice(): string {
     const ua = navigator.userAgent;
     if (/tablet|ipad/i.test(ua)) return 'Tablet';
@@ -379,6 +491,21 @@ export class OptimizedStorage {
     return 'Other';
   }
 
+  private countBy<T>(array: T[], keyFn: (item: T) => string): Record<string, number> {
+    return array.reduce((acc, item) => {
+      const key = keyFn(item);
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  private scheduleCleanup(): void {
+    // Clean up old data every hour
+    setInterval(() => {
+      this.cleanupOldData();
+    }, 60 * 60 * 1000);
+  }
+
   private cleanupOldData(): void {
     try {
       const now = Date.now();
@@ -388,7 +515,8 @@ export class OptimizedStorage {
       const analytics = this.getAnalytics().filter(e => e.timestamp > cutoff);
       this.saveToStorage(this.STORAGE_KEYS.ANALYTICS, analytics);
       
-      console.log('🧹 Cleaned up old analytics data');
+      // Clear analytics cache
+      this.analyticsCache.clear();
     } catch (error) {
       console.error('Cleanup error:', error);
     }
@@ -418,6 +546,41 @@ export class OptimizedStorage {
     });
     localStorage.removeItem('visitor_id');
     sessionStorage.removeItem('session_id');
+    
+    // Clear caches
+    this.projectsCache.clear();
+    this.urlToProjectCache.clear();
+    this.analyticsCache.clear();
+    this.visitDebounce.clear();
+    
+    // Clear timers
+    this.saveTimers.forEach(timer => clearTimeout(timer));
+    this.saveTimers.clear();
+  }
+
+  // Storage health monitoring
+  public getStorageHealth(): { totalSize: number; projectCount: number; analyticsCount: number } {
+    try {
+      const projects = this.getAllProjects();
+      const analytics = this.getAnalytics();
+      
+      let totalSize = 0;
+      Object.values(this.STORAGE_KEYS).forEach(key => {
+        const item = localStorage.getItem(key);
+        if (item) {
+          totalSize += new Blob([item]).size;
+        }
+      });
+
+      return {
+        totalSize,
+        projectCount: projects.length,
+        analyticsCount: analytics.length
+      };
+    } catch (error) {
+      console.error('Storage health check error:', error);
+      return { totalSize: 0, projectCount: 0, analyticsCount: 0 };
+    }
   }
 }
 
