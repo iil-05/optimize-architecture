@@ -13,7 +13,6 @@ import { themeRegistry } from '../core/ThemeRegistry';
 import SectionRenderer from '../components/SectionRenderer';
 import { Project } from '../types';
 import { optimizedStorage } from '../utils/optimizedStorage';
-import { analyticsStorage } from '../utils/analyticsStorage';
 
 const SiteViewer: React.FC = () => {
   const { websiteUrl } = useParams<{ websiteUrl: string }>();
