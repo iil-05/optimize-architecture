@@ -71,7 +71,7 @@ const SiteViewer: React.FC = () => {
 
         setError(null);
       } else {
-        setError('Website not found or not published');
+        setError('Website not found, not published, or access denied');
       }
     } catch (err) {
       console.error('Error loading website:', err);

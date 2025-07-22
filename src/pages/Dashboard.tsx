@@ -201,8 +201,29 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  // Helper function to get current user ID
+  const getCurrentUserId = (): string | null => {
+    try {
+      const authData = localStorage.getItem('authData');
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.user?.id || null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+      return null;
+    }
+  };
+
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      alert('🔒 Authentication required to create projects');
+      return;
+    }
 
     if (!newProjectName.trim()) {
       alert('Please enter a website name');
@@ -271,6 +292,18 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteProject = (projectId: string) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      alert('🔒 Authentication required');
+      return;
+    }
+    
+    const project = projects.find(p => p.id === projectId);
+    if (!project || project.userId !== currentUserId) {
+      alert('🔒 Access denied: You cannot delete this project');
+      return;
+    }
+    
     if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
       deleteProject(projectId);
       setSelectedProject(null); // Clear selection after delete
@@ -278,10 +311,18 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDuplicateProject = (projectId: string) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      alert('🔒 Authentication required');
+      return;
+    }
+    
     const project = projects.find(p => p.id === projectId);
-    if (project) {
+    if (project && project.userId === currentUserId) {
       const newUrl = `${project.websiteUrl}-copy-${Date.now()}`;
       createProject(`${project.name} (Copy)`, project.description, newUrl);
+    } else {
+      alert('🔒 Access denied: You cannot duplicate this project');
     }
   };
 
@@ -621,6 +662,11 @@ const Dashboard: React.FC = () => {
                             >
                               <button
                                 onClick={() => {
+                                  const currentUserId = getCurrentUserId();
+                                  if (!currentUserId || project.userId !== currentUserId) {
+                                    alert('🔒 Access denied');
+                                    return;
+                                  }
                                   navigate(`/preview/${project.id}`);
                                   setSelectedProject(null);
                                 }}
@@ -631,6 +677,11 @@ const Dashboard: React.FC = () => {
                               </button>
                               <button
                                 onClick={() => {
+                                  const currentUserId = getCurrentUserId();
+                                  if (!currentUserId || project.userId !== currentUserId) {
+                                    alert('🔒 Access denied');
+                                    return;
+                                  }
                                   handleDuplicateProject(project.id);
                                   setSelectedProject(null);
                                 }}
@@ -710,7 +761,14 @@ const Dashboard: React.FC = () => {
 
                     <div className="flex gap-2 sm:gap-3">
                       <motion.button
-                        onClick={() => navigate(`/editor/${project.id}`)}
+                        onClick={() => {
+                          const currentUserId = getCurrentUserId();
+                          if (!currentUserId || project.userId !== currentUserId) {
+                            alert('🔒 Access denied');
+                            return;
+                          }
+                          navigate(`/editor/${project.id}`);
+                        }}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 font-semibold text-sm shadow-md font-heading"
@@ -719,7 +777,14 @@ const Dashboard: React.FC = () => {
                         {t('dashboard.projects.edit')}
                       </motion.button>
                       <motion.button
-                        onClick={() => navigate(`/preview/${project.id}`)}
+                        onClick={() => {
+                          const currentUserId = getCurrentUserId();
+                          if (!currentUserId || project.userId !== currentUserId) {
+                            alert('🔒 Access denied');
+                            return;
+                          }
+                          navigate(`/preview/${project.id}`);
+                        }}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         className="px-3 py-2.5 sm:px-4 sm:py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-semibold text-sm font-primary"
@@ -744,7 +809,14 @@ const Dashboard: React.FC = () => {
 
                       {project.isPublished && (
                         <motion.button
-                          onClick={() => navigate(`/admin/${project.id}`)}
+                          onClick={() => {
+                            const currentUserId = getCurrentUserId();
+                            if (!currentUserId || project.userId !== currentUserId) {
+                              alert('🔒 Access denied');
+                              return;
+                            }
+                            navigate(`/admin/${project.id}`);
+                          }}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className="px-3 py-2.5 sm:px-4 sm:py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-semibold text-sm font-primary shadow-lg"

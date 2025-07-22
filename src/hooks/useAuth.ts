@@ -194,6 +194,13 @@ export const useAuth = (): UseAuthReturn => {
       console.error('❌ Logout API error:', error);
       // Continue with logout even if API call fails
     } finally {
+      // Clear user-specific data from optimized storage
+      const currentUserId = authStorage.getUser()?.id;
+      if (currentUserId) {
+        // Note: We don't clear user data on logout, only on account deletion
+        console.log('🔄 User logged out, keeping data for next login');
+      }
+      
       // Clear auth data and state
       authStorage.clearAuthData();
       setUser(null);
