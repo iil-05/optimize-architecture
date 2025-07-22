@@ -648,12 +648,6 @@ const SiteAdmin: React.FC = () => {
         .sort((a, b) => b.views - a.views)
         .slice(0, 5);
 
-      // Top referrers
-      const referrerCount = pageViews.reduce((acc: any, item) => {
-        const referrer = item.data.referrer || 'direct';
-        acc[referrer] = (acc[referrer] || 0) + 1;
-        return acc;
-      }, {});
       const topReferrers = Object.entries(referrerCount)
         .map(([referrer, views]) => ({ referrer, views: views as number }))
         .sort((a, b) => b.views - a.views)
@@ -1020,23 +1014,6 @@ const SiteAdmin: React.FC = () => {
                         <span className="font-medium text-gray-900 font-primary">{page.page}</span>
                       </div>
                       <span className="text-sm font-semibold text-gray-600 font-primary">{page.views} views</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Referrers</h3>
-                <div className="space-y-3">
-                  {analyticsSummary.topReferrers.map((referrer, index) => (
-                    <div key={referrer.referrer} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-green-600 font-primary">{index + 1}</span>
-                        </div>
-                        <span className="font-medium text-gray-900 font-primary">{referrer.referrer}</span>
-                      </div>
-                      <span className="text-sm font-semibold text-gray-600 font-primary">{referrer.views} visits</span>
                     </div>
                   ))}
                 </div>
