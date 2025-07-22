@@ -175,6 +175,7 @@ export class OptimizedStorageManager {
     CACHE: `${this.STORAGE_PREFIX}cache`,
     SUPPORT: `${this.STORAGE_PREFIX}support`,
     TEMPLATE_GALLERY: `${this.STORAGE_PREFIX}template_gallery`,
+    ANALYTICS_DATA: `${this.STORAGE_PREFIX}analytics_data`,
   };
 
   private constructor() {
@@ -195,6 +196,9 @@ export class OptimizedStorageManager {
     }
     if (!this.getSettings()) {
       this.createDefaultSettings();
+    }
+    if (!this.getAnalyticsTable()) {
+      this.createAnalyticsTable();
     }
   }
 
@@ -253,6 +257,53 @@ export class OptimizedStorageManager {
   public getUserSubscription(): UserSubscription | null {
     const userData = this.loadFromStorage(this.STORAGE_KEYS.USER);
     return userData?.subscription || null;
+  }
+
+  // Analytics Table Management
+  public getAnalyticsTable(): any {
+    return this.loadFromStorage(this.STORAGE_KEYS.ANALYTICS_DATA);
+  }
+
+  public saveAnalyticsData(data: any): void {
+    const table = this.getAnalyticsTable() || this.createAnalyticsTable();
+    table.data.push(data);
+    table.metadata.lastUpdated = new Date().toISOString();
+    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS_DATA, table);
+  }
+
+  public getAnalyticsForProject(projectId: string): any[] {
+    const table = this.getAnalyticsTable();
+    if (!table) return [];
+    
+    return table.data
+      .filter((item: any) => item.projectId === projectId)
+      .map((item: any) => ({
+        ...item,
+        timestamp: new Date(item.timestamp)
+      }));
+  }
+
+  public clearAnalyticsData(): void {
+    this.createAnalyticsTable();
+  }
+
+  private createAnalyticsTable(): any {
+    const analyticsTable = {
+      data: [],
+      indexes: {
+        projectId: {},
+        timestamp: {},
+        type: {}
+      },
+      metadata: {
+        version: '1.0.0',
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        totalRecords: 0
+      }
+    };
+    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS_DATA, analyticsTable);
+    return analyticsTable;
   }
 
   // Project Management
@@ -320,6 +371,12 @@ export class OptimizedStorageManager {
         url: `${import.meta.env.VITE_USER_SITE_BASE_URL || 'http://localhost:5173/site'}/${project.websiteUrl}`,
         notes: 'Website published successfully'
       });
+      
+      // Track analytics event
+      this.trackAnalyticsEvent(project.id, 'conversion', {
+        conversionType: 'website_published',
+        conversionValue: 1
+      });
     } else if (!project.isPublished && project.deployment.status === 'published') {
       project.deployment.status = 'draft';
     }
@@ -346,6 +403,69 @@ export class OptimizedStorageManager {
     delete projectsData[projectId];
     this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projectsData);
     this.removeProjectStats(projectId);
+  }
+
+  // Analytics Event Tracking
+  public trackAnalyticsEvent(projectId: string, type: string, data: any): void {
+    try {
+      const analyticsEvent = {
+        id: `analytics_${Date.now()}_${Math.random()}`,
+        projectId,
+        timestamp: new Date().toISOString(),
+        type,
+        data: {
+          ...data,
+          userAgent: navigator.userAgent,
+          sessionId: this.getOrCreateSessionId(),
+          device: this.detectDevice(),
+          browser: this.detectBrowser(),
+          os: this.detectOS()
+        }
+      };
+      
+      this.saveAnalyticsData(analyticsEvent);
+    } catch (error) {
+      console.error('❌ Error tracking analytics event:', error);
+    }
+  }
+
+  private getOrCreateSessionId(): string {
+    let sessionId = sessionStorage.getItem('templates_uz_session_id');
+    if (!sessionId) {
+      sessionId = `session_${Date.now()}_${Math.random()}`;
+      sessionStorage.setItem('templates_uz_session_id', sessionId);
+    }
+    return sessionId;
+  }
+
+  private detectDevice(): string {
+    const userAgent = navigator.userAgent;
+    if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
+      return 'tablet';
+    }
+    if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)) {
+      return 'mobile';
+    }
+    return 'desktop';
+  }
+
+  private detectBrowser(): string {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Firefox')) return 'Firefox';
+    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Edge')) return 'Edge';
+    return 'Unknown';
+  }
+
+  private detectOS(): string {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes('Windows')) return 'Windows';
+    if (userAgent.includes('Mac')) return 'macOS';
+    if (userAgent.includes('Linux')) return 'Linux';
+    if (userAgent.includes('Android')) return 'Android';
+    if (userAgent.includes('iOS')) return 'iOS';
+    return 'Unknown';
   }
 
   // Template Management

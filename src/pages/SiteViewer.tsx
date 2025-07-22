@@ -84,18 +84,22 @@ const SiteViewer: React.FC = () => {
   // Track visit analytics in background
   const trackVisit = (projectId: string) => {
     try {
-      // Get current analytics
+      // Track page view analytics
+      optimizedStorage.trackAnalyticsEvent(projectId, 'page_view', {
+        page: '/',
+        referrer: document.referrer || 'direct',
+        timestamp: new Date().toISOString()
+      });
+      
+      // Update project view count
       const project = optimizedStorage.getProject(projectId);
       if (project) {
-        // Update view count
         project.analytics.views = (project.analytics.views || 0) + 1;
         project.analytics.lastViewed = new Date();
-        
-        // Save updated analytics
         optimizedStorage.saveProject(project);
-        
-        console.log('📊 Visit tracked for project:', projectId);
       }
+      
+      console.log('📊 Visit tracked for project:', projectId);
     } catch (error) {
       console.error('❌ Error tracking visit:', error);
     }

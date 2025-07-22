@@ -3,45 +3,27 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  ArrowLeft,
   Settings,
   BarChart3,
-  Globe,
-  Edit3,
-  Save,
-  Eye,
   Users,
+  Globe,
+  Eye,
   Clock,
   TrendingUp,
-  Activity,
-  Zap,
-  Shield,
-  AlertCircle,
-  CheckCircle,
-  ExternalLink,
-  Copy,
   Calendar,
-  Monitor,
-  Smartphone,
-  Search,
   MapPin,
-  Link as LinkIcon,
-  Image as ImageIcon,
-  Upload,
-  X,
-  RefreshCw,
+  Smartphone,
+  Monitor,
+  Tablet,
+  ArrowLeft,
   Download,
+  RefreshCw,
   Share2,
-  Trash2,
-  Archive,
-  Power,
-  Database,
-  Server,
-  Wifi,
-  HardDrive,
-  Cpu,
-  MemoryStick,
+  ExternalLink,
+  Activity,
+  MousePointer,
   Timer,
+  Zap,
   Target,
   Award,
   Star,
@@ -49,238 +31,808 @@ import {
   MessageSquare,
   Mail,
   Phone,
-  Building,
-  User,
-  Tag,
+  Search,
+  Filter,
+  ChevronDown,
+  ChevronUp,
+  TrendingDown,
+  AlertCircle,
+  CheckCircle,
+  Info,
+  Wifi,
+  WifiOff,
+  Database,
+  Server,
+  Shield,
+  Lock,
+  Unlock,
+  UserCheck,
+  UserX,
+  Navigation,
+  Layers,
+  Image,
   FileText,
+  Video,
+  Music,
+  Camera,
   Code,
   Palette,
   Layout,
-  Layers,
+  Grid,
+  List,
+  Plus,
+  Minus,
+  X,
+  Check,
+  Edit,
+  Trash2,
+  Copy,
+  Save,
+  Upload,
+  Flag,
+  Bookmark,
+  Tag,
+  Link as LinkIcon,
+  Home,
+  Building,
+  ShoppingBag,
+  Briefcase,
+  GraduationCap,
+  Car,
+  Utensils,
+  Gamepad2,
+  Music2,
+  Headphones,
+  Mic,
+  Radio,
+  Tv,
+  Film,
+  Book,
+  Newspaper,
+  PenTool,
+  Brush,
+  Scissors,
+  Ruler,
+  Compass,
+  Calculator,
+  Clock3,
+  Calendar as CalendarIcon,
+  Bell,
+  BellOff,
+  Volume2,
+  VolumeX,
+  Play,
+  Pause,
+  Square,
+  SkipForward,
+  SkipBack,
+  Repeat,
+  Shuffle,
+  Maximize,
+  Minimize,
+  RotateCcw,
+  RotateCw,
+  ZoomIn,
+  ZoomOut,
+  Move,
+  Crop,
+  Aperture,
+  Focus,
+  Sun,
+  Moon,
+  Cloud,
+  CloudRain,
+  Snowflake,
+  Wind,
+  Thermometer,
+  Umbrella,
+  Rainbow,
+  Sunrise,
+  Sunset,
+  Mountain,
+  Trees,
+  Flower,
+  Leaf,
+  Feather,
+  Flame,
+  Droplets,
+  Waves,
+  Sparkles,
+  Gem,
+  Crown,
+  Medal,
+  Trophy,
+  Gift,
+  Package,
+  ShoppingCart,
+  CreditCard,
+  DollarSign,
+  Euro,
+  PoundSterling,
+  Yen,
+  Bitcoin,
+  Banknote,
+  Wallet,
+  PiggyBank,
+  TrendingUpIcon,
+  LineChart,
+  PieChart,
+  BarChart,
+  ScatterChart,
+  Map,
+  MapPin2,
+  Navigation2,
+  Compass2,
+  Route,
+  Car2,
+  Truck,
+  Bus,
+  Train,
+  Plane,
+  Ship,
+  Bike,
+  Scooter,
+  Fuel,
+  Battery,
+  BatteryLow,
+  Plug,
+  Power,
+  PowerOff,
+  Cpu,
+  HardDrive,
+  MemoryStick,
+  Usb,
+  Bluetooth,
+  Wifi2,
+  Signal,
+  SignalHigh,
+  SignalLow,
+  SignalZero,
+  Antenna,
+  Radio2,
+  Satellite,
+  Router,
+  Ethernet,
+  Cable,
+  Headset,
+  Microphone,
+  Speaker,
+  Volume,
+  VolumeDown,
+  VolumeUp,
+  Mute,
+  Unmute,
+  Record,
+  StopCircle,
+  PlayCircle,
+  PauseCircle,
+  FastForward,
+  Rewind,
+  SkipForward2,
+  SkipBack2,
+  Repeat1,
+  Repeat2,
+  Shuffle2,
+  List2,
+  Grid2,
+  Columns,
+  Rows,
+  Table,
+  Database2,
+  Server2,
+  Cloud2,
+  CloudDownload,
+  CloudUpload,
+  CloudOff,
+  HardDriveDownload,
+  HardDriveUpload,
+  FolderOpen,
+  Folder,
+  File,
+  FileImage,
+  FileVideo,
+  FileAudio,
+  FileText2,
+  FilePdf,
+  FileSpreadsheet,
+  FileCode,
+  FileArchive,
+  FileX,
+  FileCheck,
+  FilePlus,
+  FileMinus,
+  FileEdit,
+  FileCopy,
+  FileSearch,
+  Archive,
+  Package2,
+  Inbox,
+  Outbox,
+  Send,
+  SendHorizontal,
+  Reply,
+  ReplyAll,
+  Forward,
+  Paperclip,
+  AtSign,
+  Hash,
+  Percent,
+  Ampersand,
+  Asterisk,
+  Slash,
+  Backslash,
+  Pipe,
+  Equal,
+  NotEqual,
+  LessThan,
+  LessThanEqual,
+  GreaterThan,
+  GreaterThanEqual,
+  Plus2,
+  Minus2,
+  Multiply,
+  Divide,
+  Modulo,
+  Exponent,
+  SquareRoot,
+  Infinity,
+  Pi,
+  Sigma,
+  Delta,
+  Alpha,
+  Beta,
+  Gamma,
+  Lambda,
+  Omega,
+  Phi,
+  Psi,
+  Chi,
+  Theta,
+  Mu,
+  Nu,
+  Xi,
+  Omicron,
+  Rho,
+  Tau,
+  Upsilon,
+  Zeta,
+  Eta,
+  Iota,
+  Kappa
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { themeRegistry } from '../core/ThemeRegistry';
 import { optimizedStorage } from '../utils/optimizedStorage';
-import { formatRelativeTime } from '../utils/helpers';
 import CommonHeader from '../components/CommonHeader';
 
+// Analytics interfaces
 interface AnalyticsData {
-  totalViews: number;
-  uniqueVisitors: number;
-  avgSessionDuration: number;
-  bounceRate: number;
-  topPages: { page: string; views: number }[];
-  trafficSources: { source: string; percentage: number }[];
-  deviceTypes: { device: string; percentage: number }[];
-  recentVisits: { timestamp: Date; ip: string; userAgent: string; page: string }[];
+  id: string;
+  projectId: string;
+  timestamp: Date;
+  type: 'page_view' | 'section_view' | 'interaction' | 'performance' | 'error' | 'conversion';
+  data: {
+    // Page view data
+    page?: string;
+    referrer?: string;
+    userAgent?: string;
+    sessionId?: string;
+    userId?: string;
+    
+    // Section view data
+    sectionId?: string;
+    sectionType?: string;
+    timeSpent?: number;
+    
+    // Interaction data
+    element?: string;
+    action?: string;
+    value?: string;
+    
+    // Performance data
+    loadTime?: number;
+    renderTime?: number;
+    resourceSize?: number;
+    
+    // Error data
+    errorType?: string;
+    errorMessage?: string;
+    stackTrace?: string;
+    
+    // Conversion data
+    conversionType?: string;
+    conversionValue?: number;
+    
+    // Device and location data
+    device?: 'desktop' | 'tablet' | 'mobile';
+    browser?: string;
+    os?: string;
+    country?: string;
+    city?: string;
+    ip?: string;
+  };
 }
 
-interface TechnicalStatus {
-  uptime: number;
-  responseTime: number;
-  sslStatus: 'active' | 'inactive' | 'expired';
-  lastChecked: Date;
-  seoScore: {
-    performance: number;
-    accessibility: number;
-    bestPractices: number;
-    seo: number;
+interface AnalyticsSummary {
+  totalViews: number;
+  uniqueVisitors: number;
+  averageSessionTime: number;
+  bounceRate: number;
+  topPages: { page: string; views: number }[];
+  topReferrers: { referrer: string; views: number }[];
+  deviceBreakdown: { device: string; percentage: number }[];
+  browserBreakdown: { browser: string; percentage: number }[];
+  countryBreakdown: { country: string; views: number }[];
+  hourlyViews: { hour: number; views: number }[];
+  dailyViews: { date: string; views: number }[];
+  conversionRate: number;
+  performanceMetrics: {
+    averageLoadTime: number;
+    averageRenderTime: number;
+    errorRate: number;
   };
-  errors: string[];
-  warnings: string[];
 }
 
 const SiteAdmin: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { projects, currentProject, setCurrentProject, updateProject } = useProject();
-  const { updateTheme, currentTheme } = useTheme();
+  const { projects, setCurrentProject } = useProject();
+  
+  const [project, setProject] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'content' | 'settings'>('overview');
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([]);
+  const [analyticsSummary, setAnalyticsSummary] = useState<AnalyticsSummary | null>(null);
+  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year'>('week');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'settings' | 'technical'>('overview');
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [projectTheme, setProjectTheme] = useState(currentTheme);
+  // Initialize analytics storage
+  useEffect(() => {
+    initializeAnalyticsStorage();
+  }, []);
 
-  // Form states
-  const [editForm, setEditForm] = useState({
-    name: '',
-    description: '',
-    websiteUrl: '',
-    category: '',
-    seoKeywords: '',
-    logo: '',
-    favicon: '',
-  });
-
-  // Mock analytics data - in a real app, this would come from your analytics service
-  const [analyticsData] = useState<AnalyticsData>({
-    totalViews: 1247,
-    uniqueVisitors: 892,
-    avgSessionDuration: 245, // seconds
-    bounceRate: 32.5, // percentage
-    topPages: [
-      { page: '/', views: 456 },
-      { page: '/about', views: 234 },
-      { page: '/services', views: 189 },
-      { page: '/contact', views: 156 },
-      { page: '/portfolio', views: 112 },
-    ],
-    trafficSources: [
-      { source: 'Direct', percentage: 45.2 },
-      { source: 'Google', percentage: 28.7 },
-      { source: 'Social Media', percentage: 15.3 },
-      { source: 'Referrals', percentage: 10.8 },
-    ],
-    deviceTypes: [
-      { device: 'Desktop', percentage: 52.3 },
-      { device: 'Mobile', percentage: 38.9 },
-      { device: 'Tablet', percentage: 8.8 },
-    ],
-    recentVisits: [
-      { timestamp: new Date(Date.now() - 5 * 60 * 1000), ip: '192.168.1.1', userAgent: 'Chrome/120.0', page: '/' },
-      { timestamp: new Date(Date.now() - 15 * 60 * 1000), ip: '192.168.1.2', userAgent: 'Safari/17.0', page: '/about' },
-      { timestamp: new Date(Date.now() - 25 * 60 * 1000), ip: '192.168.1.3', userAgent: 'Firefox/121.0', page: '/services' },
-    ],
-  });
-
-  // Mock technical status - in a real app, this would come from monitoring services
-  const [technicalStatus] = useState<TechnicalStatus>({
-    uptime: 99.9,
-    responseTime: 245, // ms
-    sslStatus: 'active',
-    lastChecked: new Date(),
-    seoScore: {
-      performance: 92,
-      accessibility: 88,
-      bestPractices: 95,
-      seo: 89,
-    },
-    errors: [],
-    warnings: ['Consider optimizing images for better performance'],
-  });
-
+  // Load project data
   useEffect(() => {
     if (id) {
-      const project = projects.find(p => p.id === id);
-      if (project) {
-        setCurrentProject(project);
+      loadProjectData();
+    }
+  }, [id, projects]);
+
+  // Load analytics when project changes
+  useEffect(() => {
+    if (project) {
+      loadAnalyticsData();
+    }
+  }, [project, dateRange]);
+
+  const initializeAnalyticsStorage = () => {
+    try {
+      // Check if analytics table exists
+      const existingAnalytics = localStorage.getItem('templates_uz_analytics_data');
+      if (!existingAnalytics) {
+        // Create analytics table structure
+        const analyticsTable = {
+          data: [],
+          indexes: {
+            projectId: {},
+            timestamp: {},
+            type: {}
+          },
+          metadata: {
+            version: '1.0.0',
+            createdAt: new Date().toISOString(),
+            lastUpdated: new Date().toISOString()
+          }
+        };
+        localStorage.setItem('templates_uz_analytics_data', JSON.stringify(analyticsTable));
+        console.log('✅ Analytics table created in localStorage');
+      }
+
+      // Generate sample analytics data if none exists
+      if (id) {
+        generateSampleAnalytics(id);
+      }
+    } catch (error) {
+      console.error('❌ Error initializing analytics storage:', error);
+    }
+  };
+
+  const loadProjectData = () => {
+    setLoading(true);
+    try {
+      // First try to find in current projects
+      let foundProject = projects.find(p => p.id === id);
+      
+      // If not found, try optimized storage
+      if (!foundProject) {
+        foundProject = optimizedStorage.getProject(id!);
+      }
+      
+      // If still not found, try all stored projects
+      if (!foundProject) {
+        const allProjects = optimizedStorage.getAllProjects();
+        foundProject = allProjects.find(p => p.id === id);
+      }
+
+      if (foundProject) {
+        setProject(foundProject);
+        setCurrentProject(foundProject);
+        console.log('✅ Project loaded for admin:', foundProject);
+      } else {
+        console.log('❌ Project not found:', id);
+        // Don't redirect, show error state instead
+      }
+    } catch (error) {
+      console.error('❌ Error loading project:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateSampleAnalytics = (projectId: string) => {
+    try {
+      const analyticsTable = JSON.parse(localStorage.getItem('templates_uz_analytics_data') || '{"data": []}');
+      
+      // Check if we already have data for this project
+      const existingData = analyticsTable.data.filter((item: any) => item.projectId === projectId);
+      if (existingData.length > 0) {
+        return; // Already has data
+      }
+
+      const sampleData: AnalyticsData[] = [];
+      const now = new Date();
+      
+      // Generate data for the last 30 days
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        const dailyViews = Math.floor(Math.random() * 50) + 10;
         
-        // Apply project's theme
-        if (project.themeId) {
-          const theme = themeRegistry.getTheme(project.themeId);
-          if (theme) {
-            setProjectTheme(theme);
-            updateTheme(project.themeId);
+        for (let j = 0; j < dailyViews; j++) {
+          const timestamp = new Date(date.getTime() + Math.random() * 24 * 60 * 60 * 1000);
+          
+          // Page views
+          sampleData.push({
+            id: `analytics_${Date.now()}_${Math.random()}`,
+            projectId,
+            timestamp,
+            type: 'page_view',
+            data: {
+              page: '/',
+              referrer: ['google.com', 'facebook.com', 'direct', 'twitter.com'][Math.floor(Math.random() * 4)],
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+              sessionId: `session_${Math.random()}`,
+              device: ['desktop', 'mobile', 'tablet'][Math.floor(Math.random() * 3)] as any,
+              browser: ['Chrome', 'Firefox', 'Safari', 'Edge'][Math.floor(Math.random() * 4)],
+              os: ['Windows', 'macOS', 'Linux', 'iOS', 'Android'][Math.floor(Math.random() * 5)],
+              country: ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia'][Math.floor(Math.random() * 6)],
+              city: ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney'][Math.floor(Math.random() * 6)]
+            }
+          });
+
+          // Performance data
+          if (Math.random() > 0.7) {
+            sampleData.push({
+              id: `perf_${Date.now()}_${Math.random()}`,
+              projectId,
+              timestamp,
+              type: 'performance',
+              data: {
+                loadTime: Math.floor(Math.random() * 3000) + 500,
+                renderTime: Math.floor(Math.random() * 1000) + 100,
+                resourceSize: Math.floor(Math.random() * 2000) + 500
+              }
+            });
+          }
+
+          // Interactions
+          if (Math.random() > 0.5) {
+            sampleData.push({
+              id: `interaction_${Date.now()}_${Math.random()}`,
+              projectId,
+              timestamp,
+              type: 'interaction',
+              data: {
+                element: ['button', 'link', 'form', 'image'][Math.floor(Math.random() * 4)],
+                action: ['click', 'hover', 'scroll', 'submit'][Math.floor(Math.random() * 4)],
+                value: `section_${Math.floor(Math.random() * 10)}`
+              }
+            });
+          }
+
+          // Conversions
+          if (Math.random() > 0.9) {
+            sampleData.push({
+              id: `conversion_${Date.now()}_${Math.random()}`,
+              projectId,
+              timestamp,
+              type: 'conversion',
+              data: {
+                conversionType: ['contact_form', 'newsletter', 'download', 'purchase'][Math.floor(Math.random() * 4)],
+                conversionValue: Math.floor(Math.random() * 100) + 1
+              }
+            });
           }
         }
-
-        // Initialize edit form
-        setEditForm({
-          name: project.name,
-          description: project.description || '',
-          websiteUrl: project.websiteUrl,
-          category: project.category,
-          seoKeywords: project.seoKeywords.join(', '),
-          logo: project.logo || '',
-          favicon: project.favicon || '',
-        });
-      } else {
-        console.log('Project not found for admin:', id);
-        navigate('/dashboard');
       }
+
+      // Save to analytics table
+      analyticsTable.data.push(...sampleData);
+      analyticsTable.metadata.lastUpdated = new Date().toISOString();
+      localStorage.setItem('templates_uz_analytics_data', JSON.stringify(analyticsTable));
+      
+      console.log('✅ Sample analytics data generated:', sampleData.length, 'records');
+    } catch (error) {
+      console.error('❌ Error generating sample analytics:', error);
     }
-  }, [id, projects, setCurrentProject, navigate, updateTheme]);
+  };
 
-  const handleSave = async () => {
-    if (!currentProject) return;
-
-    setIsSaving(true);
-
+  const loadAnalyticsData = () => {
     try {
-      const updatedProject = {
-        ...currentProject,
-        name: editForm.name,
-        description: editForm.description,
-        websiteUrl: editForm.websiteUrl,
-        category: editForm.category,
-        seoKeywords: editForm.seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0),
-        logo: editForm.logo,
-        favicon: editForm.favicon,
+      const analyticsTable = JSON.parse(localStorage.getItem('templates_uz_analytics_data') || '{"data": []}');
+      const projectAnalytics = analyticsTable.data
+        .filter((item: any) => item.projectId === project.id)
+        .map((item: any) => ({
+          ...item,
+          timestamp: new Date(item.timestamp)
+        }));
+
+      // Filter by date range
+      const now = new Date();
+      let startDate = new Date();
+      
+      switch (dateRange) {
+        case 'today':
+          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          break;
+        case 'week':
+          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          break;
+        case 'month':
+          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          break;
+        case 'year':
+          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+          break;
+      }
+
+      const filteredData = projectAnalytics.filter((item: AnalyticsData) => 
+        item.timestamp >= startDate
+      );
+
+      setAnalyticsData(filteredData);
+      generateAnalyticsSummary(filteredData);
+      
+      console.log('✅ Analytics data loaded:', filteredData.length, 'records');
+    } catch (error) {
+      console.error('❌ Error loading analytics data:', error);
+    }
+  };
+
+  const generateAnalyticsSummary = (data: AnalyticsData[]) => {
+    try {
+      const pageViews = data.filter(item => item.type === 'page_view');
+      const interactions = data.filter(item => item.type === 'interaction');
+      const conversions = data.filter(item => item.type === 'conversion');
+      const performance = data.filter(item => item.type === 'performance');
+
+      // Calculate unique visitors (simplified)
+      const uniqueVisitors = new Set(pageViews.map(item => item.data.sessionId)).size;
+
+      // Calculate session times (simplified)
+      const sessions = pageViews.reduce((acc: any, item) => {
+        const sessionId = item.data.sessionId!;
+        if (!acc[sessionId]) {
+          acc[sessionId] = { start: item.timestamp, end: item.timestamp };
+        } else {
+          if (item.timestamp < acc[sessionId].start) acc[sessionId].start = item.timestamp;
+          if (item.timestamp > acc[sessionId].end) acc[sessionId].end = item.timestamp;
+        }
+        return acc;
+      }, {});
+
+      const sessionTimes = Object.values(sessions).map((session: any) => 
+        (session.end.getTime() - session.start.getTime()) / 1000 / 60
+      );
+      const averageSessionTime = sessionTimes.length > 0 
+        ? sessionTimes.reduce((a: number, b: number) => a + b, 0) / sessionTimes.length 
+        : 0;
+
+      // Top pages
+      const pageCount = pageViews.reduce((acc: any, item) => {
+        const page = item.data.page || '/';
+        acc[page] = (acc[page] || 0) + 1;
+        return acc;
+      }, {});
+      const topPages = Object.entries(pageCount)
+        .map(([page, views]) => ({ page, views: views as number }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 5);
+
+      // Top referrers
+      const referrerCount = pageViews.reduce((acc: any, item) => {
+        const referrer = item.data.referrer || 'direct';
+        acc[referrer] = (acc[referrer] || 0) + 1;
+        return acc;
+      }, {});
+      const topReferrers = Object.entries(referrerCount)
+        .map(([referrer, views]) => ({ referrer, views: views as number }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 5);
+
+      // Device breakdown
+      const deviceCount = pageViews.reduce((acc: any, item) => {
+        const device = item.data.device || 'desktop';
+        acc[device] = (acc[device] || 0) + 1;
+        return acc;
+      }, {});
+      const totalDeviceViews = Object.values(deviceCount).reduce((a: any, b: any) => a + b, 0);
+      const deviceBreakdown = Object.entries(deviceCount)
+        .map(([device, count]) => ({ 
+          device, 
+          percentage: Math.round((count as number / totalDeviceViews) * 100) 
+        }));
+
+      // Browser breakdown
+      const browserCount = pageViews.reduce((acc: any, item) => {
+        const browser = item.data.browser || 'Unknown';
+        acc[browser] = (acc[browser] || 0) + 1;
+        return acc;
+      }, {});
+      const totalBrowserViews = Object.values(browserCount).reduce((a: any, b: any) => a + b, 0);
+      const browserBreakdown = Object.entries(browserCount)
+        .map(([browser, count]) => ({ 
+          browser, 
+          percentage: Math.round((count as number / totalBrowserViews) * 100) 
+        }));
+
+      // Country breakdown
+      const countryCount = pageViews.reduce((acc: any, item) => {
+        const country = item.data.country || 'Unknown';
+        acc[country] = (acc[country] || 0) + 1;
+        return acc;
+      }, {});
+      const countryBreakdown = Object.entries(countryCount)
+        .map(([country, views]) => ({ country, views: views as number }))
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 10);
+
+      // Hourly views
+      const hourlyCount = pageViews.reduce((acc: any, item) => {
+        const hour = item.timestamp.getHours();
+        acc[hour] = (acc[hour] || 0) + 1;
+        return acc;
+      }, {});
+      const hourlyViews = Array.from({ length: 24 }, (_, hour) => ({
+        hour,
+        views: hourlyCount[hour] || 0
+      }));
+
+      // Daily views
+      const dailyCount = pageViews.reduce((acc: any, item) => {
+        const date = item.timestamp.toISOString().split('T')[0];
+        acc[date] = (acc[date] || 0) + 1;
+        return acc;
+      }, {});
+      const dailyViews = Object.entries(dailyCount)
+        .map(([date, views]) => ({ date, views: views as number }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+
+      // Performance metrics
+      const loadTimes = performance.map(item => item.data.loadTime || 0).filter(time => time > 0);
+      const renderTimes = performance.map(item => item.data.renderTime || 0).filter(time => time > 0);
+      const errors = data.filter(item => item.type === 'error');
+
+      const summary: AnalyticsSummary = {
+        totalViews: pageViews.length,
+        uniqueVisitors,
+        averageSessionTime,
+        bounceRate: Math.round((uniqueVisitors / pageViews.length) * 100),
+        topPages,
+        topReferrers,
+        deviceBreakdown,
+        browserBreakdown,
+        countryBreakdown,
+        hourlyViews,
+        dailyViews,
+        conversionRate: pageViews.length > 0 ? Math.round((conversions.length / pageViews.length) * 100) : 0,
+        performanceMetrics: {
+          averageLoadTime: loadTimes.length > 0 ? Math.round(loadTimes.reduce((a, b) => a + b, 0) / loadTimes.length) : 0,
+          averageRenderTime: renderTimes.length > 0 ? Math.round(renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length) : 0,
+          errorRate: pageViews.length > 0 ? Math.round((errors.length / pageViews.length) * 100) : 0
+        }
       };
 
-      updateProject(currentProject.id, updatedProject);
-      setIsEditing(false);
+      setAnalyticsSummary(summary);
+      console.log('✅ Analytics summary generated:', summary);
     } catch (error) {
-      console.error('Error saving project:', error);
-      alert('Failed to save changes. Please try again.');
-    } finally {
-      setIsSaving(false);
+      console.error('❌ Error generating analytics summary:', error);
     }
   };
 
-  const handleTogglePublish = () => {
-    if (!currentProject) return;
+  const handleRefreshAnalytics = async () => {
+    setIsRefreshing(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    loadAnalyticsData();
+    setIsRefreshing(false);
+  };
 
-    const newStatus = !currentProject.isPublished;
-    updateProject(currentProject.id, { isPublished: newStatus });
+  const handleExportAnalytics = () => {
+    try {
+      const exportData = {
+        project: {
+          id: project.id,
+          name: project.name,
+          websiteUrl: project.websiteUrl
+        },
+        summary: analyticsSummary,
+        rawData: analyticsData,
+        exportedAt: new Date().toISOString(),
+        dateRange
+      };
 
-    if (newStatus) {
-      alert('🎉 Website published successfully!');
-    } else {
-      alert('📝 Website unpublished and moved to draft.');
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${project.name}-analytics-${dateRange}-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('❌ Error exporting analytics:', error);
     }
   };
 
-  const handleCopyUrl = () => {
-    if (currentProject) {
-      const url = `${import.meta.env.VITE_USER_SITE_BASE_URL}/${currentProject.websiteUrl}`;
-      navigator.clipboard.writeText(url);
-      alert('Website URL copied to clipboard!');
-    }
-  };
-
-  const handleDeleteProject = () => {
-    if (currentProject && window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-      // In a real app, you would call deleteProject from context
-      alert('Project deleted successfully');
-      navigate('/dashboard');
-    }
-  };
-
-  const getStatusBadge = (isPublished: boolean) => {
-    return isPublished ? (
-      <div className="inline-flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        Live
-      </div>
-    ) : (
-      <div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium">
-        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-        Draft
-      </div>
-    );
-  };
-
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
-    { id: 'settings', label: 'Settings', icon: Settings },
-    { id: 'technical', label: 'Technical', icon: Monitor },
-  ];
-
-  if (!currentProject) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading admin panel...</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2 font-heading">Loading Admin Panel</h2>
+          <p className="text-gray-600 font-primary">Please wait while we load your website data...</p>
         </div>
       </div>
     );
   }
+
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4 font-heading">Website Not Found</h2>
+          <p className="text-gray-600 mb-6 font-primary">
+            The website with ID "{id}" doesn't exist or you don't have permission to access it.
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors shadow-elegant font-display"
+            >
+              Go to Dashboard
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors shadow-glow font-display"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const tabs = [
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
+    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
+    { id: 'content', label: 'Content', icon: FileText },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50">
@@ -297,62 +849,48 @@ const SiteAdmin: React.FC = () => {
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
-
+              
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
                   <Settings className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-bold text-gray-900 font-heading">{currentProject.name}</h1>
-                    {getStatusBadge(currentProject.isPublished)}
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span className="font-primary">
-                      {import.meta.env.VITE_USER_SITE_BASE_URL?.replace(/^https?:\/\//, '')}/{currentProject.websiteUrl}
-                    </span>
-                    <span className="font-primary">•</span>
-                    <span className="font-primary">Created {formatRelativeTime(currentProject.createdAt)}</span>
-                  </div>
+                  <h1 className="text-3xl font-bold text-gray-900 font-heading">Admin Panel</h1>
+                  <p className="text-gray-600 font-primary">{project.name} - {project.websiteUrl}</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              {currentProject.isPublished && (
-                <button
-                  onClick={() => window.open(`/site/${currentProject.websiteUrl}`, '_blank')}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-                >
-                  <Eye className="w-4 h-4" />
-                  View Site
-                </button>
-              )}
-
+              <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-xl border border-green-200">
+                <Globe className="w-4 h-4" />
+                <span className="font-medium font-primary">Live</span>
+              </div>
+              
               <button
-                onClick={() => navigate(`/editor/${currentProject.id}`)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
+                onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
+                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
               >
-                <Edit3 className="w-4 h-4" />
-                Edit
+                <ExternalLink className="w-4 h-4" />
+                View Site
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Tabs */}
         <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 mb-8">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id as any)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${activeTab === id
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                activeTab === id
                   ? 'bg-white text-red-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-                }`}
+              }`}
             >
               <Icon className="w-4 h-4" />
               <span className="font-primary">{label}</span>
@@ -361,289 +899,22 @@ const SiteAdmin: React.FC = () => {
         </div>
 
         {/* Overview Tab */}
-        {activeTab === 'overview' && (
+        {activeTab === 'overview' && analyticsSummary && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
-                    <Eye className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsData.totalViews}</div>
-                    <div className="text-sm text-gray-600 font-primary">Total Views</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsData.uniqueVisitors}</div>
-                    <div className="text-sm text-gray-600 font-primary">Unique Visitors</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">{Math.floor(analyticsData.avgSessionDuration / 60)}m {analyticsData.avgSessionDuration % 60}s</div>
-                    <div className="text-sm text-gray-600 font-primary">Avg. Session</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <Layers className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">{currentProject.sections.length}</div>
-                    <div className="text-sm text-gray-600 font-primary">Sections</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Site Information */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 font-heading">Site Information</h2>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  {isEditing ? 'Cancel' : 'Edit'}
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website Name</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.name}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      />
-                    ) : (
-                      <div className="px-4 py-3 bg-gray-50 rounded-xl font-primary">{currentProject.name}</div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Description</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.description}
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                        rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 resize-none font-primary"
-                      />
-                    ) : (
-                      <div className="px-4 py-3 bg-gray-50 rounded-xl font-primary">{currentProject.description || 'No description'}</div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website URL</label>
-                    <div className="flex items-center gap-2">
-                      {isEditing ? (
-                        <input
-                          type="text"
-                          value={editForm.websiteUrl}
-                          onChange={(e) => setEditForm({ ...editForm, websiteUrl: e.target.value })}
-                          className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-mono"
-                        />
-                      ) : (
-                        <div className="flex-1 px-4 py-3 bg-gray-50 rounded-xl font-mono">{currentProject.websiteUrl}</div>
-                      )}
-                      <button
-                        onClick={handleCopyUrl}
-                        className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                        title="Copy URL"
-                      >
-                        <Copy className="w-4 h-4 text-gray-600" />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category</label>
-                    {isEditing ? (
-                      <select
-                        value={editForm.category}
-                        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      >
-                        <option value="business">Business</option>
-                        <option value="personal">Personal</option>
-                        <option value="portfolio">Portfolio</option>
-                        <option value="ecommerce">E-commerce</option>
-                        <option value="education">Education</option>
-                        <option value="photography">Photography</option>
-                        <option value="music">Music</option>
-                        <option value="restaurant">Restaurant</option>
-                        <option value="automotive">Automotive</option>
-                        <option value="realestate">Real Estate</option>
-                        <option value="gaming">Gaming</option>
-                      </select>
-                    ) : (
-                      <div className="px-4 py-3 bg-gray-50 rounded-xl font-primary capitalize">{currentProject.category}</div>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">SEO Keywords</label>
-                    {isEditing ? (
-                      <textarea
-                        value={editForm.seoKeywords}
-                        onChange={(e) => setEditForm({ ...editForm, seoKeywords: e.target.value })}
-                        placeholder="keyword1, keyword2, keyword3"
-                        rows={3}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 resize-none font-primary"
-                      />
-                    ) : (
-                      <div className="px-4 py-3 bg-gray-50 rounded-xl font-primary">
-                        {currentProject.seoKeywords.length > 0 ? currentProject.seoKeywords.join(', ') : 'No keywords set'}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Created</label>
-                      <div className="px-4 py-3 bg-gray-50 rounded-xl font-primary text-sm">
-                        {currentProject.createdAt.toLocaleDateString()}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Last Updated</label>
-                      <div className="px-4 py-3 bg-gray-50 rounded-xl font-primary text-sm">
-                        {formatRelativeTime(currentProject.updatedAt)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Status</label>
-                    <div className="flex items-center justify-between px-4 py-3 bg-gray-50 rounded-xl">
-                      {getStatusBadge(currentProject.isPublished)}
-                      <button
-                        onClick={handleTogglePublish}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${currentProject.isPublished
-                            ? 'bg-orange-600 text-white hover:bg-orange-700'
-                            : 'bg-green-600 text-white hover:bg-green-700'
-                          }`}
-                      >
-                        {currentProject.isPublished ? 'Unpublish' : 'Publish'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {isEditing && (
-                <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary disabled:opacity-50"
-                  >
-                    {isSaving ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Save className="w-4 h-4" />
-                    )}
-                    {isSaving ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 font-heading">Quick Actions</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button
-                  onClick={() => navigate(`/editor/${currentProject.id}`)}
-                  className="flex items-center gap-3 p-4 bg-primary-50 text-primary-700 rounded-xl hover:bg-primary-100 transition-colors"
-                >
-                  <Edit3 className="w-5 h-5" />
-                  <span className="font-medium font-primary">Edit Website</span>
-                </button>
-
-                <button
-                  onClick={() => navigate(`/preview/${currentProject.id}`)}
-                  className="flex items-center gap-3 p-4 bg-blue-50 text-blue-700 rounded-xl hover:bg-blue-100 transition-colors"
-                >
-                  <Eye className="w-5 h-5" />
-                  <span className="font-medium font-primary">Preview</span>
-                </button>
-
-                <button
-                  onClick={handleCopyUrl}
-                  className="flex items-center gap-3 p-4 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors"
-                >
-                  <Share2 className="w-5 h-5" />
-                  <span className="font-medium font-primary">Share</span>
-                </button>
-
-                <button
-                  onClick={() => setShowDeleteModal(true)}
-                  className="flex items-center gap-3 p-4 bg-red-50 text-red-700 rounded-xl hover:bg-red-100 transition-colors"
-                >
-                  <Trash2 className="w-5 h-5" />
-                  <span className="font-medium font-primary">Delete</span>
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Analytics Tab */}
-        {activeTab === 'analytics' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Analytics Overview */}
+            {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
-                    <Eye className="w-6 h-6 text-primary-600" />
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Eye className="w-6 h-6 text-blue-600" />
                   </div>
-                  <div className="text-green-600 text-sm font-medium">+12.5%</div>
+                  <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1 font-heading">{analyticsData.totalViews}</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.totalViews.toLocaleString()}</div>
                 <div className="text-sm text-gray-600 font-primary">Total Views</div>
               </div>
 
@@ -652,112 +923,341 @@ const SiteAdmin: React.FC = () => {
                   <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
                     <Users className="w-6 h-6 text-green-600" />
                   </div>
-                  <div className="text-green-600 text-sm font-medium">+8.3%</div>
+                  <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1 font-heading">{analyticsData.uniqueVisitors}</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.uniqueVisitors.toLocaleString()}</div>
                 <div className="text-sm text-gray-600 font-primary">Unique Visitors</div>
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <Clock className="w-6 h-6 text-purple-600" />
                   </div>
-                  <div className="text-red-600 text-sm font-medium">-2.1%</div>
+                  <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1 font-heading">{Math.floor(analyticsData.avgSessionDuration / 60)}m {analyticsData.avgSessionDuration % 60}s</div>
-                <div className="text-sm text-gray-600 font-primary">Avg. Session</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{Math.round(analyticsSummary.averageSessionTime)}m</div>
+                <div className="text-sm text-gray-600 font-primary">Avg. Session Time</div>
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-orange-600" />
+                    <Target className="w-6 h-6 text-orange-600" />
                   </div>
-                  <div className="text-green-600 text-sm font-medium">-5.2%</div>
+                  <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 mb-1 font-heading">{analyticsData.bounceRate}%</div>
-                <div className="text-sm text-gray-600 font-primary">Bounce Rate</div>
+                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.conversionRate}%</div>
+                <div className="text-sm text-gray-600 font-primary">Conversion Rate</div>
               </div>
             </div>
 
-            {/* Charts and Detailed Analytics */}
+            {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Top Pages */}
+              {/* Daily Views Chart */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Pages</h3>
-                <div className="space-y-3">
-                  {analyticsData.topPages.map((page, index) => (
-                    <div key={page.page} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center text-xs font-bold text-primary-600">
-                          {index + 1}
-                        </div>
-                        <span className="font-medium text-gray-900 font-primary">{page.page}</span>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Daily Views</h3>
+                <div className="h-64 flex items-end justify-between gap-2">
+                  {analyticsSummary.dailyViews.slice(-7).map((day, index) => (
+                    <div key={day.date} className="flex-1 flex flex-col items-center">
+                      <div
+                        className="w-full bg-primary-500 rounded-t-lg transition-all hover:bg-primary-600"
+                        style={{
+                          height: `${Math.max((day.views / Math.max(...analyticsSummary.dailyViews.map(d => d.views))) * 200, 10)}px`
+                        }}
+                      ></div>
+                      <div className="text-xs text-gray-600 mt-2 font-primary">
+                        {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
                       </div>
-                      <span className="text-gray-600 font-primary">{page.views} views</span>
+                      <div className="text-xs font-semibold text-gray-900 font-primary">{day.views}</div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Traffic Sources */}
+              {/* Device Breakdown */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Traffic Sources</h3>
-                <div className="space-y-3">
-                  {analyticsData.trafficSources.map((source) => (
-                    <div key={source.source} className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900 font-primary">{source.source}</span>
-                      <div className="flex items-center gap-3">
-                        <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-primary-600 h-2 rounded-full"
-                            style={{ width: `${source.percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-gray-600 font-primary w-12 text-right">{source.percentage}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Device Types */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Device Types</h3>
-                <div className="space-y-3">
-                  {analyticsData.deviceTypes.map((device) => {
-                    const Icon = device.device === 'Desktop' ? Monitor : device.device === 'Mobile' ? Smartphone : Tablet;
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Device Breakdown</h3>
+                <div className="space-y-4">
+                  {analyticsSummary.deviceBreakdown.map((device) => {
+                    const Icon = device.device === 'desktop' ? Monitor : 
+                                device.device === 'mobile' ? Smartphone : Tablet;
                     return (
-                      <div key={device.device} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div key={device.device} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Icon className="w-5 h-5 text-gray-600" />
-                          <span className="font-medium text-gray-900 font-primary">{device.device}</span>
+                          <span className="font-medium text-gray-900 capitalize font-primary">{device.device}</span>
                         </div>
-                        <span className="text-gray-600 font-primary">{device.percentage}%</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-primary-500 rounded-full transition-all"
+                              style={{ width: `${device.percentage}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-sm font-semibold text-gray-900 w-12 text-right font-primary">
+                            {device.percentage}%
+                          </span>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
+            </div>
 
-              {/* Recent Activity */}
+            {/* Top Pages and Referrers */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Recent Visits</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Pages</h3>
                 <div className="space-y-3">
-                  {analyticsData.recentVisits.map((visit, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <div>
-                        <div className="font-medium text-gray-900 font-primary">{visit.page}</div>
-                        <div className="text-xs text-gray-600 font-primary">{visit.userAgent}</div>
+                  {analyticsSummary.topPages.map((page, index) => (
+                    <div key={page.page} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-primary-600 font-primary">{index + 1}</span>
+                        </div>
+                        <span className="font-medium text-gray-900 font-primary">{page.page}</span>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600 font-primary">{formatRelativeTime(visit.timestamp)}</div>
-                        <div className="text-xs text-gray-500 font-primary">{visit.ip}</div>
-                      </div>
+                      <span className="text-sm font-semibold text-gray-600 font-primary">{page.views} views</span>
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Referrers</h3>
+                <div className="space-y-3">
+                  {analyticsSummary.topReferrers.map((referrer, index) => (
+                    <div key={referrer.referrer} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
+                          <span className="text-xs font-bold text-green-600 font-primary">{index + 1}</span>
+                        </div>
+                        <span className="font-medium text-gray-900 font-primary">{referrer.referrer}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-600 font-primary">{referrer.views} visits</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && analyticsSummary && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* Analytics Controls */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 font-heading">Advanced Analytics</h2>
+                  <p className="text-gray-600 font-primary">Detailed insights into your website performance</p>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <select
+                    value={dateRange}
+                    onChange={(e) => setDateRange(e.target.value as any)}
+                    className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
+                  >
+                    <option value="today">Today</option>
+                    <option value="week">Last 7 days</option>
+                    <option value="month">Last 30 days</option>
+                    <option value="year">Last year</option>
+                  </select>
+                  
+                  <button
+                    onClick={handleRefreshAnalytics}
+                    disabled={isRefreshing}
+                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </button>
+                  
+                  <button
+                    onClick={handleExportAnalytics}
+                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                  >
+                    <Download className="w-4 h-4" />
+                    Export
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Performance Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-gray-900 font-heading">
+                      {analyticsSummary.performanceMetrics.averageLoadTime}ms
+                    </div>
+                    <div className="text-sm text-gray-600 font-primary">Avg. Load Time</div>
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all"
+                    style={{ width: `${Math.min((3000 - analyticsSummary.performanceMetrics.averageLoadTime) / 3000 * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-gray-900 font-heading">
+                      {analyticsSummary.performanceMetrics.averageRenderTime}ms
+                    </div>
+                    <div className="text-sm text-gray-600 font-primary">Avg. Render Time</div>
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full">
+                  <div
+                    className="h-full bg-green-500 rounded-full transition-all"
+                    style={{ width: `${Math.min((1000 - analyticsSummary.performanceMetrics.averageRenderTime) / 1000 * 100, 100)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-gray-900 font-heading">
+                      {analyticsSummary.performanceMetrics.errorRate}%
+                    </div>
+                    <div className="text-sm text-gray-600 font-primary">Error Rate</div>
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full">
+                  <div
+                    className="h-full bg-red-500 rounded-full transition-all"
+                    style={{ width: `${analyticsSummary.performanceMetrics.errorRate}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hourly Activity */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Hourly Activity</h3>
+              <div className="h-64 flex items-end justify-between gap-1">
+                {analyticsSummary.hourlyViews.map((hour) => (
+                  <div key={hour.hour} className="flex-1 flex flex-col items-center">
+                    <div
+                      className="w-full bg-primary-500 rounded-t-lg transition-all hover:bg-primary-600"
+                      style={{
+                        height: `${Math.max((hour.views / Math.max(...analyticsSummary.hourlyViews.map(h => h.views))) * 200, 2)}px`
+                      }}
+                    ></div>
+                    <div className="text-xs text-gray-600 mt-2 font-primary">
+                      {hour.hour.toString().padStart(2, '0')}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Geographic Data */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Geographic Distribution</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {analyticsSummary.countryBreakdown.slice(0, 10).map((country, index) => (
+                  <div key={country.country} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <span className="text-xs font-bold text-primary-600 font-primary">{index + 1}</span>
+                      </div>
+                      <span className="font-medium text-gray-900 font-primary">{country.country}</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-600 font-primary">{country.views} visits</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Content Tab */}
+        {activeTab === 'content' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 font-heading">Content Management</h2>
+              <p className="text-gray-600 mb-6 font-primary">Manage your website content and sections</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="p-4 border border-gray-200 rounded-xl hover:border-primary-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Layers className="w-5 h-5 text-primary-600" />
+                    <span className="font-medium text-gray-900 font-primary">Sections</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 font-heading">{project.sections.length}</div>
+                  <div className="text-sm text-gray-600 font-primary">Total sections</div>
+                </div>
+
+                <div className="p-4 border border-gray-200 rounded-xl hover:border-primary-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Image className="w-5 h-5 text-green-600" />
+                    <span className="font-medium text-gray-900 font-primary">Images</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 font-heading">
+                    {project.sections.reduce((count: number, section: any) => {
+                      const imageFields = JSON.stringify(section.data).match(/https?:\/\/[^\s"]+\.(jpg|jpeg|png|gif|webp)/gi);
+                      return count + (imageFields ? imageFields.length : 0);
+                    }, 0)}
+                  </div>
+                  <div className="text-sm text-gray-600 font-primary">Total images</div>
+                </div>
+
+                <div className="p-4 border border-gray-200 rounded-xl hover:border-primary-300 transition-colors">
+                  <div className="flex items-center gap-3 mb-3">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    <span className="font-medium text-gray-900 font-primary">Text Content</span>
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 font-heading">
+                    {Math.round(JSON.stringify(project.sections).length / 1024)}KB
+                  </div>
+                  <div className="text-sm text-gray-600 font-primary">Content size</div>
+                </div>
+              </div>
+
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => navigate(`/editor/${project.id}`)}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                >
+                  <Edit className="w-4 h-4" />
+                  Edit Content
+                </button>
+                
+                <button
+                  onClick={() => navigate(`/preview/${project.id}`)}
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
+                >
+                  <Eye className="w-4 h-4" />
+                  Preview
+                </button>
               </div>
             </div>
           </motion.div>
@@ -770,316 +1270,87 @@ const SiteAdmin: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Domain Settings */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 font-heading">Domain & Publishing</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4 font-heading">Website Settings</h2>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Current URL</label>
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <Globe className="w-5 h-5 text-gray-600" />
-                    <span className="flex-1 font-mono text-gray-900">
-                      {import.meta.env.VITE_USER_SITE_BASE_URL}/{currentProject.websiteUrl}
-                    </span>
-                    <button
-                      onClick={handleCopyUrl}
-                      className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                    >
-                      <Copy className="w-4 h-4 text-gray-600" />
-                    </button>
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website Name</label>
+                    <input
+                      type="text"
+                      value={project.name}
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website URL</label>
+                    <div className="flex items-center">
+                      <span className="px-3 py-3 bg-gray-100 text-gray-600 rounded-l-xl border border-r-0 border-gray-300 text-sm font-mono">
+                        /site/
+                      </span>
+                      <input
+                        type="text"
+                        value={project.websiteUrl}
+                        readOnly
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl bg-gray-50 text-gray-600 font-mono"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Custom Domain</label>
-                  <div className="flex items-center gap-3">
+                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Description</label>
+                  <textarea
+                    value={project.description || 'No description provided'}
+                    readOnly
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 resize-none font-primary"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category</label>
                     <input
                       type="text"
-                      placeholder="yourdomain.com"
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
+                      value={project.category || 'General'}
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
                     />
-                    <button className="px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary">
-                      Connect
-                    </button>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2 font-primary">
-                    Connect your custom domain to make your site accessible at your own URL.
-                  </p>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Theme</label>
+                    <input
+                      type="text"
+                      value={project.themeId || 'Default'}
+                      readOnly
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div>
-                    <div className="font-medium text-gray-900 font-primary">SSL Certificate</div>
-                    <div className="text-sm text-gray-600 font-primary">Secure your site with HTTPS</div>
+                    <div className="font-medium text-gray-900 font-primary">Published Status</div>
+                    <div className="text-sm text-gray-600 font-primary">Website is currently {project.isPublished ? 'live' : 'draft'}</div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="text-green-600 font-medium font-primary">Active</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* SEO Settings */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 font-heading">SEO Settings</h2>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Meta Title</label>
-                  <input
-                    type="text"
-                    defaultValue={currentProject.name}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Meta Description</label>
-                  <textarea
-                    defaultValue={currentProject.description}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 resize-none font-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Keywords</label>
-                  <input
-                    type="text"
-                    defaultValue={currentProject.seoKeywords.join(', ')}
-                    placeholder="keyword1, keyword2, keyword3"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Open Graph Image</label>
-                  <div className="flex items-center gap-3">
-                    <input
-                      type="url"
-                      placeholder="https://example.com/image.jpg"
-                      className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                    />
-                    <button className="p-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
-                      <Upload className="w-4 h-4 text-gray-600" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Danger Zone */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-red-200">
-              <h2 className="text-xl font-semibold text-red-900 mb-6 font-heading">Danger Zone</h2>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
-                  <div>
-                    <div className="font-medium text-red-900 font-primary">Archive Website</div>
-                    <div className="text-sm text-red-600 font-primary">Hide this website from public view</div>
-                  </div>
-                  <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium font-primary">
-                    Archive
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-red-50 rounded-xl">
-                  <div>
-                    <div className="font-medium text-red-900 font-primary">Delete Website</div>
-                    <div className="text-sm text-red-600 font-primary">Permanently delete this website and all its data</div>
-                  </div>
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium font-primary"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Technical Tab */}
-        {activeTab === 'technical' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Performance Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">{technicalStatus.uptime}%</div>
-                    <div className="text-sm text-gray-600 font-primary">Uptime</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">{technicalStatus.responseTime}ms</div>
-                    <div className="text-sm text-gray-600 font-primary">Response Time</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">SSL</div>
-                    <div className="text-sm text-green-600 font-primary">Active</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <RefreshCw className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-gray-900 font-heading">Last Check</div>
-                    <div className="text-sm text-gray-600 font-primary">{formatRelativeTime(technicalStatus.lastChecked)}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* SEO Audit Scores */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 font-heading">SEO Audit Scores</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {Object.entries(technicalStatus.seoScore).map(([key, score]) => (
-                  <div key={key} className="text-center">
-                    <div className="relative w-20 h-20 mx-auto mb-3">
-                      <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                        <path
-                          className="text-gray-200"
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          fill="none"
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                        <path
-                          className={score >= 90 ? 'text-green-500' : score >= 70 ? 'text-yellow-500' : 'text-red-500'}
-                          stroke="currentColor"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                          fill="none"
-                          strokeDasharray={`${score}, 100`}
-                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        />
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-lg font-bold text-gray-900 font-heading">{score}</span>
-                      </div>
-                    </div>
-                    <div className="font-medium text-gray-900 capitalize font-primary">{key.replace(/([A-Z])/g, ' $1')}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* System Status */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 font-heading">System Status</h2>
-              
-              <div className="space-y-4">
-                {technicalStatus.errors.length === 0 && technicalStatus.warnings.length === 0 ? (
-                  <div className="flex items-center gap-3 p-4 bg-green-50 rounded-xl">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    <span className="text-green-700 font-medium font-primary">All systems operational</span>
-                  </div>
-                ) : (
-                  <>
-                    {technicalStatus.errors.map((error, index) => (
-                      <div key={index} className="flex items-center gap-3 p-4 bg-red-50 rounded-xl">
-                        <AlertCircle className="w-5 h-5 text-red-600" />
-                        <span className="text-red-700 font-primary">{error}</span>
-                      </div>
-                    ))}
-                    
-                    {technicalStatus.warnings.map((warning, index) => (
-                      <div key={index} className="flex items-center gap-3 p-4 bg-yellow-50 rounded-xl">
-                        <AlertCircle className="w-5 h-5 text-yellow-600" />
-                        <span className="text-yellow-700 font-primary">{warning}</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Technical Details */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6 font-heading">Technical Details</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Server className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 font-primary">Server Status</span>
-                    </div>
-                    <span className="text-green-600 font-medium font-primary">Online</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Database className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 font-primary">Database</span>
-                    </div>
-                    <span className="text-green-600 font-medium font-primary">Connected</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Wifi className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 font-primary">CDN</span>
-                    </div>
-                    <span className="text-green-600 font-medium font-primary">Active</span>
+                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    project.isPublished 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-yellow-100 text-yellow-700'
+                  }`}>
+                    {project.isPublished ? 'Published' : 'Draft'}
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <HardDrive className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 font-primary">Storage Used</span>
-                    </div>
-                    <span className="text-gray-600 font-primary">2.3 MB</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <Cpu className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 font-primary">CPU Usage</span>
-                    </div>
-                    <span className="text-gray-600 font-primary">12%</span>
-                  </div>
-
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <MemoryStick className="w-5 h-5 text-gray-600" />
-                      <span className="font-medium text-gray-900 font-primary">Memory Usage</span>
-                    </div>
-                    <span className="text-gray-600 font-primary">45 MB</span>
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span className="font-primary">Created: {new Date(project.createdAt).toLocaleDateString()}</span>
+                    <span className="font-primary">Last Updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
               </div>
@@ -1087,42 +1358,6 @@ const SiteAdmin: React.FC = () => {
           </motion.div>
         )}
       </div>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md"
-          >
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 font-heading">Delete Website</h3>
-              <p className="text-gray-600 font-primary">
-                Are you sure you want to delete "{currentProject.name}"? This action cannot be undone.
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteProject}
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-              >
-                Delete
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 };
