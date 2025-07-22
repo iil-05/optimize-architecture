@@ -1,26 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  ArrowLeft,
-  BarChart3,
-  Users,
-  Heart,
-  Coins,
-  Globe,
-  Smartphone,
-  Monitor,
-  Tablet,
-  Chrome,
-  Firefox,
-  Safari,
-  Clock,
-  Calendar,
-  TrendingUp,
-  MapPin,
-  Eye,
-  Activity
-} from 'lucide-react';
+import { ArrowLeft, BarChart3, Users, Heart, Coins, Globe, Smartphone, Monitor, Tablet, Chrome, Siren as Firefox, Variable as Safari, Clock, Calendar, TrendingUp, MapPin, Eye, Activity } from 'lucide-react';
 import {
   AreaChart,
   Area,
