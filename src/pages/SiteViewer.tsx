@@ -55,7 +55,7 @@ const SiteViewer: React.FC = () => {
       // Use optimized project lookup
       const foundProject = optimizedStorage.getProjectByUrl(websiteUrl);
 
-      if (foundProject && (foundProject.isPublished || import.meta.env.DEV)) {
+      if (foundProject && foundProject.isPublished) {
         setProject(foundProject);
 
         // Apply theme efficiently
@@ -71,7 +71,7 @@ const SiteViewer: React.FC = () => {
 
         setError(null);
       } else {
-        setError('Website not found');
+        setError('Website not found or not published');
       }
     } catch (err) {
       console.error('Error loading website:', err);
