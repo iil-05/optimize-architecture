@@ -59,7 +59,7 @@ function App() {
               <Route
                 path="/admin/:id"
                 element={
-                  <AuthGuard>
+                  <AuthGuard requireProjectAccess={window.location.pathname.split('/')[2]}>
                     <SiteAdmin />
                   </AuthGuard>
                 }
@@ -78,7 +78,7 @@ function App() {
               <Route
                 path="/editor/:id"
                 element={
-                  <AuthGuard>
+                  <AuthGuard requireProjectAccess={window.location.pathname.split('/')[2]}>
                     <Editor />
                   </AuthGuard>
                 }
@@ -86,7 +86,7 @@ function App() {
               <Route
                 path="/preview/:id"
                 element={
-                  <AuthGuard>
+                  <AuthGuard requireProjectAccess={window.location.pathname.split('/')[2]}>
                     <Preview />
                   </AuthGuard>
                 }

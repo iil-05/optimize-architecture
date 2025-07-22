@@ -9,6 +9,7 @@ import { sectionRegistry, SectionDefinition, SectionInstance } from '../core/Sec
 
 export interface StoredProject {
   id: string;
+  userId: string; // Add user_id to projects
   name: string;
   description?: string;
   websiteUrl: string;
@@ -26,6 +27,7 @@ export interface StoredProject {
 }
 
 export interface UserSettings {
+  userId: string; // Add user_id to user settings
   selectedThemeId: string;
   favoriteIcons: string[];
   favoriteSections: string[];
@@ -43,6 +45,7 @@ export interface UserSettings {
 // Lightweight analytics event
 export interface AnalyticsEvent {
   id: string;
+  userId: string; // Add user_id to analytics
   projectId: string;
   type: 'visit' | 'like' | 'coin_donation';
   timestamp: number;
@@ -68,12 +71,81 @@ export interface AnalyticsSummary {
   hourlyStats: Array<{ hour: number; visits: number }>;
 }
 
+// User profile interface
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  company?: string;
+  website?: string;
+  bio?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// User subscription interface
+export interface UserSubscription {
+  userId: string;
+  plan: 'free' | 'pro' | 'enterprise';
+  status: 'active' | 'cancelled' | 'expired';
+  startDate: Date;
+  endDate?: Date;
+  features: string[];
+}
+
+// Support ticket interface
+export interface SupportTicket {
+  id: string;
+  userId: string;
+  subject: string;
+  description: string;
+  category: 'bug' | 'feature' | 'question' | 'billing';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'open' | 'in-progress' | 'resolved' | 'closed';
+  userEmail: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// FAQ item interface
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  views: number;
+  helpful: number;
+  tags: string[];
+}
+
+// Template gallery item interface
+export interface TemplateGalleryItem {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  thumbnail: string;
+  tags: string[];
+  sections: string[];
+  rating: number;
+  downloads: number;
+  isPremium: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class OptimizedStorage {
   private static instance: OptimizedStorage;
   private readonly STORAGE_KEYS = {
+    USER_PROFILE: 'templates_uz_user_profile',
+    USER_SUBSCRIPTION: 'templates_uz_user_subscription',
     PROJECTS: 'templates_uz_projects',
     USER_SETTINGS: 'templates_uz_user_settings',
     ANALYTICS: 'templates_uz_analytics',
+    SUPPORT_TICKETS: 'templates_uz_support_tickets',
+    FAQ: 'templates_uz_faq',
+    TEMPLATE_GALLERY: 'templates_uz_template_gallery',
   };
 
   // Cache for frequently accessed data
@@ -105,58 +177,174 @@ export class OptimizedStorage {
     sectionRegistry.initialize();
     this.loadProjectsToCache();
     this.scheduleCleanup();
+    this.initializeDefaultData();
+  }
+
+  // Get current user ID from auth storage
+  private getCurrentUserId(): string | null {
+    try {
+      const authData = localStorage.getItem('authData');
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.user?.id || null;
+      }
+      
+      // Fallback to user profile
+      const userProfile = this.getUser();
+      return userProfile?.id || null;
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+      return null;
+    }
+  }
+
+  // Ensure user has access to resource
+  private checkUserAccess(resourceUserId: string): boolean {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.warn('🔒 No authenticated user found');
+      return false;
+    }
+    
+    if (currentUserId !== resourceUserId) {
+      console.warn('🔒 Access denied: User does not own this resource');
+      return false;
+    }
+    
+    return true;
   }
 
   // Optimized project management with caching
   public getAllProjects(): StoredProject[] {
-    if (this.isCacheValid()) {
-      return Array.from(this.projectsCache.values());
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.warn('🔒 No authenticated user, returning empty projects');
+      return [];
     }
     
-    const projects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
-    this.updateProjectsCache(projects);
+    if (this.isCacheValid()) {
+      return Array.from(this.projectsCache.values()).filter(p => p.userId === currentUserId);
+    }
+    
+    const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    const projects = allProjects.filter((p: StoredProject) => p.userId === currentUserId);
+    this.updateProjectsCache(allProjects);
     return projects;
   }
 
   public getProject(projectId: string): StoredProject | null {
-    if (this.projectsCache.has(projectId)) {
-      return this.projectsCache.get(projectId) || null;
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.warn('🔒 No authenticated user');
+      return null;
     }
     
-    const projects = this.getAllProjects();
-    return projects.find(p => p.id === projectId) || null;
+    if (this.projectsCache.has(projectId)) {
+      const project = this.projectsCache.get(projectId);
+      if (project && this.checkUserAccess(project.userId)) {
+        return project;
+      }
+      return null;
+    }
+    
+    const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    const project = allProjects.find((p: StoredProject) => p.id === projectId);
+    
+    if (project && this.checkUserAccess(project.userId)) {
+      return project;
+    }
+    
+    return null;
   }
 
   // Fast URL-based project lookup
   public getProjectByUrl(websiteUrl: string): StoredProject | null {
+    const currentUserId = this.getCurrentUserId();
+    
     if (this.urlToProjectCache.has(websiteUrl)) {
       const projectId = this.urlToProjectCache.get(websiteUrl);
-      return projectId ? this.getProject(projectId) : null;
+      if (projectId) {
+        const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+        const project = allProjects.find((p: StoredProject) => p.id === projectId);
+        
+        // For public site viewing, allow access to published projects
+        if (project && project.isPublished) {
+          return project;
+        }
+        
+        // For private access, check user ownership
+        if (project && currentUserId && this.checkUserAccess(project.userId)) {
+          return project;
+        }
+      }
+      return null;
     }
     
-    const projects = this.getAllProjects();
-    const project = projects.find(p => p.websiteUrl === websiteUrl);
+    const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    const project = allProjects.find((p: StoredProject) => p.websiteUrl === websiteUrl);
     
     if (project) {
       this.urlToProjectCache.set(websiteUrl, project.id);
+      
+      // For public site viewing, allow access to published projects
+      if (project.isPublished) {
+        return project;
+      }
+      
+      // For private access, check user ownership
+      if (currentUserId && this.checkUserAccess(project.userId)) {
+        return project;
+      }
     }
     
-    return project || null;
+    return null;
   }
 
   public saveProject(project: StoredProject): void {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot save project: No authenticated user');
+      return;
+    }
+    
+    // Ensure project has user ID
+    if (!project.userId) {
+      project.userId = currentUserId;
+    }
+    
+    // Check if user owns this project
+    if (!this.checkUserAccess(project.userId)) {
+      console.error('🔒 Cannot save project: Access denied');
+      return;
+    }
+    
     // Update cache immediately
     this.projectsCache.set(project.id, { ...project, updatedAt: new Date() });
     this.urlToProjectCache.set(project.websiteUrl, project.id);
     
     // Debounced save to localStorage
     this.debouncedSave(this.STORAGE_KEYS.PROJECTS, () => {
-      const projects = Array.from(this.projectsCache.values());
+      const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+      const otherUserProjects = allProjects.filter((p: StoredProject) => p.userId !== currentUserId);
+      const currentUserProjects = Array.from(this.projectsCache.values()).filter(p => p.userId === currentUserId);
+      const projects = [...otherUserProjects, ...currentUserProjects];
       this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projects);
     });
   }
 
   public deleteProject(projectId: string): void {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot delete project: No authenticated user');
+      return;
+    }
+    
+    const project = this.getProject(projectId);
+    if (!project || !this.checkUserAccess(project.userId)) {
+      console.error('🔒 Cannot delete project: Access denied');
+      return;
+    }
+    
     this.projectsCache.delete(projectId);
     
     // Remove from URL cache
@@ -171,7 +359,8 @@ export class OptimizedStorage {
     this.analyticsCache.delete(projectId);
     
     // Save changes
-    const projects = Array.from(this.projectsCache.values());
+    const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    const projects = allProjects.filter((p: StoredProject) => p.id !== projectId);
     this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projects);
     this.clearAnalyticsForProject(projectId);
   }
@@ -223,9 +412,11 @@ export class OptimizedStorage {
       const now = Date.now();
       const sessionId = this.getSessionId();
       const visitorId = this.getVisitorId();
+      const currentUserId = this.getCurrentUserId() || 'anonymous';
 
       const event: AnalyticsEvent = {
         id: `${now}_${Math.random().toString(36).substr(2, 5)}`,
+        userId: currentUserId,
         projectId,
         type,
         timestamp: now,
@@ -259,6 +450,13 @@ export class OptimizedStorage {
   }
 
   public getAnalyticsSummary(projectId: string): AnalyticsSummary {
+    // Check if user has access to this project's analytics
+    const project = this.getProject(projectId);
+    if (!project) {
+      console.warn('🔒 Cannot access analytics: Project not found or access denied');
+      return this.getEmptyAnalyticsSummary();
+    }
+    
     // Check cache first
     if (this.analyticsCache.has(projectId)) {
       return this.analyticsCache.get(projectId)!;
@@ -338,9 +536,29 @@ export class OptimizedStorage {
     return summary;
   }
 
+  private getEmptyAnalyticsSummary(): AnalyticsSummary {
+    return {
+      totalVisits: 0,
+      uniqueVisitors: 0,
+      totalLikes: 0,
+      totalCoins: 0,
+      deviceStats: [],
+      browserStats: [],
+      dailyStats: [],
+      hourlyStats: Array.from({ length: 24 }, (_, i) => ({ hour: i, visits: 0 }))
+    };
+  }
+
   // User Settings (optimized)
   public getUserSettings(): UserSettings {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.warn('🔒 No authenticated user for settings');
+      return this.getDefaultUserSettings();
+    }
+    
     const defaultSettings: UserSettings = {
+      userId: currentUserId,
       selectedThemeId: 'modern-blue',
       favoriteIcons: [],
       favoriteSections: [],
@@ -355,12 +573,207 @@ export class OptimizedStorage {
       },
     };
 
-    const stored = this.loadFromStorage(this.STORAGE_KEYS.USER_SETTINGS);
-    return stored ? { ...defaultSettings, ...stored } : defaultSettings;
+    const allSettings = this.loadFromStorage(this.STORAGE_KEYS.USER_SETTINGS) || {};
+    const userSettings = allSettings[currentUserId];
+    return userSettings ? { ...defaultSettings, ...userSettings } : defaultSettings;
+  }
+
+  private getDefaultUserSettings(): UserSettings {
+    return {
+      userId: 'anonymous',
+      selectedThemeId: 'modern-blue',
+      favoriteIcons: [],
+      favoriteSections: [],
+      recentlyUsedIcons: [],
+      recentlyUsedSections: [],
+      preferences: {
+        autoSave: true,
+        showGrid: false,
+        snapToGrid: true,
+        language: 'en',
+        timezone: 'UTC',
+      },
+    };
   }
 
   public saveUserSettings(settings: UserSettings): void {
-    this.saveToStorage(this.STORAGE_KEYS.USER_SETTINGS, settings);
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot save settings: No authenticated user');
+      return;
+    }
+    
+    const allSettings = this.loadFromStorage(this.STORAGE_KEYS.USER_SETTINGS) || {};
+    allSettings[currentUserId] = { ...settings, userId: currentUserId };
+    this.saveToStorage(this.STORAGE_KEYS.USER_SETTINGS, allSettings);
+  }
+
+  // User Profile Management
+  public getUser(): UserProfile | null {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) return null;
+    
+    const allUsers = this.loadFromStorage(this.STORAGE_KEYS.USER_PROFILE) || {};
+    return allUsers[currentUserId] || null;
+  }
+
+  public saveUser(userProfile: UserProfile): void {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot save user profile: No authenticated user');
+      return;
+    }
+    
+    const allUsers = this.loadFromStorage(this.STORAGE_KEYS.USER_PROFILE) || {};
+    allUsers[currentUserId] = { ...userProfile, id: currentUserId, updatedAt: new Date() };
+    this.saveToStorage(this.STORAGE_KEYS.USER_PROFILE, allUsers);
+  }
+
+  // User Subscription Management
+  public getUserSubscription(): UserSubscription | null {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) return null;
+    
+    const allSubscriptions = this.loadFromStorage(this.STORAGE_KEYS.USER_SUBSCRIPTION) || {};
+    return allSubscriptions[currentUserId] || {
+      userId: currentUserId,
+      plan: 'free',
+      status: 'active',
+      startDate: new Date(),
+      features: ['basic_templates', 'drag_drop_editor']
+    };
+  }
+
+  public saveUserSubscription(subscription: UserSubscription): void {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot save subscription: No authenticated user');
+      return;
+    }
+    
+    const allSubscriptions = this.loadFromStorage(this.STORAGE_KEYS.USER_SUBSCRIPTION) || {};
+    allSubscriptions[currentUserId] = { ...subscription, userId: currentUserId };
+    this.saveToStorage(this.STORAGE_KEYS.USER_SUBSCRIPTION, allSubscriptions);
+  }
+
+  // Support Tickets Management
+  public getSupportTickets(): SupportTicket[] {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) return [];
+    
+    const allTickets = this.loadFromStorage(this.STORAGE_KEYS.SUPPORT_TICKETS) || [];
+    return allTickets.filter((ticket: SupportTicket) => ticket.userId === currentUserId);
+  }
+
+  public saveSupportTicket(ticket: SupportTicket): void {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot save support ticket: No authenticated user');
+      return;
+    }
+    
+    const allTickets = this.loadFromStorage(this.STORAGE_KEYS.SUPPORT_TICKETS) || [];
+    const newTicket = {
+      ...ticket,
+      id: `ticket_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      userId: currentUserId,
+      status: 'open' as const,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    allTickets.push(newTicket);
+    this.saveToStorage(this.STORAGE_KEYS.SUPPORT_TICKETS, allTickets);
+  }
+
+  // FAQ Management
+  public getFAQ(): FAQItem[] {
+    return this.loadFromStorage(this.STORAGE_KEYS.FAQ) || this.getDefaultFAQ();
+  }
+
+  private getDefaultFAQ(): FAQItem[] {
+    return [
+      {
+        id: 'faq_1',
+        question: 'How do I create my first website?',
+        answer: 'Click on "New Website" in your dashboard, choose a template or start from scratch, and use our drag-and-drop editor to customize your site.',
+        category: 'getting-started',
+        views: 1250,
+        helpful: 890,
+        tags: ['beginner', 'website', 'creation']
+      },
+      {
+        id: 'faq_2',
+        question: 'Can I use my own domain?',
+        answer: 'Yes! With our Pro plan, you can connect your custom domain. Go to your project settings and add your domain in the "Custom Domain" section.',
+        category: 'domains',
+        views: 980,
+        helpful: 750,
+        tags: ['domain', 'custom', 'pro']
+      },
+      {
+        id: 'faq_3',
+        question: 'How do I publish my website?',
+        answer: 'Once you\'re happy with your design, click the "Publish" button in the preview mode. Your site will be live instantly!',
+        category: 'publishing',
+        views: 1100,
+        helpful: 920,
+        tags: ['publish', 'live', 'website']
+      }
+    ];
+  }
+
+  // Template Gallery Management
+  public getTemplateGallery(): TemplateGalleryItem[] {
+    return this.loadFromStorage(this.STORAGE_KEYS.TEMPLATE_GALLERY) || this.getDefaultTemplates();
+  }
+
+  public searchTemplates(query: string, category?: string): TemplateGalleryItem[] {
+    const templates = this.getTemplateGallery();
+    
+    return templates.filter(template => {
+      const matchesQuery = !query || 
+        template.name.toLowerCase().includes(query.toLowerCase()) ||
+        template.description.toLowerCase().includes(query.toLowerCase()) ||
+        template.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()));
+      
+      const matchesCategory = !category || template.category === category;
+      
+      return matchesQuery && matchesCategory;
+    });
+  }
+
+  private getDefaultTemplates(): TemplateGalleryItem[] {
+    return [
+      {
+        id: 'template_business_1',
+        name: 'Modern Business',
+        description: 'Professional business website with clean design',
+        category: 'business',
+        thumbnail: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1',
+        tags: ['business', 'professional', 'modern', 'clean'],
+        sections: ['header-modern', 'hero-modern', 'services-grid', 'about-simple', 'contact-form', 'footer-detailed'],
+        rating: 4.8,
+        downloads: 1250,
+        isPremium: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        id: 'template_portfolio_1',
+        name: 'Creative Portfolio',
+        description: 'Showcase your work with this stunning portfolio template',
+        category: 'portfolio',
+        thumbnail: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1',
+        tags: ['portfolio', 'creative', 'showcase', 'gallery'],
+        sections: ['header-simple', 'hero-split', 'portfolio-grid', 'about-team', 'contact-form', 'footer-simple'],
+        rating: 4.9,
+        downloads: 890,
+        isPremium: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
   }
 
   // Theme Management
@@ -540,29 +953,12 @@ export class OptimizedStorage {
     }
   }
 
-  public clearAllData(): void {
-    Object.values(this.STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
-    });
-    localStorage.removeItem('visitor_id');
-    sessionStorage.removeItem('session_id');
-    
-    // Clear caches
-    this.projectsCache.clear();
-    this.urlToProjectCache.clear();
-    this.analyticsCache.clear();
-    this.visitDebounce.clear();
-    
-    // Clear timers
-    this.saveTimers.forEach(timer => clearTimeout(timer));
-    this.saveTimers.clear();
-  }
-
-  // Storage health monitoring
+  // Storage Health and Analytics
   public getStorageHealth(): { totalSize: number; projectCount: number; analyticsCount: number } {
     try {
-      const projects = this.getAllProjects();
-      const analytics = this.getAnalytics();
+      const currentUserId = this.getCurrentUserId();
+      const projects = currentUserId ? this.getAllProjects() : [];
+      const analytics = this.getAnalytics().filter(e => e.userId === (currentUserId || 'anonymous'));
       
       let totalSize = 0;
       Object.values(this.STORAGE_KEYS).forEach(key => {
@@ -581,6 +977,174 @@ export class OptimizedStorage {
       console.error('Storage health check error:', error);
       return { totalSize: 0, projectCount: 0, analyticsCount: 0 };
     }
+  }
+
+  // Initialize default data
+  private initializeDefaultData(): void {
+    // Initialize FAQ if not exists
+    if (!localStorage.getItem(this.STORAGE_KEYS.FAQ)) {
+      this.saveToStorage(this.STORAGE_KEYS.FAQ, this.getDefaultFAQ());
+    }
+    
+    // Initialize template gallery if not exists
+    if (!localStorage.getItem(this.STORAGE_KEYS.TEMPLATE_GALLERY)) {
+      this.saveToStorage(this.STORAGE_KEYS.TEMPLATE_GALLERY, this.getDefaultTemplates());
+    }
+  }
+
+  // Data export/import with user isolation
+  public exportAllData(): string {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      throw new Error('No authenticated user for data export');
+    }
+    
+    const data = {
+      userId: currentUserId,
+      exportedAt: new Date().toISOString(),
+      version: '2.0.0',
+      projects: this.getAllProjects(),
+      userSettings: this.getUserSettings(),
+      userProfile: this.getUser(),
+      userSubscription: this.getUserSubscription(),
+      supportTickets: this.getSupportTickets(),
+    };
+    
+    return JSON.stringify(data, null, 2);
+  }
+
+  public importAllData(jsonData: string): boolean {
+    try {
+      const currentUserId = this.getCurrentUserId();
+      if (!currentUserId) {
+        throw new Error('No authenticated user for data import');
+      }
+      
+      const data = JSON.parse(jsonData);
+      
+      // Validate that import data belongs to current user
+      if (data.userId && data.userId !== currentUserId) {
+        throw new Error('Cannot import data from different user');
+      }
+      
+      // Import user-specific data
+      if (data.projects) {
+        data.projects.forEach((project: StoredProject) => {
+          project.userId = currentUserId; // Ensure user ownership
+          this.saveProject(project);
+        });
+      }
+      
+      if (data.userSettings) {
+        data.userSettings.userId = currentUserId;
+        this.saveUserSettings(data.userSettings);
+      }
+      
+      if (data.userProfile) {
+        data.userProfile.id = currentUserId;
+        this.saveUser(data.userProfile);
+      }
+      
+      if (data.userSubscription) {
+        data.userSubscription.userId = currentUserId;
+        this.saveUserSubscription(data.userSubscription);
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error importing data:', error);
+      return false;
+    }
+  }
+
+  public clearAllData(): void {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot clear data: No authenticated user');
+      return;
+    }
+    
+    // Clear only current user's data
+    this.clearUserData(currentUserId);
+  }
+
+  public clearUserData(userId: string): void {
+    // Remove user's projects
+    const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    const otherUserProjects = allProjects.filter((p: StoredProject) => p.userId !== userId);
+    this.saveToStorage(this.STORAGE_KEYS.PROJECTS, otherUserProjects);
+    
+    // Remove user's settings
+    const allSettings = this.loadFromStorage(this.STORAGE_KEYS.USER_SETTINGS) || {};
+    delete allSettings[userId];
+    this.saveToStorage(this.STORAGE_KEYS.USER_SETTINGS, allSettings);
+    
+    // Remove user's profile
+    const allUsers = this.loadFromStorage(this.STORAGE_KEYS.USER_PROFILE) || {};
+    delete allUsers[userId];
+    this.saveToStorage(this.STORAGE_KEYS.USER_PROFILE, allUsers);
+    
+    // Remove user's subscription
+    const allSubscriptions = this.loadFromStorage(this.STORAGE_KEYS.USER_SUBSCRIPTION) || {};
+    delete allSubscriptions[userId];
+    this.saveToStorage(this.STORAGE_KEYS.USER_SUBSCRIPTION, allSubscriptions);
+    
+    // Remove user's analytics
+    const allAnalytics = this.getAnalytics().filter(e => e.userId !== userId);
+    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS, allAnalytics);
+    
+    // Remove user's support tickets
+    const allTickets = this.loadFromStorage(this.STORAGE_KEYS.SUPPORT_TICKETS) || [];
+    const otherUserTickets = allTickets.filter((t: SupportTicket) => t.userId !== userId);
+    this.saveToStorage(this.STORAGE_KEYS.SUPPORT_TICKETS, otherUserTickets);
+    
+    // Clear caches
+    this.projectsCache.clear();
+    this.urlToProjectCache.clear();
+    this.analyticsCache.clear();
+    this.visitDebounce.clear();
+    
+    // Clear timers
+    this.saveTimers.forEach(timer => clearTimeout(timer));
+    this.saveTimers.clear();
+    
+    console.log(`✅ Cleared all data for user: ${userId}`);
+  }
+
+  // Clear all data (admin function)
+  public clearAllDataAdmin(): void {
+    Object.values(this.STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+    localStorage.removeItem('visitor_id');
+    sessionStorage.removeItem('session_id');
+    
+    // Clear caches
+    this.projectsCache.clear();
+    this.urlToProjectCache.clear();
+    this.analyticsCache.clear();
+    this.visitDebounce.clear();
+    
+    // Clear timers
+    this.saveTimers.forEach(timer => clearTimeout(timer));
+    this.saveTimers.clear();
+    
+    console.log('✅ All data cleared (admin)');
+  }
+
+  // Prepare data for database migration
+  public prepareDatabaseMigration(): any {
+    const currentUserId = this.getCurrentUserId();
+    if (!currentUserId) {
+      throw new Error('No authenticated user for migration');
+    }
+    
+    return {
+      users: [this.getUser()].filter(Boolean),
+      projects: this.getAllProjects(),
+      templates: [], // Will be populated from registries
+      analytics: this.getAnalytics().filter(e => e.userId === currentUserId)
+    };
   }
 }
 

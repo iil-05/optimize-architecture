@@ -76,11 +76,18 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     logo?: string, 
     favicon?: string
   ): Project => {
+    // Get current user ID from auth storage
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      throw new Error('🔒 Cannot create project: No authenticated user');
+    }
+    
     const projectId = generateId();
     const cleanWebsiteUrl = websiteUrl || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
     
     const newProject: Project = {
       id: projectId,
+      userId: currentUserId, // Add user ID to project
       name: name.trim(),
       description: description?.trim(),
       websiteUrl: cleanWebsiteUrl,
@@ -108,7 +115,40 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     return newProject;
   };
 
+  // Helper function to get current user ID
+  const getCurrentUserId = (): string | null => {
+    try {
+      const authData = localStorage.getItem('authData');
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.user?.id || null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+      return null;
+    }
+  };
+
   const deleteProject = (id: string) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot delete project: No authenticated user');
+      return;
+    }
+    
+    // Check if user owns this project
+    const project = projects.find(p => p.id === id);
+    if (!project) {
+      console.error('🔒 Project not found');
+      return;
+    }
+    
+    if (project.userId !== currentUserId) {
+      console.error('🔒 Cannot delete project: Access denied');
+      return;
+    }
+    
     console.log('🗑️ Deleting project:', id);
     
     // Remove from optimized storage
@@ -126,10 +166,16 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   const updateProject = (projectId: string, updates: Partial<Project>) => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot update project: No authenticated user');
+      return;
+    }
+    
     console.log('📝 Updating project:', projectId, updates);
     
     setProjects(prev => prev.map(project => {
-      if (project.id === projectId) {
+      if (project.id === projectId && project.userId === currentUserId) {
         const updatedProject = { 
           ...project, 
           ...updates, 
@@ -171,6 +217,12 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   const addSectionFromTemplate = (templateId: string, customData?: any, insertPosition?: { index: number; position: 'above' | 'below' } | null) => {
     if (!currentProject) {
       console.warn('⚠️ No current project selected');
+      return;
+    }
+
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || currentProject.userId !== currentUserId) {
+      console.error('🔒 Cannot add section: Access denied');
       return;
     }
 
@@ -220,6 +272,12 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   const updateSectionData = (sectionId: string, data: any) => {
     if (!currentProject) return;
 
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || currentProject.userId !== currentUserId) {
+      console.error('🔒 Cannot update section: Access denied');
+      return;
+    }
+
     const updatedSections = currentProject.sections.map(section => {
       if (section.id === sectionId) {
         const updatedSection = { ...section, data, updatedAt: new Date() };
@@ -235,6 +293,12 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   const deleteSection = (sectionId: string) => {
     if (!currentProject) return;
 
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || currentProject.userId !== currentUserId) {
+      console.error('🔒 Cannot delete section: Access denied');
+      return;
+    }
+
     const updatedSections = currentProject.sections
       .filter(section => section.id !== sectionId)
       .map((section, index) => ({ ...section, order: index }));
@@ -245,6 +309,12 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const reorderSections = (sections: SectionInstance[]) => {
     if (!currentProject) return;
+    
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || currentProject.userId !== currentUserId) {
+      console.error('🔒 Cannot reorder sections: Access denied');
+      return;
+    }
     
     const reorderedSections = sections.map((section, index) => ({
       ...section,
@@ -258,6 +328,12 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
 
   const duplicateSection = (sectionId: string) => {
     if (!currentProject) return;
+
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || currentProject.userId !== currentUserId) {
+      console.error('🔒 Cannot duplicate section: Access denied');
+      return;
+    }
 
     const sectionToDuplicate = currentProject.sections.find(s => s.id === sectionId);
     if (!sectionToDuplicate) return;
@@ -285,19 +361,22 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
   };
 
   const clearAllData = () => {
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId) {
+      console.error('🔒 Cannot clear data: No authenticated user');
+      return;
+    }
+    
     console.log('🧹 Clearing all data...');
     
-    // Clear from optimized storage
-    const allProjects = optimizedStorage.getAllProjects();
-    allProjects.forEach(project => {
-      optimizedStorage.deleteProject(project.id);
-    });
+    // Clear only current user's data from optimized storage
+    optimizedStorage.clearUserData(currentUserId);
     
     // Clear local state
     setProjects([]);
     setCurrentProject(null);
     
-    console.log('✅ All data cleared successfully');
+    console.log('✅ User data cleared successfully');
   };
 
   return (

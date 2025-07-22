@@ -125,6 +125,15 @@ const SiteAdmin: React.FC = () => {
     try {
       const foundProject = optimizedStorage.getProject(id);
       if (!foundProject) {
+        console.log('🔒 Project not found or access denied:', id);
+        navigate('/dashboard');
+        return;
+      }
+
+      // Additional security check - ensure user owns this project
+      const currentUserId = getCurrentUserId();
+      if (!currentUserId || foundProject.userId !== currentUserId) {
+        console.log('🔒 Access denied to admin panel for project:', id);
         navigate('/dashboard');
         return;
       }
@@ -153,6 +162,21 @@ const SiteAdmin: React.FC = () => {
       setIsLoading(false);
     }
   }, [id, navigate]);
+
+  // Helper function to get current user ID
+  const getCurrentUserId = (): string | null => {
+    try {
+      const authData = localStorage.getItem('authData');
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.user?.id || null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -211,6 +235,12 @@ const SiteAdmin: React.FC = () => {
   const handleSaveSettings = async () => {
     if (!project) return;
 
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || project.userId !== currentUserId) {
+      alert('🔒 Access denied: You cannot modify this project');
+      return;
+    }
+
     setIsSaving(true);
     try {
       const seoKeywords = formData.seoKeywords
@@ -248,6 +278,12 @@ const SiteAdmin: React.FC = () => {
   const handleDeleteWebsite = async () => {
     if (!project) return;
 
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || project.userId !== currentUserId) {
+      alert('🔒 Access denied: You cannot delete this project');
+      return;
+    }
+
     try {
       await deleteProject(project.id);
       navigate('/dashboard');
@@ -259,6 +295,12 @@ const SiteAdmin: React.FC = () => {
 
   const handleUnpublish = async () => {
     if (!project) return;
+
+    const currentUserId = getCurrentUserId();
+    if (!currentUserId || project.userId !== currentUserId) {
+      alert('🔒 Access denied: You cannot unpublish this project');
+      return;
+    }
 
     try {
       const updatedProject = {

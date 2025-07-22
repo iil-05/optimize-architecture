@@ -46,6 +46,14 @@ const Editor: React.FC = () => {
     if (id) {
       const project = projects.find(p => p.id === id);
       if (project) {
+        // Additional security check - ensure user owns this project
+        const currentUserId = getCurrentUserId();
+        if (!currentUserId || project.userId !== currentUserId) {
+          console.log('🔒 Access denied to project:', id);
+          navigate('/dashboard');
+          return;
+        }
+        
         setCurrentProject(project);
         
         // Apply project's theme
@@ -61,6 +69,21 @@ const Editor: React.FC = () => {
       }
     }
   }, [id, projects, setCurrentProject, navigate, updateTheme]);
+
+  // Helper function to get current user ID
+  const getCurrentUserId = (): string | null => {
+    try {
+      const authData = localStorage.getItem('authData');
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.user?.id || null;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting current user ID:', error);
+      return null;
+    }
+  };
 
   // Use project-specific theme or fallback to current theme
   const activeTheme = projectTheme || currentTheme;
@@ -154,6 +177,12 @@ const Editor: React.FC = () => {
     const projectExists = id && projects.some(p => p.id === id);
 
     if (id && !projectExists && !isLoading) {
+      const currentUserId = getCurrentUserId();
+      if (!currentUserId) {
+        navigate('/login');
+        return null;
+      }
+      
       return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
           <div className="text-center max-w-md">
@@ -176,7 +205,8 @@ const Editor: React.FC = () => {
                   const project = createProject(
                     `New Project ${projects.length + 1}`,
                     undefined,
-                    id
+                    id,
+                    'business'
                   );
                   setCurrentProject(project);
                 }}

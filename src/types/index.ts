@@ -21,6 +21,7 @@ export interface SectionInstance {
 
 export interface Project {
   id: string;
+  userId: string; // Add user ID to Project interface
   name: string;
   description?: string;
   websiteUrl: string; // New field for custom website URL
