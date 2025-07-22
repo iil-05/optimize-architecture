@@ -747,7 +747,7 @@ const Dashboard: React.FC = () => {
                           onClick={() => navigate(`/admin/${project.id}`)}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-secondary-600 text-white rounded-xl hover:bg-secondary-700 transition-colors font-semibold text-sm font-primary shadow-lg"
+                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-semibold text-sm font-primary shadow-lg"
                           title="Open Admin Panel"
                         >
                           <Settings2 className="w-4 h-4" />

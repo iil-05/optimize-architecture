@@ -18,6 +18,7 @@ import Team from './pages/Team';
 import Support from './pages/Support';
 import TemplateGallery from './pages/TemplateGallery';
 import SiteViewer from './pages/SiteViewer';
+import SiteAdmin from './pages/SiteAdmin';
 
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -53,6 +54,16 @@ function App() {
 
               {/* Public site viewer route */}
               <Route path="/site/:websiteUrl" element={<SiteViewer />} />
+
+              {/* Admin panel route */}
+              <Route
+                path="/admin/:id"
+                element={
+                  <AuthGuard>
+                    <SiteAdmin />
+                  </AuthGuard>
+                }
+              />
 
               <Route path="/" element={<Navigate to="/dashboard" />} />
 
