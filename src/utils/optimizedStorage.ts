@@ -400,6 +400,16 @@ export class OptimizedStorageManager {
         }
       }
 
+      // Capture performance data for visits
+      const performanceData: any = {};
+      if (type === 'visit' && window.performance) {
+        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        if (navigation) {
+          performanceData.loadTime = Math.round(navigation.loadEventEnd - navigation.fetchStart);
+          performanceData.domContentLoaded = Math.round(navigation.domContentLoadedEventEnd - navigation.fetchStart);
+          performanceData.firstPaint = Math.round(navigation.responseEnd - navigation.fetchStart);
+        }
+      }
       const event: SimpleAnalyticsEvent = {
         id: this.generateId(),
         projectId,
@@ -416,6 +426,7 @@ export class OptimizedStorageManager {
           timezone: this.getTimezone(),
           referrer: document.referrer || undefined,
           pageUrl: window.location.href,
+          ...performanceData,
           ...data
         }
       };
@@ -476,42 +487,42 @@ export class OptimizedStorageManager {
     const singlePageSessions = sessions.filter(session => session.pageViews <= 1).length;
     const bounceRate = sessions.length > 0 ? (singlePageSessions / sessions.length) * 100 : 0;
 
-    // Device statistics
+    // Device statistics - calculate percentages accurately
     const deviceCount: { [key: string]: number } = {};
     visits.forEach(event => {
       const device = event.data.device || 'Unknown';
       deviceCount[device] = (deviceCount[device] || 0) + 1;
     });
 
-    // Browser statistics
+    // Browser statistics - calculate percentages accurately
     const browserCount: { [key: string]: number } = {};
     visits.forEach(event => {
       const browser = event.data.browser || 'Unknown';
       browserCount[browser] = (browserCount[browser] || 0) + 1;
     });
 
-    // OS statistics
+    // OS statistics - calculate percentages accurately
     const osCount: { [key: string]: number } = {};
     visits.forEach(event => {
       const os = event.data.os || 'Unknown';
       osCount[os] = (osCount[os] || 0) + 1;
     });
 
-    // Language statistics
+    // Language statistics - calculate from actual data
     const languageCount: { [key: string]: number } = {};
     visits.forEach(event => {
       const language = event.data.language || 'Unknown';
       languageCount[language] = (languageCount[language] || 0) + 1;
     });
 
-    // Screen resolution statistics
+    // Screen resolution statistics - calculate from actual data
     const resolutionCount: { [key: string]: number } = {};
     visits.forEach(event => {
       const resolution = event.data.screenResolution || 'Unknown';
       resolutionCount[resolution] = (resolutionCount[resolution] || 0) + 1;
     });
 
-    // Hourly statistics (unique visitors per hour)
+    // Hourly statistics - accurate calculation
     const hourlyCount: { [key: number]: { visits: number; uniqueVisitors: Set<string> } } = {};
     for (let i = 0; i < 24; i++) {
       hourlyCount[i] = { visits: 0, uniqueVisitors: new Set() };
@@ -522,7 +533,7 @@ export class OptimizedStorageManager {
       hourlyCount[hour].uniqueVisitors.add(event.visitorId);
     });
 
-    // Daily statistics
+    // Daily statistics - accurate calculation
     const dailyCount: { [key: string]: { visits: number; uniqueVisitors: Set<string>; likes: number } } = {};
     visits.forEach(event => {
       const date = new Date(event.timestamp).toISOString().split('T')[0];
@@ -539,19 +550,24 @@ export class OptimizedStorageManager {
       }
     });
 
-    // Top sections by interactions
+    // Top sections by interactions - accurate calculation
     const sectionInteractionCount: { [key: string]: number } = {};
     sectionInteractions.forEach(event => {
       const sectionId = event.data.sectionId || 'Unknown';
       sectionInteractionCount[sectionId] = (sectionInteractionCount[sectionId] || 0) + 1;
     });
 
-    // Calculate pages per session
+    // Calculate pages per session accurately
     const totalPageViews = pageViews.length + visits.length; // visits count as page views too
     const pagesPerSession = sessions.length > 0 ? totalPageViews / sessions.length : 0;
 
-    // Calculate average load time (simulated for demo)
-    const averageLoadTime = Math.floor(Math.random() * 1000) + 500; // 500-1500ms
+    // Calculate average load time from actual performance data
+    const loadTimes = visits
+      .map(event => event.data.loadTime)
+      .filter(time => typeof time === 'number' && time > 0);
+    const averageLoadTime = loadTimes.length > 0 
+      ? Math.round(loadTimes.reduce((sum, time) => sum + time, 0) / loadTimes.length)
+      : 0;
 
     return {
       // Core metrics
@@ -566,17 +582,17 @@ export class OptimizedStorageManager {
       deviceStats: Object.entries(deviceCount).map(([device, count]) => ({
         device,
         count,
-        percentage: Math.round((count / visits.length) * 100)
+        percentage: visits.length > 0 ? Math.round((count / visits.length) * 100) : 0
       })),
       browserStats: Object.entries(browserCount).map(([browser, count]) => ({
         browser,
         count,
-        percentage: Math.round((count / visits.length) * 100)
+        percentage: visits.length > 0 ? Math.round((count / visits.length) * 100) : 0
       })),
       osStats: Object.entries(osCount).map(([os, count]) => ({
         os,
         count,
-        percentage: Math.round((count / visits.length) * 100)
+        percentage: visits.length > 0 ? Math.round((count / visits.length) * 100) : 0
       })),
 
       // Time-based stats

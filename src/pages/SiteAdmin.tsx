@@ -67,7 +67,7 @@ const SiteAdmin: React.FC = () => {
       if (foundProject) {
         setProject(foundProject);
         
-        // Load analytics
+        // Load real analytics data
         const analyticsData = optimizedStorage.getAnalyticsSummary(id, timeRange);
         setAnalytics(analyticsData);
       }
@@ -257,7 +257,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
                 <Eye className="w-5 h-5 text-primary-600" />
               </div>
-              <TrendingUp className="w-4 h-4 text-green-500" />
+              {analytics && analytics.totalVisits > 0 ? (
+                <TrendingUp className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalVisits || 0}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Total Visits</p>
@@ -274,7 +278,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
-              <Users className="w-4 h-4 text-blue-500" />
+              {analytics && analytics.uniqueVisitors > 0 ? (
+                <Users className="w-4 h-4 text-blue-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.uniqueVisitors || 0}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Unique Visitors</p>
@@ -291,7 +299,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
                 <Heart className="w-5 h-5 text-red-600" />
               </div>
-              <Heart className="w-4 h-4 text-red-500" />
+              {analytics && analytics.totalLikes > 0 ? (
+                <Heart className="w-4 h-4 text-red-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalLikes || 0}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Likes</p>
@@ -308,7 +320,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
                 <Coins className="w-5 h-5 text-yellow-600" />
               </div>
-              <Coins className="w-4 h-4 text-yellow-500" />
+              {analytics && analytics.totalCoins > 0 ? (
+                <Coins className="w-4 h-4 text-yellow-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalCoins || 0}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Coins Donated</p>
@@ -325,7 +341,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
                 <Clock className="w-5 h-5 text-purple-600" />
               </div>
-              <Timer className="w-4 h-4 text-purple-500" />
+              {analytics && analytics.averageSessionDuration > 0 ? (
+                <Timer className="w-4 h-4 text-purple-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-lg font-bold text-gray-900 font-heading">
               {formatDuration(analytics?.averageSessionDuration || 0)}
@@ -344,7 +364,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
                 <Target className="w-5 h-5 text-orange-600" />
               </div>
-              <Activity className="w-4 h-4 text-orange-500" />
+              {analytics && analytics.bounceRate > 0 ? (
+                <Activity className="w-4 h-4 text-orange-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{formatPercentage(analytics?.bounceRate || 0)}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Bounce Rate</p>
@@ -361,7 +385,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                 <Globe className="w-5 h-5 text-green-600" />
               </div>
-              <Eye className="w-4 h-4 text-green-500" />
+              {analytics && analytics.totalPageViews > 0 ? (
+                <Eye className="w-4 h-4 text-green-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalPageViews || 0}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Page Views</p>
@@ -378,7 +406,11 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
                 <MousePointer className="w-5 h-5 text-indigo-600" />
               </div>
-              <Zap className="w-4 h-4 text-indigo-500" />
+              {analytics && analytics.pagesPerSession > 0 ? (
+                <Zap className="w-4 h-4 text-indigo-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{(analytics?.pagesPerSession || 0).toFixed(1)}</h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Pages/Session</p>
@@ -395,9 +427,15 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
                 <Zap className="w-5 h-5 text-emerald-600" />
               </div>
-              <Activity className="w-4 h-4 text-emerald-500" />
+              {analytics && analytics.averageLoadTime > 0 ? (
+                <Activity className="w-4 h-4 text-emerald-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
-            <h3 className="text-xl font-bold text-gray-900 font-heading">{analytics?.averageLoadTime || 0}ms</h3>
+            <h3 className="text-xl font-bold text-gray-900 font-heading">
+              {analytics?.averageLoadTime ? `${analytics.averageLoadTime}ms` : '0ms'}
+            </h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Avg. Load Time</p>
           </motion.div>
 
@@ -412,10 +450,14 @@ const SiteAdmin: React.FC = () => {
               <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
                 <MousePointer className="w-5 h-5 text-violet-600" />
               </div>
-              <Target className="w-4 h-4 text-violet-500" />
+              {analytics && analytics.topSections.length > 0 ? (
+                <Target className="w-4 h-4 text-violet-500" />
+              ) : (
+                <div className="w-4 h-4" />
+              )}
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">
-              {analytics?.topSections.reduce((sum, section) => sum + section.interactions, 0) || 0}
+              {analytics?.topSections?.reduce((sum, section) => sum + section.interactions, 0) || 0}
             </h3>
             <p className="text-xs text-gray-500 font-medium font-primary">Interactions</p>
           </motion.div>
@@ -715,7 +757,9 @@ const SiteAdmin: React.FC = () => {
                     <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
                       <span className="text-sm font-bold text-emerald-600">#{index + 1}</span>
                     </div>
-                    <span className="font-medium text-gray-900 font-primary">{section.sectionId}</span>
+                    <span className="font-medium text-gray-900 font-primary">
+                      {section.sectionId.length > 20 ? `${section.sectionId.substring(0, 20)}...` : section.sectionId}
+                    </span>
                   </div>
                   <span className="text-sm text-gray-600 font-primary">{section.interactions} interactions</span>
                 </div>

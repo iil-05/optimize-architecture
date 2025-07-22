@@ -110,12 +110,24 @@ const SiteViewer: React.FC = () => {
   // Track accurate visit with real user data
   const trackVisit = (projectId: string) => {
     try {
+      // Capture performance metrics
+      const performanceData: any = {};
+      if (window.performance) {
+        const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+        if (navigation) {
+          performanceData.loadTime = Math.round(navigation.loadEventEnd - navigation.fetchStart);
+          performanceData.domContentLoaded = Math.round(navigation.domContentLoadedEventEnd - navigation.fetchStart);
+          performanceData.firstPaint = Math.round(navigation.responseEnd - navigation.fetchStart);
+        }
+      }
+
       optimizedStorage.trackSimpleEvent(projectId, 'visit', {
         pageUrl: window.location.href,
         referrer: document.referrer || undefined,
         userAgent: navigator.userAgent,
         timestamp: new Date().toISOString(),
-        sessionStartTime: sessionStartTime
+        sessionStartTime: sessionStartTime,
+        ...performanceData
       });
       
       console.log('📊 Visit tracked for project:', projectId);
