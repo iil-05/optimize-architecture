@@ -5,7 +5,9 @@ import {
   Globe,
   AlertCircle,
   Home,
-  Zap
+  Zap,
+  Heart,
+  Coins
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -23,8 +25,8 @@ const SiteViewer: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTheme, setActiveTheme] = useState(currentTheme);
-  const [analyticsInitialized, setAnalyticsInitialized] = useState(false);
-  const [visitorId, setVisitorId] = useState<string>('');
+  const [hasLiked, setHasLiked] = useState(false);
+  const [showCoinDonation, setShowCoinDonation] = useState(false);
 
   useEffect(() => {
     const loadWebsite = async () => {
@@ -64,15 +66,12 @@ const SiteViewer: React.FC = () => {
             }
           }
 
-          // Generate unique visitor ID
-          const newVisitorId = generateVisitorId();
-          setVisitorId(newVisitorId);
+          // Track simple visit
+          trackVisit(foundProject.id);
 
-          // Track visit analytics in background
-          trackVisit(foundProject.id, newVisitorId);
-
-          // Initialize comprehensive analytics tracking
-          initializeAdvancedAnalytics(foundProject.id, newVisitorId);
+          // Check if user has already liked this site
+          const likedSites = JSON.parse(localStorage.getItem('templates_uz_liked_sites') || '[]');
+          setHasLiked(likedSites.includes(foundProject.id));
 
           setError(null);
         } else {
@@ -90,760 +89,49 @@ const SiteViewer: React.FC = () => {
     loadWebsite();
   }, [websiteUrl, projects, updateTheme]);
 
-  // Generate unique visitor ID
-  const generateVisitorId = (): string => {
-    let visitorId = localStorage.getItem('templates_uz_visitor_id');
-    if (!visitorId) {
-      visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem('templates_uz_visitor_id', visitorId);
-    }
-    return visitorId;
-  };
-
-  // Initialize comprehensive analytics tracking
-  const initializeAdvancedAnalytics = (projectId: string, visitorId: string) => {
-    if (analyticsInitialized) return;
-    
+  // Track simple visit
+  const trackVisit = (projectId: string) => {
     try {
-      console.log('📊 Initializing advanced analytics for project:', projectId);
-      
-      // Start analytics session
-      analyticsStorage.startSession(projectId);
-      
-      // Track initial page view with detailed information
-      analyticsStorage.trackPageView(projectId, window.location.pathname, document.title);
-      
-      // Track visitor information
-      trackVisitorInfo(projectId, visitorId);
-      
-      // Track device and browser information
-      trackDeviceInfo(projectId);
-      
-      // Track geographic information
-      trackGeographicInfo(projectId);
-      
-      // Track referrer information
-      trackReferrerInfo(projectId);
-      
-      // Track scroll interactions
-      trackScrollBehavior(projectId);
-      
-      // Track click interactions
-      trackClickBehavior(projectId);
-      
-      // Track form interactions
-      trackFormInteractions(projectId);
-      
-      // Track time spent on page
-      trackTimeSpent(projectId);
-      
-      // Track page performance
-      trackPagePerformance(projectId);
-      
-      // Track user engagement
-      trackUserEngagement(projectId);
-      
-      // Track conversion events
-      trackConversions(projectId);
-      
-      setAnalyticsInitialized(true);
-      console.log('✅ Advanced analytics tracking initialized');
-      
-    } catch (error) {
-      console.error('❌ Error initializing analytics:', error);
-    }
-  };
-
-  // Track detailed visitor information
-  const trackVisitorInfo = (projectId: string, visitorId: string) => {
-    const visitorInfo = {
-      visitorId,
-      sessionId: `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: new Date().toISOString(),
-      url: window.location.href,
-      title: document.title,
-      referrer: document.referrer || 'direct',
-      userAgent: navigator.userAgent,
-      language: navigator.language,
-      languages: navigator.languages,
-      platform: navigator.platform,
-      cookieEnabled: navigator.cookieEnabled,
-      onlineStatus: navigator.onLine,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      screenResolution: `${screen.width}x${screen.height}`,
-      windowSize: `${window.innerWidth}x${window.innerHeight}`,
-      colorDepth: screen.colorDepth,
-      pixelRatio: window.devicePixelRatio,
-    };
-
-    // Save visitor info to analytics
-    optimizedStorage.trackAnalyticsEvent(projectId, 'visitor_info', visitorInfo);
-  };
-
-  // Track device information
-  const trackDeviceInfo = (projectId: string) => {
-    const userAgent = navigator.userAgent;
-    
-    // Detect device type
-    let deviceType = 'desktop';
-    if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
-      deviceType = 'tablet';
-    } else if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)) {
-      deviceType = 'mobile';
-    }
-
-    // Detect browser
-    let browser = 'Unknown';
-    let browserVersion = 'Unknown';
-    if (userAgent.includes('Chrome')) {
-      browser = 'Chrome';
-      const match = userAgent.match(/Chrome\/(\d+)/);
-      browserVersion = match ? match[1] : 'Unknown';
-    } else if (userAgent.includes('Firefox')) {
-      browser = 'Firefox';
-      const match = userAgent.match(/Firefox\/(\d+)/);
-      browserVersion = match ? match[1] : 'Unknown';
-    } else if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) {
-      browser = 'Safari';
-      const match = userAgent.match(/Version\/(\d+)/);
-      browserVersion = match ? match[1] : 'Unknown';
-    } else if (userAgent.includes('Edge')) {
-      browser = 'Edge';
-      const match = userAgent.match(/Edge\/(\d+)/);
-      browserVersion = match ? match[1] : 'Unknown';
-    }
-
-    // Detect operating system
-    let os = 'Unknown';
-    let osVersion = 'Unknown';
-    if (userAgent.includes('Windows NT')) {
-      os = 'Windows';
-      const match = userAgent.match(/Windows NT (\d+\.\d+)/);
-      osVersion = match ? match[1] : 'Unknown';
-    } else if (userAgent.includes('Mac OS X')) {
-      os = 'macOS';
-      const match = userAgent.match(/Mac OS X (\d+_\d+)/);
-      osVersion = match ? match[1].replace('_', '.') : 'Unknown';
-    } else if (userAgent.includes('Linux')) {
-      os = 'Linux';
-    } else if (userAgent.includes('Android')) {
-      os = 'Android';
-      const match = userAgent.match(/Android (\d+\.\d+)/);
-      osVersion = match ? match[1] : 'Unknown';
-    } else if (userAgent.includes('iOS')) {
-      os = 'iOS';
-      const match = userAgent.match(/OS (\d+_\d+)/);
-      osVersion = match ? match[1].replace('_', '.') : 'Unknown';
-    }
-
-    const deviceInfo = {
-      deviceType,
-      browser,
-      browserVersion,
-      os,
-      osVersion,
-      isMobile: deviceType === 'mobile',
-      isTablet: deviceType === 'tablet',
-      isDesktop: deviceType === 'desktop',
-      touchSupport: 'ontouchstart' in window,
-      screenWidth: screen.width,
-      screenHeight: screen.height,
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
-      devicePixelRatio: window.devicePixelRatio,
-      orientation: screen.orientation?.type || 'unknown',
-    };
-
-    optimizedStorage.trackAnalyticsEvent(projectId, 'device_info', deviceInfo);
-  };
-
-  // Track geographic information (simulated for demo)
-  const trackGeographicInfo = (projectId: string) => {
-    // In a real app, you would use a geolocation service like MaxMind or IP-API
-    const geoData = getSimulatedGeoData();
-    
-    const geoInfo = {
-      country: geoData.country,
-      countryCode: geoData.countryCode,
-      region: geoData.region,
-      city: geoData.city,
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      language: navigator.language,
-      currency: geoData.currency,
-      continent: geoData.continent,
-    };
-
-    optimizedStorage.trackAnalyticsEvent(projectId, 'geographic_info', geoInfo);
-  };
-
-  // Get simulated geographic data
-  const getSimulatedGeoData = () => {
-    const locations = [
-      { country: 'United States', countryCode: 'US', region: 'New York', city: 'New York', currency: 'USD', continent: 'North America' },
-      { country: 'United Kingdom', countryCode: 'GB', region: 'England', city: 'London', currency: 'GBP', continent: 'Europe' },
-      { country: 'Germany', countryCode: 'DE', region: 'Berlin', city: 'Berlin', currency: 'EUR', continent: 'Europe' },
-      { country: 'France', countryCode: 'FR', region: 'Île-de-France', city: 'Paris', currency: 'EUR', continent: 'Europe' },
-      { country: 'Japan', countryCode: 'JP', region: 'Tokyo', city: 'Tokyo', currency: 'JPY', continent: 'Asia' },
-      { country: 'Australia', countryCode: 'AU', region: 'New South Wales', city: 'Sydney', currency: 'AUD', continent: 'Oceania' },
-      { country: 'Canada', countryCode: 'CA', region: 'Ontario', city: 'Toronto', currency: 'CAD', continent: 'North America' },
-      { country: 'Brazil', countryCode: 'BR', region: 'São Paulo', city: 'São Paulo', currency: 'BRL', continent: 'South America' },
-      { country: 'India', countryCode: 'IN', region: 'Maharashtra', city: 'Mumbai', currency: 'INR', continent: 'Asia' },
-      { country: 'China', countryCode: 'CN', region: 'Shanghai', city: 'Shanghai', currency: 'CNY', continent: 'Asia' },
-      { country: 'Uzbekistan', countryCode: 'UZ', region: 'Samarkand', city: 'Samarkand', currency: 'UZS', continent: 'Asia' },
-      { country: 'Russia', countryCode: 'RU', region: 'Moscow', city: 'Moscow', currency: 'RUB', continent: 'Europe' },
-    ];
-    
-    return locations[Math.floor(Math.random() * locations.length)];
-  };
-
-  // Track referrer information
-  const trackReferrerInfo = (projectId: string) => {
-    const referrer = document.referrer;
-    let referrerType = 'direct';
-    let referrerDomain = '';
-    let searchEngine = '';
-    let socialPlatform = '';
-
-    if (referrer) {
-      try {
-        const referrerUrl = new URL(referrer);
-        referrerDomain = referrerUrl.hostname;
-
-        // Detect search engines
-        if (referrerDomain.includes('google')) {
-          referrerType = 'search';
-          searchEngine = 'Google';
-        } else if (referrerDomain.includes('bing')) {
-          referrerType = 'search';
-          searchEngine = 'Bing';
-        } else if (referrerDomain.includes('yahoo')) {
-          referrerType = 'search';
-          searchEngine = 'Yahoo';
-        } else if (referrerDomain.includes('duckduckgo')) {
-          referrerType = 'search';
-          searchEngine = 'DuckDuckGo';
-        }
-        // Detect social media
-        else if (referrerDomain.includes('facebook')) {
-          referrerType = 'social';
-          socialPlatform = 'Facebook';
-        } else if (referrerDomain.includes('twitter') || referrerDomain.includes('t.co')) {
-          referrerType = 'social';
-          socialPlatform = 'Twitter';
-        } else if (referrerDomain.includes('linkedin')) {
-          referrerType = 'social';
-          socialPlatform = 'LinkedIn';
-        } else if (referrerDomain.includes('instagram')) {
-          referrerType = 'social';
-          socialPlatform = 'Instagram';
-        } else if (referrerDomain.includes('youtube')) {
-          referrerType = 'social';
-          socialPlatform = 'YouTube';
-        } else if (referrerDomain.includes('telegram')) {
-          referrerType = 'social';
-          socialPlatform = 'Telegram';
-        }
-        // Other referrals
-        else {
-          referrerType = 'referral';
-        }
-      } catch (e) {
-        referrerType = 'unknown';
-      }
-    }
-
-    const referrerInfo = {
-      referrer,
-      referrerType,
-      referrerDomain,
-      searchEngine,
-      socialPlatform,
-      utmSource: new URLSearchParams(window.location.search).get('utm_source'),
-      utmMedium: new URLSearchParams(window.location.search).get('utm_medium'),
-      utmCampaign: new URLSearchParams(window.location.search).get('utm_campaign'),
-      utmTerm: new URLSearchParams(window.location.search).get('utm_term'),
-      utmContent: new URLSearchParams(window.location.search).get('utm_content'),
-    };
-
-    optimizedStorage.trackAnalyticsEvent(projectId, 'referrer_info', referrerInfo);
-  };
-
-  // Track scroll behavior
-  const trackScrollBehavior = (projectId: string) => {
-    let maxScrollDepth = 0;
-    let scrollEvents = 0;
-    let lastScrollTime = Date.now();
-
-    const handleScroll = () => {
-      scrollEvents++;
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = Math.round((scrollTop / docHeight) * 100);
-      
-      if (scrollPercent > maxScrollDepth) {
-        maxScrollDepth = scrollPercent;
-      }
-
-      // Track scroll milestones
-      if (scrollPercent >= 25 && maxScrollDepth < 25) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'scroll_milestone', { milestone: '25%', scrollDepth: scrollPercent });
-      } else if (scrollPercent >= 50 && maxScrollDepth < 50) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'scroll_milestone', { milestone: '50%', scrollDepth: scrollPercent });
-      } else if (scrollPercent >= 75 && maxScrollDepth < 75) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'scroll_milestone', { milestone: '75%', scrollDepth: scrollPercent });
-      } else if (scrollPercent >= 90 && maxScrollDepth < 90) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'scroll_milestone', { milestone: '90%', scrollDepth: scrollPercent });
-      }
-
-      lastScrollTime = Date.now();
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    // Track final scroll data when leaving
-    const trackFinalScroll = () => {
-      optimizedStorage.trackAnalyticsEvent(projectId, 'scroll_summary', {
-        maxScrollDepth,
-        scrollEvents,
-        timeSpentScrolling: Date.now() - lastScrollTime,
+      optimizedStorage.trackSimpleEvent(projectId, 'visit', {
+        sessionDuration: Math.floor(Math.random() * 300) + 30, // 30-330 seconds simulation
       });
-    };
-
-    window.addEventListener('beforeunload', trackFinalScroll);
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) trackFinalScroll();
-    });
-  };
-
-  // Track click behavior
-  const trackClickBehavior = (projectId: string) => {
-    let clickCount = 0;
-    const clickedElements = new Set();
-
-    const handleClick = (event: MouseEvent) => {
-      clickCount++;
-      const target = event.target as HTMLElement;
-      const elementInfo = getElementInfo(target);
-      
-      clickedElements.add(elementInfo.selector);
-
-      const clickData = {
-        clickCount,
-        elementType: target.tagName.toLowerCase(),
-        elementText: target.textContent?.trim().substring(0, 100) || '',
-        elementSelector: elementInfo.selector,
-        elementPosition: { x: event.clientX, y: event.clientY },
-        pagePosition: { x: event.pageX, y: event.pageY },
-        timestamp: new Date().toISOString(),
-        isButton: target.tagName.toLowerCase() === 'button' || target.getAttribute('role') === 'button',
-        isLink: target.tagName.toLowerCase() === 'a',
-        hasHref: target.getAttribute('href') !== null,
-        href: target.getAttribute('href'),
-      };
-
-      optimizedStorage.trackAnalyticsEvent(projectId, 'click_event', clickData);
-
-      // Track specific click types
-      if (clickData.isLink && clickData.href) {
-        if (clickData.href.includes('mailto:')) {
-          optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'email_click', value: 1 });
-        } else if (clickData.href.includes('tel:')) {
-          optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'phone_click', value: 1 });
-        } else if (clickData.href.startsWith('http') && !clickData.href.includes(window.location.hostname)) {
-          optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'external_link', value: 1, url: clickData.href });
-        }
-      }
-
-      // Track social media clicks
-      const elementText = clickData.elementText.toLowerCase();
-      if (elementText.includes('facebook') || elementInfo.selector.includes('facebook')) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'social_click', platform: 'facebook' });
-      } else if (elementText.includes('twitter') || elementInfo.selector.includes('twitter')) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'social_click', platform: 'twitter' });
-      } else if (elementText.includes('linkedin') || elementInfo.selector.includes('linkedin')) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'social_click', platform: 'linkedin' });
-      } else if (elementText.includes('instagram') || elementInfo.selector.includes('instagram')) {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'social_click', platform: 'instagram' });
-      }
-    };
-
-    document.addEventListener('click', handleClick);
-
-    // Track click summary when leaving
-    const trackClickSummary = () => {
-      optimizedStorage.trackAnalyticsEvent(projectId, 'click_summary', {
-        totalClicks: clickCount,
-        uniqueElements: clickedElements.size,
-        clickedElements: Array.from(clickedElements),
-      });
-    };
-
-    window.addEventListener('beforeunload', trackClickSummary);
-  };
-
-  // Track form interactions
-  const trackFormInteractions = (projectId: string) => {
-    // Track form submissions
-    const handleFormSubmit = (event: Event) => {
-      const form = event.target as HTMLFormElement;
-      const formData = new FormData(form);
-      const formInfo = {
-        formId: form.id || 'unknown',
-        formAction: form.action || window.location.href,
-        formMethod: form.method || 'GET',
-        fieldCount: form.elements.length,
-        fields: Array.from(form.elements).map((element: any) => ({
-          name: element.name,
-          type: element.type,
-          required: element.required,
-          value: element.type === 'password' ? '[HIDDEN]' : element.value?.substring(0, 50),
-        })),
-      };
-
-      optimizedStorage.trackAnalyticsEvent(projectId, 'form_submit', formInfo);
-      optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', { type: 'form_submission', formId: formInfo.formId, value: 1 });
-    };
-
-    // Track form field interactions
-    const handleFormFocus = (event: Event) => {
-      const target = event.target as HTMLInputElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
-        optimizedStorage.trackAnalyticsEvent(projectId, 'form_field_focus', {
-          fieldName: target.name,
-          fieldType: target.type,
-          fieldId: target.id,
-          formId: target.form?.id || 'unknown',
-        });
-      }
-    };
-
-    document.addEventListener('submit', handleFormSubmit);
-    document.addEventListener('focus', handleFormFocus, true);
-  };
-
-  // Track time spent on page
-  const trackTimeSpent = (projectId: string) => {
-    const startTime = Date.now();
-    let isActive = true;
-    let totalActiveTime = 0;
-    let lastActiveTime = startTime;
-
-    // Track when user becomes active/inactive
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        if (isActive) {
-          totalActiveTime += Date.now() - lastActiveTime;
-          isActive = false;
-        }
-      } else {
-        if (!isActive) {
-          lastActiveTime = Date.now();
-          isActive = true;
-        }
-      }
-    };
-
-    // Track mouse movement to detect activity
-    let lastMouseMove = Date.now();
-    const handleMouseMove = () => {
-      lastMouseMove = Date.now();
-      if (!isActive) {
-        lastActiveTime = Date.now();
-        isActive = true;
-      }
-    };
-
-    // Track keyboard activity
-    const handleKeyPress = () => {
-      if (!isActive) {
-        lastActiveTime = Date.now();
-        isActive = true;
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    document.addEventListener('mousemove', handleMouseMove, { passive: true });
-    document.addEventListener('keypress', handleKeyPress);
-
-    // Check for inactivity every 30 seconds
-    const inactivityCheck = setInterval(() => {
-      if (isActive && Date.now() - lastMouseMove > 30000) { // 30 seconds of no mouse movement
-        totalActiveTime += Date.now() - lastActiveTime;
-        isActive = false;
-      }
-    }, 30000);
-
-    // Track final time when leaving
-    const trackFinalTime = () => {
-      if (isActive) {
-        totalActiveTime += Date.now() - lastActiveTime;
-      }
-      
-      const timeData = {
-        totalTime: Date.now() - startTime,
-        activeTime: totalActiveTime,
-        inactiveTime: (Date.now() - startTime) - totalActiveTime,
-        engagementRate: (totalActiveTime / (Date.now() - startTime)) * 100,
-      };
-
-      optimizedStorage.trackAnalyticsEvent(projectId, 'time_spent', timeData);
-      clearInterval(inactivityCheck);
-    };
-
-    window.addEventListener('beforeunload', trackFinalTime);
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) trackFinalTime();
-    });
-  };
-
-  // Track page performance
-  const trackPagePerformance = (projectId: string) => {
-    if ('performance' in window) {
-      window.addEventListener('load', () => {
-        setTimeout(() => {
-          const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-          const paint = performance.getEntriesByType('paint');
-          const resources = performance.getEntriesByType('resource');
-
-          const performanceData = {
-            // Navigation timing
-            domainLookup: navigation.domainLookupEnd - navigation.domainLookupStart,
-            tcpConnect: navigation.connectEnd - navigation.connectStart,
-            request: navigation.responseStart - navigation.requestStart,
-            response: navigation.responseEnd - navigation.responseStart,
-            domProcessing: navigation.domContentLoadedEventStart - navigation.responseEnd,
-            domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
-            loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
-            totalLoadTime: navigation.loadEventEnd - navigation.navigationStart,
-
-            // Paint timing
-            firstPaint: paint.find(p => p.name === 'first-paint')?.startTime || 0,
-            firstContentfulPaint: paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
-
-            // Resource timing
-            resourceCount: resources.length,
-            totalResourceSize: resources.reduce((size, resource) => size + (resource.transferSize || 0), 0),
-            imageCount: resources.filter(r => r.name.match(/\.(jpg|jpeg|png|gif|webp|svg)$/i)).length,
-            scriptCount: resources.filter(r => r.name.match(/\.js$/i)).length,
-            stylesheetCount: resources.filter(r => r.name.match(/\.css$/i)).length,
-
-            // Memory usage (if available)
-            memoryUsage: (performance as any).memory ? {
-              usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
-              totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
-              jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit,
-            } : null,
-
-            // Connection information
-            connectionType: (navigator as any).connection?.effectiveType || 'unknown',
-            connectionSpeed: (navigator as any).connection?.downlink || 0,
-          };
-
-          optimizedStorage.trackAnalyticsEvent(projectId, 'page_performance', performanceData);
-        }, 1000);
-      });
-    }
-  };
-
-  // Track user engagement
-  const trackUserEngagement = (projectId: string) => {
-    let engagementScore = 0;
-    let interactions = 0;
-    const startTime = Date.now();
-
-    // Track various engagement signals
-    const trackEngagement = (type: string, points: number) => {
-      interactions++;
-      engagementScore += points;
-      
-      optimizedStorage.trackAnalyticsEvent(projectId, 'engagement_signal', {
-        type,
-        points,
-        totalScore: engagementScore,
-        totalInteractions: interactions,
-        timeOnPage: Date.now() - startTime,
-      });
-    };
-
-    // Scroll engagement
-    let scrollDepth = 0;
-    const handleScroll = () => {
-      const newScrollDepth = Math.round((window.pageYOffset / (document.body.scrollHeight - window.innerHeight)) * 100);
-      if (newScrollDepth > scrollDepth + 10) { // Every 10% scroll
-        scrollDepth = newScrollDepth;
-        trackEngagement('scroll', 1);
-      }
-    };
-
-    // Click engagement
-    const handleClick = () => trackEngagement('click', 2);
-
-    // Hover engagement
-    let hoverTimeout: NodeJS.Timeout;
-    const handleMouseOver = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.tagName === 'A' || target.tagName === 'BUTTON') {
-        clearTimeout(hoverTimeout);
-        hoverTimeout = setTimeout(() => trackEngagement('hover', 1), 1000);
-      }
-    };
-
-    // Focus engagement
-    const handleFocus = () => trackEngagement('focus', 1);
-
-    // Copy text engagement
-    const handleCopy = () => trackEngagement('copy', 3);
-
-    // Right-click engagement
-    const handleContextMenu = () => trackEngagement('context_menu', 1);
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    document.addEventListener('click', handleClick);
-    document.addEventListener('mouseover', handleMouseOver);
-    document.addEventListener('focus', handleFocus, true);
-    document.addEventListener('copy', handleCopy);
-    document.addEventListener('contextmenu', handleContextMenu);
-
-    // Track final engagement score
-    const trackFinalEngagement = () => {
-      const finalData = {
-        totalScore: engagementScore,
-        totalInteractions: interactions,
-        timeOnPage: Date.now() - startTime,
-        engagementRate: engagementScore / Math.max(1, (Date.now() - startTime) / 1000), // Score per second
-      };
-
-      optimizedStorage.trackAnalyticsEvent(projectId, 'engagement_summary', finalData);
-    };
-
-    window.addEventListener('beforeunload', trackFinalEngagement);
-  };
-
-  // Track conversions
-  const trackConversions = (projectId: string) => {
-    // Track email clicks
-    const trackEmailClicks = () => {
-      document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
-        link.addEventListener('click', () => {
-          optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', {
-            type: 'email_click',
-            email: link.getAttribute('href')?.replace('mailto:', ''),
-            value: 1,
-          });
-        });
-      });
-    };
-
-    // Track phone clicks
-    const trackPhoneClicks = () => {
-      document.querySelectorAll('a[href^="tel:"]').forEach(link => {
-        link.addEventListener('click', () => {
-          optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', {
-            type: 'phone_click',
-            phone: link.getAttribute('href')?.replace('tel:', ''),
-            value: 1,
-          });
-        });
-      });
-    };
-
-    // Track download clicks
-    const trackDownloads = () => {
-      document.querySelectorAll('a[download], a[href$=".pdf"], a[href$=".doc"], a[href$=".zip"]').forEach(link => {
-        link.addEventListener('click', () => {
-          const href = link.getAttribute('href') || '';
-          optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', {
-            type: 'download',
-            fileName: href.split('/').pop() || 'unknown',
-            fileType: href.split('.').pop() || 'unknown',
-            value: 1,
-          });
-        });
-      });
-    };
-
-    // Track external links
-    const trackExternalLinks = () => {
-      document.querySelectorAll('a[href^="http"]').forEach(link => {
-        const href = link.getAttribute('href') || '';
-        if (!href.includes(window.location.hostname)) {
-          link.addEventListener('click', () => {
-            optimizedStorage.trackAnalyticsEvent(projectId, 'conversion', {
-              type: 'external_link',
-              url: href,
-              domain: new URL(href).hostname,
-              value: 1,
-            });
-          });
-        }
-      });
-    };
-
-    // Initialize tracking after DOM is ready
-    setTimeout(() => {
-      trackEmailClicks();
-      trackPhoneClicks();
-      trackDownloads();
-      trackExternalLinks();
-    }, 1000);
-  };
-
-  // Get detailed element information
-  const getElementInfo = (element: HTMLElement) => {
-    const selector = element.id ? `#${element.id}` : 
-                   element.className ? `.${element.className.split(' ')[0]}` : 
-                   element.tagName.toLowerCase();
-    
-    return {
-      selector,
-      tagName: element.tagName.toLowerCase(),
-      id: element.id,
-      className: element.className,
-      textContent: element.textContent?.trim().substring(0, 100) || '',
-      attributes: Array.from(element.attributes).reduce((acc, attr) => {
-        acc[attr.name] = attr.value;
-        return acc;
-      }, {} as Record<string, string>),
-    };
-  };
-
-  // Track visit analytics in background
-  const trackVisit = (projectId: string, visitorId: string) => {
-    try {
-      // Update project view count
-      const project = optimizedStorage.getProject(projectId);
-      if (project) {
-        if (!project.analytics) {
-          project.analytics = { views: 0, performance: {} };
-        }
-        project.analytics.views = project.analytics.views + 1;
-        project.analytics.lastViewed = new Date();
-        optimizedStorage.saveProject(project);
-      }
-      
-      // Track detailed visit information
-      const visitData = {
-        visitorId,
-        projectId,
-        timestamp: new Date().toISOString(),
-        url: window.location.href,
-        userAgent: navigator.userAgent,
-        referrer: document.referrer || 'direct',
-        language: navigator.language,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        screenResolution: `${screen.width}x${screen.height}`,
-        viewportSize: `${window.innerWidth}x${window.innerHeight}`,
-        isNewVisitor: !localStorage.getItem(`templates_uz_returning_visitor_${projectId}`),
-      };
-
-      optimizedStorage.trackAnalyticsEvent(projectId, 'page_visit', visitData);
-      
-      // Mark as returning visitor
-      localStorage.setItem(`templates_uz_returning_visitor_${projectId}`, 'true');
       
       console.log('📊 Visit tracked for project:', projectId);
     } catch (error) {
       console.error('❌ Error tracking visit:', error);
+    }
+  };
+
+  const handleLike = () => {
+    if (!project || hasLiked) return;
+
+    try {
+      // Track like event
+      optimizedStorage.trackSimpleEvent(project.id, 'like');
+
+      // Save to local storage to prevent multiple likes
+      const likedSites = JSON.parse(localStorage.getItem('templates_uz_liked_sites') || '[]');
+      likedSites.push(project.id);
+      localStorage.setItem('templates_uz_liked_sites', JSON.stringify(likedSites));
+
+      setHasLiked(true);
+      console.log('❤️ Like tracked for project:', project.id);
+    } catch (error) {
+      console.error('❌ Error tracking like:', error);
+    }
+  };
+
+  const handleCoinDonation = (amount: number) => {
+    if (!project) return;
+
+    try {
+      // Track coin donation event
+      optimizedStorage.trackSimpleEvent(project.id, 'coin_donation', { amount });
+
+      setShowCoinDonation(false);
+      console.log('🪙 Coin donation tracked:', { projectId: project.id, amount });
+    } catch (error) {
+      console.error('❌ Error tracking coin donation:', error);
     }
   };
 
@@ -925,6 +213,73 @@ const SiteViewer: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        {/* Like Button */}
+        <motion.button
+          onClick={handleLike}
+          disabled={hasLiked}
+          whileHover={{ scale: hasLiked ? 1 : 1.1 }}
+          whileTap={{ scale: hasLiked ? 1 : 0.9 }}
+          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all ${
+            hasLiked 
+              ? 'bg-red-500 text-white cursor-not-allowed' 
+              : 'bg-white text-red-500 hover:bg-red-50 border-2 border-red-200'
+          }`}
+        >
+          <Heart className={`w-6 h-6 ${hasLiked ? 'fill-current' : ''}`} />
+        </motion.button>
+
+        {/* Coin Donation Button */}
+        <motion.button
+          onClick={() => setShowCoinDonation(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="w-14 h-14 bg-yellow-500 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-yellow-600 transition-all"
+        >
+          <Coins className="w-6 h-6" />
+        </motion.button>
+      </div>
+
+      {/* Coin Donation Modal */}
+      {showCoinDonation && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm"
+          >
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Coins className="w-8 h-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2 font-heading">Support This Website</h3>
+              <p className="text-gray-600 font-primary">Show your appreciation with a coin donation</p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {[1, 5, 10].map((amount) => (
+                <button
+                  key={amount}
+                  onClick={() => handleCoinDonation(amount)}
+                  className="p-4 border-2 border-yellow-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-all text-center"
+                >
+                  <Coins className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
+                  <span className="font-bold text-gray-900 font-primary">{amount}</span>
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => setShowCoinDonation(false)}
+              className="w-full py-3 text-gray-600 hover:text-gray-800 transition-colors font-medium font-primary"
+            >
+              Cancel
+            </button>
+          </motion.div>
+        </div>
+      )}
+
       {/* Website Content */}
       {project.sections.length === 0 ? (
         <div className="min-h-screen flex items-center justify-center bg-gray-50">

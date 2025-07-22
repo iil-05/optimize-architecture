@@ -31,7 +31,7 @@ export interface OptimizedStorageData {
     features: FeatureFlags;
   };
   
-  // Analytics and usage data
+  // Simple analytics data
   analytics: {
     projectStats: ProjectStats[];
     usageMetrics: UsageMetrics;
@@ -85,11 +85,11 @@ export interface ProjectData extends Project {
     collaborators: string[];
     tags: string[];
     isTemplate: boolean;
-    logoFileName?: string; // Store original filename for reference
-    faviconFileName?: string; // Store original filename for reference
+    logoFileName?: string;
+    faviconFileName?: string;
   };
   
-  // SEO and performance data
+  // SEO data
   seo: {
     title?: string;
     description?: string;
@@ -97,20 +97,12 @@ export interface ProjectData extends Project {
     customMeta: { [key: string]: string };
   };
   
-  // Analytics data
+  // Simple analytics data
   analytics: {
-    views: number;
-    lastViewed?: Date;
-    performance: {
-      loadTime?: number;
-      sizeKB?: number;
-      lighthouse?: {
-        performance: number;
-        accessibility: number;
-        bestPractices: number;
-        seo: number;
-      };
-    };
+    visits: number;
+    likes: number;
+    coins: number;
+    lastVisited?: Date;
   };
   
   // Deployment data
@@ -120,17 +112,7 @@ export interface ProjectData extends Project {
     customDomain?: string;
     ssl: boolean;
     lastDeployed?: Date;
-    deploymentHistory: DeploymentRecord[];
   };
-}
-
-export interface DeploymentRecord {
-  id: string;
-  timestamp: Date;
-  version: string;
-  status: 'success' | 'failed';
-  url?: string;
-  notes?: string;
 }
 
 export interface FeatureFlags {
@@ -159,11 +141,39 @@ export interface UsageMetrics {
   averageSessionTime: number; // in minutes
 }
 
-// Enhanced Storage Manager with optimal structure
+// Simple analytics interfaces
+export interface SimpleAnalyticsEvent {
+  id: string;
+  projectId: string;
+  type: 'visit' | 'like' | 'coin_donation';
+  timestamp: Date;
+  data: {
+    visitorId?: string;
+    sessionId?: string;
+    device?: string;
+    browser?: string;
+    os?: string;
+    country?: string;
+    city?: string;
+    sessionDuration?: number; // in seconds
+    hour?: number; // 0-23
+  };
+}
+
+export interface AnalyticsSummary {
+  totalVisits: number;
+  totalLikes: number;
+  totalCoins: number;
+  averageSessionDuration: number; // in seconds
+  deviceStats: { device: string; count: number }[];
+  browserStats: { browser: string; count: number }[];
+  countryStats: { country: string; count: number }[];
+  hourlyStats: { hour: number; visits: number }[];
+  dailyStats: { date: string; visits: number }[];
+}
+
+// Enhanced Storage Manager with simple analytics
 export class OptimizedStorageManager {
-  clearAll() {
-    throw new Error('Method not implemented.');
-  }
   private static instance: OptimizedStorageManager;
   private readonly STORAGE_PREFIX = 'templates_uz_';
   private readonly STORAGE_KEYS = {
@@ -175,7 +185,7 @@ export class OptimizedStorageManager {
     CACHE: `${this.STORAGE_PREFIX}cache`,
     SUPPORT: `${this.STORAGE_PREFIX}support`,
     TEMPLATE_GALLERY: `${this.STORAGE_PREFIX}template_gallery`,
-    ANALYTICS_DATA: `${this.STORAGE_PREFIX}analytics_data`,
+    SIMPLE_ANALYTICS: `${this.STORAGE_PREFIX}simple_analytics`,
   };
 
   private constructor() {
@@ -197,32 +207,29 @@ export class OptimizedStorageManager {
     if (!this.getSettings()) {
       this.createDefaultSettings();
     }
-    if (!this.getAnalyticsTable()) {
-      this.createAnalyticsTable();
+    if (!this.getSimpleAnalytics()) {
+      this.createSimpleAnalytics();
     }
   }
 
   // User Management
   public getUser(): UserProfile | null {
-    // Try to get user from auth storage first
     const authUser = authStorage.getUser();
     if (authUser) {
       return {
         name: authUser.name,
         email: authUser.email,
         avatar: authUser.avatar,
-        company: '', // These would need to be added to AuthUser if needed
+        company: '',
         website: '',
         bio: '',
       };
     }
     
-    // Fallback to old storage
     return this.loadFromStorage(this.STORAGE_KEYS.USER);
   }
 
   public saveUser(user: UserProfile): void {
-    // Also update auth storage if user is authenticated
     if (authStorage.isAuthenticated()) {
       authStorage.updateUser({
         name: user.name,
@@ -259,53 +266,6 @@ export class OptimizedStorageManager {
     return userData?.subscription || null;
   }
 
-  // Analytics Table Management
-  public getAnalyticsTable(): any {
-    return this.loadFromStorage(this.STORAGE_KEYS.ANALYTICS_DATA);
-  }
-
-  public saveAnalyticsData(data: any): void {
-    const table = this.getAnalyticsTable() || this.createAnalyticsTable();
-    table.data.push(data);
-    table.metadata.lastUpdated = new Date().toISOString();
-    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS_DATA, table);
-  }
-
-  public getAnalyticsForProject(projectId: string): any[] {
-    const table = this.getAnalyticsTable();
-    if (!table) return [];
-    
-    return table.data
-      .filter((item: any) => item.projectId === projectId)
-      .map((item: any) => ({
-        ...item,
-        timestamp: new Date(item.timestamp)
-      }));
-  }
-
-  public clearAnalyticsData(): void {
-    this.createAnalyticsTable();
-  }
-
-  private createAnalyticsTable(): any {
-    const analyticsTable = {
-      data: [],
-      indexes: {
-        projectId: {},
-        timestamp: {},
-        type: {}
-      },
-      metadata: {
-        version: '1.0.0',
-        createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString(),
-        totalRecords: 0
-      }
-    };
-    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS_DATA, analyticsTable);
-    return analyticsTable;
-  }
-
   // Project Management
   public getAllProjects(): ProjectData[] {
     const projectsData = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || {};
@@ -332,11 +292,12 @@ export class OptimizedStorageManager {
       };
     }
 
-    // Initialize analytics if not present
+    // Initialize simple analytics if not present
     if (!project.analytics) {
       project.analytics = {
-        views: 0,
-        performance: {},
+        visits: 0,
+        likes: 0,
+        coins: 0,
       };
     }
 
@@ -345,7 +306,6 @@ export class OptimizedStorageManager {
       project.deployment = {
         status: 'draft',
         ssl: false,
-        deploymentHistory: [],
       };
     }
 
@@ -361,22 +321,6 @@ export class OptimizedStorageManager {
       project.deployment.status = 'published';
       project.deployment.publishedUrl = `${import.meta.env.VITE_USER_SITE_BASE_URL || 'http://localhost:5173/site'}/${project.websiteUrl}`;
       project.deployment.lastDeployed = new Date();
-      
-      // Add deployment record
-      project.deployment.deploymentHistory.push({
-        id: this.generateId(),
-        timestamp: new Date(),
-        version: project.metadata.version,
-        status: 'success',
-        url: `${import.meta.env.VITE_USER_SITE_BASE_URL || 'http://localhost:5173/site'}/${project.websiteUrl}`,
-        notes: 'Website published successfully'
-      });
-      
-      // Track analytics event
-      this.trackAnalyticsEvent(project.id, 'conversion', {
-        conversionType: 'website_published',
-        conversionValue: 1
-      });
     } else if (!project.isPublished && project.deployment.status === 'published') {
       project.deployment.status = 'draft';
     }
@@ -403,186 +347,178 @@ export class OptimizedStorageManager {
     delete projectsData[projectId];
     this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projectsData);
     this.removeProjectStats(projectId);
+    this.clearAnalyticsForProject(projectId);
   }
 
-  // Analytics Event Tracking
-  public trackAnalyticsEvent(projectId: string, type: string, data: any): void {
+  // Simple Analytics Management
+  public trackSimpleEvent(projectId: string, type: 'visit' | 'like' | 'coin_donation', data: any = {}): void {
     try {
-      const analyticsEvent = {
-        id: `analytics_${Date.now()}_${Math.random()}`,
+      const event: SimpleAnalyticsEvent = {
+        id: this.generateId(),
         projectId,
-        timestamp: new Date().toISOString(),
         type,
+        timestamp: new Date(),
         data: {
-          ...data,
-          userAgent: navigator.userAgent,
+          visitorId: this.getOrCreateVisitorId(),
           sessionId: this.getOrCreateSessionId(),
           device: this.detectDevice(),
           browser: this.detectBrowser(),
-          os: this.detectOS()
+          os: this.detectOS(),
+          country: this.getSimulatedCountry(),
+          city: this.getSimulatedCity(),
+          hour: new Date().getHours(),
+          ...data
         }
       };
+
+      const analytics = this.getSimpleAnalytics();
+      analytics.events.push(event);
       
-      this.saveAnalyticsData(analyticsEvent);
+      // Keep only last 1000 events to prevent storage bloat
+      if (analytics.events.length > 1000) {
+        analytics.events = analytics.events.slice(-1000);
+      }
+
+      this.saveToStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS, analytics);
+
+      // Update project analytics counters
+      if (type === 'visit') {
+        this.incrementProjectVisits(projectId);
+      } else if (type === 'like') {
+        this.incrementProjectLikes(projectId);
+      } else if (type === 'coin_donation') {
+        this.incrementProjectCoins(projectId, data.amount || 1);
+      }
+
+      console.log('📊 Simple analytics event tracked:', { projectId, type });
     } catch (error) {
-      console.error('❌ Error tracking analytics event:', error);
+      console.error('❌ Error tracking simple analytics event:', error);
     }
   }
 
-  // Enhanced analytics methods for SiteAdmin
-  public getAnalyticsForProject(projectId: string): any[] {
-    const table = this.getAnalyticsTable();
-    if (!table) return [];
+  public getAnalyticsSummary(projectId: string, days: number = 30): AnalyticsSummary {
+    const analytics = this.getSimpleAnalytics();
+    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     
-    return table.data
-      .filter((item: any) => item.projectId === projectId)
-      .map((item: any) => ({
-        ...item,
-        timestamp: new Date(item.timestamp)
-      }))
-      .sort((a: any, b: any) => b.timestamp.getTime() - a.timestamp.getTime());
-  }
+    const projectEvents = analytics.events.filter(event => 
+      event.projectId === projectId && 
+      new Date(event.timestamp) >= cutoffDate
+    );
 
-  public getAnalyticsSummary(projectId: string, dateRange?: { start: Date; end: Date }): any {
-    const events = this.getAnalyticsForProject(projectId);
-    
-    // Filter by date range if provided
-    const filteredEvents = dateRange 
-      ? events.filter(event => 
-          event.timestamp >= dateRange.start && event.timestamp <= dateRange.end
-        )
-      : events;
+    const visits = projectEvents.filter(e => e.type === 'visit');
+    const likes = projectEvents.filter(e => e.type === 'like');
+    const coins = projectEvents.filter(e => e.type === 'coin_donation');
 
-    // Group events by type
-    const eventsByType = filteredEvents.reduce((acc, event) => {
-      if (!acc[event.type]) acc[event.type] = [];
-      acc[event.type].push(event);
-      return acc;
-    }, {} as Record<string, any[]>);
+    // Device statistics
+    const deviceCount: { [key: string]: number } = {};
+    visits.forEach(event => {
+      const device = event.data.device || 'Unknown';
+      deviceCount[device] = (deviceCount[device] || 0) + 1;
+    });
+
+    // Browser statistics
+    const browserCount: { [key: string]: number } = {};
+    visits.forEach(event => {
+      const browser = event.data.browser || 'Unknown';
+      browserCount[browser] = (browserCount[browser] || 0) + 1;
+    });
+
+    // Country statistics
+    const countryCount: { [key: string]: number } = {};
+    visits.forEach(event => {
+      const country = event.data.country || 'Unknown';
+      countryCount[country] = (countryCount[country] || 0) + 1;
+    });
+
+    // Hourly statistics
+    const hourlyCount: { [key: number]: number } = {};
+    for (let i = 0; i < 24; i++) {
+      hourlyCount[i] = 0;
+    }
+    visits.forEach(event => {
+      const hour = event.data.hour || new Date(event.timestamp).getHours();
+      hourlyCount[hour] = (hourlyCount[hour] || 0) + 1;
+    });
+
+    // Daily statistics
+    const dailyCount: { [key: string]: number } = {};
+    visits.forEach(event => {
+      const date = new Date(event.timestamp).toISOString().split('T')[0];
+      dailyCount[date] = (dailyCount[date] || 0) + 1;
+    });
+
+    // Calculate average session duration (simulate with random values for demo)
+    const sessionDurations = visits.map(() => Math.floor(Math.random() * 300) + 30); // 30-330 seconds
+    const averageSessionDuration = sessionDurations.length > 0 
+      ? sessionDurations.reduce((sum, duration) => sum + duration, 0) / sessionDurations.length 
+      : 0;
 
     return {
-      totalEvents: filteredEvents.length,
-      eventTypes: Object.keys(eventsByType),
-      eventsByType,
-      dateRange: {
-        start: filteredEvents.length > 0 ? new Date(Math.min(...filteredEvents.map(e => e.timestamp.getTime()))) : null,
-        end: filteredEvents.length > 0 ? new Date(Math.max(...filteredEvents.map(e => e.timestamp.getTime()))) : null,
-      },
-      uniqueVisitors: new Set(filteredEvents.map(e => e.data?.visitorId).filter(Boolean)).size,
-      uniqueSessions: new Set(filteredEvents.map(e => e.data?.sessionId).filter(Boolean)).size,
+      totalVisits: visits.length,
+      totalLikes: likes.length,
+      totalCoins: coins.reduce((sum, event) => sum + (event.data.amount || 1), 0),
+      averageSessionDuration,
+      deviceStats: Object.entries(deviceCount).map(([device, count]) => ({ device, count })),
+      browserStats: Object.entries(browserCount).map(([browser, count]) => ({ browser, count })),
+      countryStats: Object.entries(countryCount).map(([country, count]) => ({ country, count })),
+      hourlyStats: Object.entries(hourlyCount).map(([hour, visits]) => ({ hour: parseInt(hour), visits })),
+      dailyStats: Object.entries(dailyCount).map(([date, visits]) => ({ date, visits }))
     };
-  }
-
-  public exportAnalyticsData(projectId: string): string {
-    const events = this.getAnalyticsForProject(projectId);
-    const summary = this.getAnalyticsSummary(projectId);
-    
-    const exportData = {
-      metadata: {
-        projectId,
-        exportedAt: new Date().toISOString(),
-        totalEvents: events.length,
-        dateRange: summary.dateRange,
-      },
-      summary,
-      events: events.map(event => ({
-        ...event,
-        timestamp: event.timestamp.toISOString(),
-      })),
-    };
-
-    return JSON.stringify(exportData, null, 2);
   }
 
   public clearAnalyticsForProject(projectId: string): void {
-    const table = this.getAnalyticsTable();
-    if (!table) return;
-    
-    table.data = table.data.filter((item: any) => item.projectId !== projectId);
-    table.metadata.lastUpdated = new Date().toISOString();
-    table.metadata.totalRecords = table.data.length;
-    
-    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS_DATA, table);
-    console.log('🧹 Analytics data cleared for project:', projectId);
+    const analytics = this.getSimpleAnalytics();
+    analytics.events = analytics.events.filter(event => event.projectId !== projectId);
+    this.saveToStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS, analytics);
+    console.log('🧹 Analytics cleared for project:', projectId);
   }
 
-  public getAnalyticsMetrics(projectId: string): {
-    totalEvents: number;
-    uniqueVisitors: number;
-    pageViews: number;
-    conversions: number;
-    averageSessionDuration: number;
-    topCountries: { country: string; count: number }[];
-    topDevices: { device: string; count: number }[];
-    topBrowsers: { browser: string; count: number }[];
-  } {
-    const events = this.getAnalyticsForProject(projectId);
-    
-    const pageVisits = events.filter(e => e.type === 'page_visit');
-    const conversions = events.filter(e => e.type === 'conversion');
-    const timeSpentEvents = events.filter(e => e.type === 'time_spent');
-    
-    // Calculate metrics
-    const uniqueVisitors = new Set(pageVisits.map(e => e.data?.visitorId).filter(Boolean)).size;
-    const averageSessionDuration = timeSpentEvents.length > 0
-      ? timeSpentEvents.reduce((sum, e) => sum + (e.data?.totalTime || 0), 0) / timeSpentEvents.length / 1000
-      : 0;
-
-    // Top countries
-    const countryCount = events
-      .filter(e => e.data?.country)
-      .reduce((acc, e) => {
-        const country = e.data.country;
-        acc[country] = (acc[country] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-    const topCountries = Object.entries(countryCount)
-      .map(([country, count]) => ({ country, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    // Top devices
-    const deviceCount = events
-      .filter(e => e.data?.device)
-      .reduce((acc, e) => {
-        const device = e.data.device;
-        acc[device] = (acc[device] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-    const topDevices = Object.entries(deviceCount)
-      .map(([device, count]) => ({ device, count }))
-      .sort((a, b) => b.count - a.count);
-
-    // Top browsers
-    const browserCount = events
-      .filter(e => e.data?.browser)
-      .reduce((acc, e) => {
-        const browser = e.data.browser;
-        acc[browser] = (acc[browser] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
-
-    const topBrowsers = Object.entries(browserCount)
-      .map(([browser, count]) => ({ browser, count }))
-      .sort((a, b) => b.count - a.count);
-
-    return {
-      totalEvents: events.length,
-      uniqueVisitors,
-      pageViews: pageVisits.length,
-      conversions: conversions.length,
-      averageSessionDuration,
-      topCountries,
-      topDevices,
-      topBrowsers,
-    };
+  private getSimpleAnalytics(): { events: SimpleAnalyticsEvent[] } {
+    return this.loadFromStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS) || { events: [] };
   }
+
+  private createSimpleAnalytics(): void {
+    this.saveToStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS, { events: [] });
+  }
+
+  private incrementProjectVisits(projectId: string): void {
+    const project = this.getProject(projectId);
+    if (project) {
+      project.analytics.visits = (project.analytics.visits || 0) + 1;
+      project.analytics.lastVisited = new Date();
+      this.saveProject(project);
+    }
+  }
+
+  private incrementProjectLikes(projectId: string): void {
+    const project = this.getProject(projectId);
+    if (project) {
+      project.analytics.likes = (project.analytics.likes || 0) + 1;
+      this.saveProject(project);
+    }
+  }
+
+  private incrementProjectCoins(projectId: string, amount: number): void {
+    const project = this.getProject(projectId);
+    if (project) {
+      project.analytics.coins = (project.analytics.coins || 0) + amount;
+      this.saveProject(project);
+    }
+  }
+
+  private getOrCreateVisitorId(): string {
+    let visitorId = localStorage.getItem('templates_uz_visitor_id');
+    if (!visitorId) {
+      visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      localStorage.setItem('templates_uz_visitor_id', visitorId);
+    }
+    return visitorId;
+  }
+
   private getOrCreateSessionId(): string {
     let sessionId = sessionStorage.getItem('templates_uz_session_id');
     if (!sessionId) {
-      sessionId = `session_${Date.now()}_${Math.random()}`;
+      sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       sessionStorage.setItem('templates_uz_session_id', sessionId);
     }
     return sessionId;
@@ -591,21 +527,21 @@ export class OptimizedStorageManager {
   private detectDevice(): string {
     const userAgent = navigator.userAgent;
     if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
-      return 'tablet';
+      return 'Tablet';
     }
     if (/mobile|iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile/i.test(userAgent)) {
-      return 'mobile';
+      return 'Mobile';
     }
-    return 'desktop';
+    return 'Desktop';
   }
 
   private detectBrowser(): string {
     const userAgent = navigator.userAgent;
     if (userAgent.includes('Chrome')) return 'Chrome';
     if (userAgent.includes('Firefox')) return 'Firefox';
-    if (userAgent.includes('Safari')) return 'Safari';
+    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
     if (userAgent.includes('Edge')) return 'Edge';
-    return 'Unknown';
+    return 'Other';
   }
 
   private detectOS(): string {
@@ -615,7 +551,17 @@ export class OptimizedStorageManager {
     if (userAgent.includes('Linux')) return 'Linux';
     if (userAgent.includes('Android')) return 'Android';
     if (userAgent.includes('iOS')) return 'iOS';
-    return 'Unknown';
+    return 'Other';
+  }
+
+  private getSimulatedCountry(): string {
+    const countries = ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'Canada', 'Brazil', 'India', 'China', 'Uzbekistan', 'Russia'];
+    return countries[Math.floor(Math.random() * countries.length)];
+  }
+
+  private getSimulatedCity(): string {
+    const cities = ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney', 'Toronto', 'São Paulo', 'Mumbai', 'Shanghai', 'Samarkand', 'Moscow'];
+    return cities[Math.floor(Math.random() * cities.length)];
   }
 
   // Template Management
@@ -752,29 +698,6 @@ export class OptimizedStorageManager {
       console.error('❌ Error importing data:', error);
       return false;
     }
-  }
-
-  // Database Migration Helpers
-  public prepareDatabaseMigration(): {
-    users: any[];
-    projects: any[];
-    templates: any[];
-    analytics: any[];
-  } {
-    const userData = this.loadFromStorage(this.STORAGE_KEYS.USER);
-    const projectsData = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || {};
-    const templatesData = this.loadFromStorage(this.STORAGE_KEYS.TEMPLATES) || {};
-    const analyticsData = this.loadFromStorage(this.STORAGE_KEYS.ANALYTICS) || {};
-
-    return {
-      users: userData ? [userData] : [],
-      projects: Object.values(projectsData),
-      templates: [
-        ...Object.values(templatesData.sections || {}),
-        ...Object.values(templatesData.themes || {}),
-      ],
-      analytics: analyticsData.projectStats || [],
-    };
   }
 
   // Utility Methods
@@ -929,7 +852,6 @@ export class OptimizedStorageManager {
           largestKey = name;
         }
 
-        // Check for old data
         try {
           const data = JSON.parse(item);
           if (data.lastSync || data.updatedAt || data.createdAt) {
@@ -944,11 +866,10 @@ export class OptimizedStorageManager {
       }
     }
 
-    // Generate recommendations
-    if (totalSize > 4 * 1024 * 1024) { // > 4MB
+    if (totalSize > 4 * 1024 * 1024) {
       recommendations.push('Consider cleaning up old data to free up storage space');
     }
-    if (oldestData && (Date.now() - oldestData.getTime()) > 30 * 24 * 60 * 60 * 1000) { // > 30 days
+    if (oldestData && (Date.now() - oldestData.getTime()) > 30 * 24 * 60 * 60 * 1000) {
       recommendations.push('Some data is older than 30 days, consider archiving');
     }
     if (keyCount > 10) {
@@ -968,7 +889,6 @@ export class OptimizedStorageManager {
     let cleanedItems = 0;
     const cutoffDate = new Date(Date.now() - daysOld * 24 * 60 * 60 * 1000);
 
-    // Clean cache
     const cache = this.loadFromStorage(this.STORAGE_KEYS.CACHE) || {};
     const cleanCache: any = {};
     
@@ -1065,22 +985,6 @@ export class OptimizedStorageManager {
         helpful: 0,
         views: 0
       },
-      {
-        id: '4',
-        question: 'What file formats are supported for logos?',
-        answer: 'We support PNG, SVG, JPG, and JPEG formats for logos. Maximum file size is 5MB. SVG is recommended for best quality.',
-        category: 'uploads',
-        helpful: 0,
-        views: 0
-      },
-      {
-        id: '5',
-        question: 'How do I collaborate with my team?',
-        answer: 'Team collaboration is available with Pro and Enterprise plans. Invite team members from your project settings and assign roles.',
-        category: 'collaboration',
-        helpful: 0,
-        views: 0
-      }
     ];
   }
 
@@ -1100,34 +1004,6 @@ export class OptimizedStorageManager {
         rating: 4.8,
         createdAt: new Date()
       },
-      {
-        id: 'gallery-2',
-        name: 'Creative Portfolio',
-        description: 'Stunning portfolio showcase for designers and creatives',
-        category: 'portfolio',
-        thumbnail: 'https://images.pexels.com/photos/3184317/pexels-photo-3184317.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1',
-        previewUrl: '#',
-        tags: ['portfolio', 'creative', 'design'],
-        sections: ['header-simple', 'hero-split', 'portfolio-grid', 'about-simple', 'footer-detailed'],
-        isPremium: false,
-        downloads: 0,
-        rating: 4.9,
-        createdAt: new Date()
-      },
-      {
-        id: 'gallery-3',
-        name: 'E-commerce Store',
-        description: 'Complete online store with product showcase and pricing',
-        category: 'ecommerce',
-        thumbnail: 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1',
-        previewUrl: '#',
-        tags: ['ecommerce', 'store', 'products'],
-        sections: ['header-modern', 'hero-modern', 'features-list', 'pricing-cards', 'testimonials-grid', 'footer-detailed'],
-        isPremium: true,
-        downloads: 0,
-        rating: 4.7,
-        createdAt: new Date()
-      }
     ];
   }
 }
@@ -1169,7 +1045,7 @@ export interface TemplateGalleryItem {
   thumbnail: string;
   previewUrl: string;
   tags: string[];
-  sections: string[]; // Array of section template IDs
+  sections: string[];
   isPremium: boolean;
   downloads: number;
   rating: number;

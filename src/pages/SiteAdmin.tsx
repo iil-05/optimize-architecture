@@ -1,521 +1,176 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
-import { ArrowLeft, BarChart3, Users, Globe, Eye, MousePointer, Clock, Smartphone, Monitor, Tablet, Chrome, Siren as Firefox, Variable as Safari, MapPin, TrendingUp, TrendingDown, Activity, Zap, Mail, Phone, ExternalLink, Download, Share2, Calendar, Filter, RefreshCw, Settings, Database, Shield, Wifi, Server, HardDrive, Cpu, MemoryStick, Network, Timer, Target, Award, Star, Heart, MessageSquare, Search, FileText, Image, Video, Music, Code, Layers, Palette, Layout, Edit, Trash2, Plus, Copy, Save, Upload, AlertTriangle, CheckCircle, XCircle, Info, Bell, Lock, Unlock, Key, UserCheck, UserX, Flag, Bookmark, Tag, Link, Maximize, Minimize, RotateCcw, Power, PlayCircle, PauseCircle, StopCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+  ArrowLeft,
+  BarChart3,
+  Users,
+  Heart,
+  Coins,
+  Globe,
+  Smartphone,
+  Monitor,
+  Tablet,
+  Chrome,
+  Firefox,
+  Safari,
+  Clock,
+  Calendar,
+  TrendingUp,
+  MapPin,
+  Eye,
+  Activity
+} from 'lucide-react';
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
+} from 'recharts';
 import { useProject } from '../contexts/ProjectContext';
-import { optimizedStorage } from '../utils/optimizedStorage';
-import { analyticsStorage } from '../utils/analyticsStorage';
-import CommonHeader from '../components/CommonHeader';
-
-interface AnalyticsData {
-  totalVisitors: number;
-  uniqueVisitors: number;
-  pageViews: number;
-  averageSessionDuration: number;
-  bounceRate: number;
-  conversionRate: number;
-  topCountries: { country: string; visitors: number; percentage: number }[];
-  topCities: { city: string; visitors: number; percentage: number }[];
-  deviceTypes: { device: string; visitors: number; percentage: number }[];
-  browsers: { browser: string; visitors: number; percentage: number }[];
-  operatingSystems: { os: string; visitors: number; percentage: number }[];
-  referrers: { referrer: string; visitors: number; percentage: number }[];
-  topPages: { page: string; views: number; avgTime: number }[];
-  hourlyViews: { hour: number; views: number; visitors: number }[];
-  dailyViews: { date: string; views: number; visitors: number }[];
-  conversions: { type: string; count: number; value: number }[];
-  realTimeVisitors: number;
-  performanceMetrics: {
-    averageLoadTime: number;
-    averageFirstContentfulPaint: number;
-    totalResourceSize: number;
-    averageEngagementScore: number;
-  };
-}
+import { optimizedStorage, AnalyticsSummary } from '../utils/optimizedStorage';
 
 const SiteAdmin: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { projects, currentProject, setCurrentProject, updateProject } = useProject();
-
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'visitors' | 'performance' | 'content' | 'settings'>('overview');
-  const [dateRange, setDateRange] = useState<'today' | '7days' | '30days' | '90days' | 'all'>('7days');
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const { projects } = useProject();
+  const [project, setProject] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [realTimeData, setRealTimeData] = useState<any>(null);
-  const [selectedMetric, setSelectedMetric] = useState<string>('visitors');
-  const [showFilters, setShowFilters] = useState(false);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [timeRange, setTimeRange] = useState<7 | 30>(30);
 
   useEffect(() => {
     if (id) {
-      const project = projects.find(p => p.id === id);
-      if (project) {
-        setCurrentProject(project);
-        loadAnalyticsData(project.id);
-      } else {
-        console.log('Project not found for admin:', id);
-        navigate('/dashboard');
-      }
-    }
-  }, [id, projects, setCurrentProject, navigate]);
-
-  // Auto-refresh data every 30 seconds
-  useEffect(() => {
-    if (!autoRefresh || !currentProject) return;
-
-    const interval = setInterval(() => {
-      loadAnalyticsData(currentProject.id);
-      loadRealTimeData(currentProject.id);
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [autoRefresh, currentProject]);
-
-  const loadAnalyticsData = async (projectId: string) => {
-    setIsLoading(true);
-    try {
-      // Get analytics events from optimized storage
-      const analyticsEvents = optimizedStorage.getAnalyticsForProject(projectId);
+      // Find project
+      let foundProject = projects.find(p => p.id === id);
       
-      // Calculate date range
-      const now = new Date();
-      let startDate = new Date();
-      
-      switch (dateRange) {
-        case 'today':
-          startDate.setHours(0, 0, 0, 0);
-          break;
-        case '7days':
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case '30days':
-          startDate.setDate(now.getDate() - 30);
-          break;
-        case '90days':
-          startDate.setDate(now.getDate() - 90);
-          break;
-        case 'all':
-          startDate = new Date(0);
-          break;
+      if (!foundProject) {
+        const allStoredProjects = optimizedStorage.getAllProjects();
+        foundProject = allStoredProjects.find(p => p.id === id);
       }
 
-      // Filter events by date range
-      const filteredEvents = analyticsEvents.filter(event => 
-        new Date(event.timestamp) >= startDate
-      );
-
-      // Process analytics data
-      const processedData = processAnalyticsEvents(filteredEvents);
-      setAnalyticsData(processedData);
+      if (foundProject) {
+        setProject(foundProject);
+        
+        // Load analytics
+        const analyticsData = optimizedStorage.getAnalyticsSummary(id, timeRange);
+        setAnalytics(analyticsData);
+      }
       
-      console.log('📊 Analytics data loaded:', processedData);
-    } catch (error) {
-      console.error('❌ Error loading analytics data:', error);
-    } finally {
       setIsLoading(false);
     }
-  };
+  }, [id, projects, timeRange]);
 
-  const loadRealTimeData = (projectId: string) => {
-    // Get real-time data (last 5 minutes)
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const recentEvents = optimizedStorage.getAnalyticsForProject(projectId)
-      .filter(event => new Date(event.timestamp) >= fiveMinutesAgo);
-
-    const realTime = {
-      activeVisitors: new Set(recentEvents.filter(e => e.type === 'page_visit').map(e => e.data.visitorId)).size,
-      recentEvents: recentEvents.slice(-10).reverse(),
-      currentPages: recentEvents
-        .filter(e => e.type === 'page_visit')
-        .reduce((acc, event) => {
-          const page = event.data.url || '/';
-          acc[page] = (acc[page] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>),
-    };
-
-    setRealTimeData(realTime);
-  };
-
-  const processAnalyticsEvents = (events: any[]): AnalyticsData => {
-    // Group events by type
-    const eventsByType = events.reduce((acc, event) => {
-      if (!acc[event.type]) acc[event.type] = [];
-      acc[event.type].push(event);
-      return acc;
-    }, {} as Record<string, any[]>);
-
-    // Calculate basic metrics
-    const pageVisits = eventsByType.page_visit || [];
-    const uniqueVisitors = new Set(pageVisits.map(e => e.data.visitorId)).size;
-    const totalVisitors = pageVisits.length;
-    const pageViews = pageVisits.length;
-
-    // Calculate session durations
-    const sessionDurations = eventsByType.time_spent || [];
-    const averageSessionDuration = sessionDurations.length > 0 
-      ? sessionDurations.reduce((sum, e) => sum + (e.data.totalTime || 0), 0) / sessionDurations.length / 1000
-      : 0;
-
-    // Calculate bounce rate
-    const engagementEvents = eventsByType.engagement_signal || [];
-    const engagedSessions = new Set(engagementEvents.map(e => e.data.sessionId || e.data.visitorId)).size;
-    const bounceRate = totalVisitors > 0 ? ((totalVisitors - engagedSessions) / totalVisitors) * 100 : 0;
-
-    // Calculate conversion rate
-    const conversions = eventsByType.conversion || [];
-    const conversionRate = totalVisitors > 0 ? (conversions.length / totalVisitors) * 100 : 0;
-
-    // Process geographic data
-    const geoEvents = eventsByType.geographic_info || [];
-    const countryStats = processCountryStats(geoEvents);
-    const cityStats = processCityStats(geoEvents);
-
-    // Process device data
-    const deviceEvents = eventsByType.device_info || [];
-    const deviceStats = processDeviceStats(deviceEvents);
-    const browserStats = processBrowserStats(deviceEvents);
-    const osStats = processOSStats(deviceEvents);
-
-    // Process referrer data
-    const referrerEvents = eventsByType.referrer_info || [];
-    const referrerStats = processReferrerStats(referrerEvents);
-
-    // Process page data
-    const pageStats = processPageStats(pageVisits);
-
-    // Process hourly/daily views
-    const hourlyViews = processHourlyViews(pageVisits);
-    const dailyViews = processDailyViews(pageVisits);
-
-    // Process conversions
-    const conversionStats = processConversions(conversions);
-
-    // Process performance metrics
-    const performanceEvents = eventsByType.page_performance || [];
-    const performanceMetrics = processPerformanceMetrics(performanceEvents, engagementEvents);
-
-    return {
-      totalVisitors,
-      uniqueVisitors,
-      pageViews,
-      averageSessionDuration,
-      bounceRate,
-      conversionRate,
-      topCountries: countryStats,
-      topCities: cityStats,
-      deviceTypes: deviceStats,
-      browsers: browserStats,
-      operatingSystems: osStats,
-      referrers: referrerStats,
-      topPages: pageStats,
-      hourlyViews,
-      dailyViews,
-      conversions: conversionStats,
-      realTimeVisitors: realTimeData?.activeVisitors || 0,
-      performanceMetrics,
-    };
-  };
-
-  const processCountryStats = (events: any[]) => {
-    const countryCount = events.reduce((acc, event) => {
-      const country = event.data.country || 'Unknown';
-      acc[country] = (acc[country] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = events.length;
-    return Object.entries(countryCount)
-      .map(([country, count]) => ({
-        country,
-        visitors: count,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.visitors - a.visitors)
-      .slice(0, 10);
-  };
-
-  const processCityStats = (events: any[]) => {
-    const cityCount = events.reduce((acc, event) => {
-      const city = `${event.data.city || 'Unknown'}, ${event.data.country || 'Unknown'}`;
-      acc[city] = (acc[city] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = events.length;
-    return Object.entries(cityCount)
-      .map(([city, count]) => ({
-        city,
-        visitors: count,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.visitors - a.visitors)
-      .slice(0, 10);
-  };
-
-  const processDeviceStats = (events: any[]) => {
-    const deviceCount = events.reduce((acc, event) => {
-      const device = event.data.deviceType || 'Unknown';
-      acc[device] = (acc[device] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = events.length;
-    return Object.entries(deviceCount)
-      .map(([device, count]) => ({
-        device,
-        visitors: count,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.visitors - a.visitors);
-  };
-
-  const processBrowserStats = (events: any[]) => {
-    const browserCount = events.reduce((acc, event) => {
-      const browser = event.data.browser || 'Unknown';
-      acc[browser] = (acc[browser] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = events.length;
-    return Object.entries(browserCount)
-      .map(([browser, count]) => ({
-        browser,
-        visitors: count,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.visitors - a.visitors);
-  };
-
-  const processOSStats = (events: any[]) => {
-    const osCount = events.reduce((acc, event) => {
-      const os = event.data.os || 'Unknown';
-      acc[os] = (acc[os] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = events.length;
-    return Object.entries(osCount)
-      .map(([os, count]) => ({
-        os,
-        visitors: count,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.visitors - a.visitors);
-  };
-
-  const processReferrerStats = (events: any[]) => {
-    const referrerCount = events.reduce((acc, event) => {
-      const referrer = event.data.referrerType === 'direct' ? 'Direct' : 
-                     event.data.referrerDomain || event.data.referrer || 'Unknown';
-      acc[referrer] = (acc[referrer] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const total = events.length;
-    return Object.entries(referrerCount)
-      .map(([referrer, count]) => ({
-        referrer,
-        visitors: count,
-        percentage: Math.round((count / total) * 100),
-      }))
-      .sort((a, b) => b.visitors - a.visitors)
-      .slice(0, 10);
-  };
-
-  const processPageStats = (events: any[]) => {
-    const pageStats = events.reduce((acc, event) => {
-      const page = event.data.url || '/';
-      if (!acc[page]) {
-        acc[page] = { views: 0, totalTime: 0 };
-      }
-      acc[page].views++;
-      acc[page].totalTime += event.data.timeOnPage || 0;
-      return acc;
-    }, {} as Record<string, { views: number; totalTime: number }>);
-
-    return Object.entries(pageStats)
-      .map(([page, stats]) => ({
-        page,
-        views: stats.views,
-        avgTime: Math.round(stats.totalTime / stats.views / 1000),
-      }))
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 10);
-  };
-
-  const processHourlyViews = (events: any[]) => {
-    const hourlyData: Record<number, { views: number; visitors: Set<string> }> = {};
-    
-    // Initialize all hours
-    for (let i = 0; i < 24; i++) {
-      hourlyData[i] = { views: 0, visitors: new Set() };
-    }
-
-    events.forEach(event => {
-      const hour = new Date(event.timestamp).getHours();
-      hourlyData[hour].views++;
-      hourlyData[hour].visitors.add(event.data.visitorId);
-    });
-
-    return Object.entries(hourlyData).map(([hour, data]) => ({
-      hour: parseInt(hour),
-      views: data.views,
-      visitors: data.visitors.size,
-    }));
-  };
-
-  const processDailyViews = (events: any[]) => {
-    const dailyData: Record<string, { views: number; visitors: Set<string> }> = {};
-
-    events.forEach(event => {
-      const date = new Date(event.timestamp).toISOString().split('T')[0];
-      if (!dailyData[date]) {
-        dailyData[date] = { views: 0, visitors: new Set() };
-      }
-      dailyData[date].views++;
-      dailyData[date].visitors.add(event.data.visitorId);
-    });
-
-    return Object.entries(dailyData)
-      .map(([date, data]) => ({
-        date,
-        views: data.views,
-        visitors: data.visitors.size,
-      }))
-      .sort((a, b) => a.date.localeCompare(b.date));
-  };
-
-  const processConversions = (events: any[]) => {
-    const conversionStats = events.reduce((acc, event) => {
-      const type = event.data.type || 'unknown';
-      if (!acc[type]) {
-        acc[type] = { count: 0, value: 0 };
-      }
-      acc[type].count++;
-      acc[type].value += event.data.value || 0;
-      return acc;
-    }, {} as Record<string, { count: number; value: number }>);
-
-    return Object.entries(conversionStats)
-      .map(([type, stats]) => ({
-        type,
-        count: stats.count,
-        value: stats.value,
-      }))
-      .sort((a, b) => b.count - a.count);
-  };
-
-  const processPerformanceMetrics = (performanceEvents: any[], engagementEvents: any[]) => {
-    const avgLoadTime = performanceEvents.length > 0
-      ? performanceEvents.reduce((sum, e) => sum + (e.data.totalLoadTime || 0), 0) / performanceEvents.length
-      : 0;
-
-    const avgFCP = performanceEvents.length > 0
-      ? performanceEvents.reduce((sum, e) => sum + (e.data.firstContentfulPaint || 0), 0) / performanceEvents.length
-      : 0;
-
-    const totalResourceSize = performanceEvents.length > 0
-      ? performanceEvents.reduce((sum, e) => sum + (e.data.totalResourceSize || 0), 0) / performanceEvents.length
-      : 0;
-
-    const avgEngagementScore = engagementEvents.length > 0
-      ? engagementEvents.reduce((sum, e) => sum + (e.data.totalScore || 0), 0) / engagementEvents.length
-      : 0;
-
-    return {
-      averageLoadTime: Math.round(avgLoadTime),
-      averageFirstContentfulPaint: Math.round(avgFCP),
-      totalResourceSize: Math.round(totalResourceSize / 1024), // Convert to KB
-      averageEngagementScore: Math.round(avgEngagementScore),
-    };
-  };
-
-  const getDeviceIcon = (device: string) => {
-    switch (device.toLowerCase()) {
-      case 'mobile': return Smartphone;
-      case 'tablet': return Tablet;
-      case 'desktop': return Monitor;
-      default: return Monitor;
-    }
-  };
-
-  const getBrowserIcon = (browser: string) => {
-    switch (browser.toLowerCase()) {
-      case 'chrome': return Chrome;
-      case 'firefox': return Firefox;
-      case 'safari': return Safari;
-      default: return Globe;
-    }
-  };
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  };
-
-  const formatDuration = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${secs}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${secs}s`;
-    } else {
-      return `${secs}s`;
-    }
-  };
-
-  const getChangeIndicator = (current: number, previous: number) => {
-    if (previous === 0) return { icon: TrendingUp, color: 'text-green-600', text: 'New' };
-    
-    const change = ((current - previous) / previous) * 100;
-    if (change > 0) {
-      return { icon: TrendingUp, color: 'text-green-600', text: `+${change.toFixed(1)}%` };
-    } else if (change < 0) {
-      return { icon: TrendingDown, color: 'text-red-600', text: `${change.toFixed(1)}%` };
-    } else {
-      return { icon: Activity, color: 'text-gray-600', text: '0%' };
-    }
-  };
-
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'analytics', label: 'Analytics', icon: Activity },
-    { id: 'visitors', label: 'Visitors', icon: Users },
-    { id: 'performance', label: 'Performance', icon: Zap },
-    { id: 'content', label: 'Content', icon: FileText },
-    { id: 'settings', label: 'Settings', icon: Settings },
-  ];
-
-  if (!currentProject) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Loading admin panel...</p>
+          <p className="text-gray-600 text-lg">Loading analytics...</p>
         </div>
       </div>
     );
   }
 
+  if (!project) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BarChart3 className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Project Not Found</h2>
+          <p className="text-gray-600 mb-6">The project you're looking for doesn't exist.</p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors"
+          >
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Chart colors
+  const colors = {
+    primary: '#ef4444',
+    secondary: '#06b6d4',
+    success: '#10b981',
+    warning: '#f59e0b',
+    purple: '#8b5cf6',
+    pink: '#ec4899',
+    indigo: '#6366f1',
+    orange: '#f97316'
+  };
+
+  // Device icons mapping
+  const deviceIcons = {
+    Desktop: Monitor,
+    Mobile: Smartphone,
+    Tablet: Tablet
+  };
+
+  // Browser icons mapping
+  const browserIcons = {
+    Chrome: Chrome,
+    Firefox: Firefox,
+    Safari: Safari,
+    Edge: Globe,
+    Other: Globe
+  };
+
+  // Prepare chart data
+  const deviceChartData = analytics?.deviceStats.map(stat => ({
+    name: stat.device,
+    value: stat.count,
+    percentage: Math.round((stat.count / analytics.totalVisits) * 100)
+  })) || [];
+
+  const browserChartData = analytics?.browserStats.map(stat => ({
+    name: stat.browser,
+    value: stat.count
+  })) || [];
+
+  const hourlyChartData = analytics?.hourlyStats.map(stat => ({
+    hour: `${stat.hour}:00`,
+    visits: stat.visits
+  })) || [];
+
+  const dailyChartData = analytics?.dailyStats.slice(-7).map(stat => ({
+    date: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    visits: stat.visits
+  })) || [];
+
+  const countryChartData = analytics?.countryStats.slice(0, 5).map(stat => ({
+    name: stat.country,
+    value: stat.count
+  })) || [];
+
+  // Format duration
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <CommonHeader />
-
-      {/* Admin Header */}
+      {/* Header */}
       <div className="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/dashboard')}
@@ -524,960 +179,349 @@ const SiteAdmin: React.FC = () => {
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
 
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Shield className="w-6 h-6 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 font-heading">
-                    {currentProject.name} - Admin Panel
-                  </h1>
-                  <p className="text-gray-600 font-primary">
-                    Comprehensive website analytics and management
-                  </p>
+                  <h1 className="text-xl font-bold text-gray-900 font-heading">{project.name} - Analytics</h1>
+                  <p className="text-sm text-gray-600 font-primary">Website performance insights</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-xl border border-green-200">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span className="font-medium font-primary text-sm">
-                  {realTimeData?.activeVisitors || 0} Active
-                </span>
-              </div>
-
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className={`p-2 rounded-xl transition-colors ${
-                  autoRefresh ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'
-                }`}
-                title={autoRefresh ? 'Disable auto-refresh' : 'Enable auto-refresh'}
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(Number(e.target.value) as 7 | 30)}
+                className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
               >
-                <RefreshCw className={`w-5 h-5 ${autoRefresh ? 'animate-spin' : ''}`} />
-              </button>
+                <option value={7}>Last 7 days</option>
+                <option value={30}>Last 30 days</option>
+              </select>
 
-              <button
-                onClick={() => loadAnalyticsData(currentProject.id)}
-                className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Refresh Data
-              </button>
+              {project.isPublished && (
+                <a
+                  href={`/site/${project.websiteUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+                >
+                  <Eye className="w-4 h-4" />
+                  View Site
+                </a>
+              )}
             </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 mt-6">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                  activeTab === id
-                    ? 'bg-white text-primary-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span className="font-primary hidden sm:inline">{label}</span>
-              </button>
-            ))}
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Date Range Selector */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <select
-              value={dateRange}
-              onChange={(e) => setDateRange(e.target.value as any)}
-              className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white font-primary"
-            >
-              <option value="today">Today</option>
-              <option value="7days">Last 7 days</option>
-              <option value="30days">Last 30 days</option>
-              <option value="90days">Last 90 days</option>
-              <option value="all">All time</option>
-            </select>
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary-600" />
+              </div>
+              <TrendingUp className="w-5 h-5 text-green-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalVisits || 0}</h3>
+            <p className="text-gray-600 font-primary">Total Visits</p>
+          </motion.div>
 
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-            >
-              <Filter className="w-4 h-4" />
-              Filters
-            </button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                <Heart className="w-6 h-6 text-red-600" />
+              </div>
+              <Heart className="w-5 h-5 text-red-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalLikes || 0}</h3>
+            <p className="text-gray-600 font-primary">Likes</p>
+          </motion.div>
 
-          <div className="text-sm text-gray-500 font-primary">
-            Last updated: {new Date().toLocaleTimeString()}
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                <Coins className="w-6 h-6 text-yellow-600" />
+              </div>
+              <Coins className="w-5 h-5 text-yellow-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalCoins || 0}</h3>
+            <p className="text-gray-600 font-primary">Coins Donated</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Clock className="w-6 h-6 text-blue-600" />
+              </div>
+              <Activity className="w-5 h-5 text-blue-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">
+              {formatDuration(Math.round(analytics?.averageSessionDuration || 0))}
+            </h3>
+            <p className="text-gray-600 font-primary">Avg. Session</p>
+          </motion.div>
         </div>
 
-        {/* Overview Tab */}
-        {activeTab === 'overview' && analyticsData && (
+        {/* Charts Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Daily Visits Chart */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
           >
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div className="flex items-center gap-1 text-green-600">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm font-medium">+12.5%</span>
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
-                  {formatNumber(analyticsData.totalVisitors)}
-                </div>
-                <div className="text-gray-600 font-primary">Total Visitors</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Eye className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="flex items-center gap-1 text-green-600">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm font-medium">+8.3%</span>
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
-                  {formatNumber(analyticsData.pageViews)}
-                </div>
-                <div className="text-gray-600 font-primary">Page Views</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="flex items-center gap-1 text-red-600">
-                    <TrendingDown className="w-4 h-4" />
-                    <span className="text-sm font-medium">-2.1%</span>
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
-                  {formatDuration(analyticsData.averageSessionDuration)}
-                </div>
-                <div className="text-gray-600 font-primary">Avg. Session</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-yellow-600" />
-                  </div>
-                  <div className="flex items-center gap-1 text-green-600">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm font-medium">+5.7%</span>
-                  </div>
-                </div>
-                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
-                  {analyticsData.conversionRate.toFixed(1)}%
-                </div>
-                <div className="text-gray-600 font-primary">Conversion Rate</div>
-              </div>
+            <div className="flex items-center gap-3 mb-6">
+              <Calendar className="w-5 h-5 text-primary-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Daily Visits</h3>
             </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={dailyChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="date" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                  }} 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="visits" 
+                  stroke={colors.primary} 
+                  fill={colors.primary}
+                  fillOpacity={0.1}
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </motion.div>
 
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Visitors Chart */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold text-gray-900 font-heading">Visitors Over Time</h3>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-primary-500 rounded-full"></div>
-                    <span className="text-sm text-gray-600 font-primary">Visitors</span>
-                    <div className="w-3 h-3 bg-blue-500 rounded-full ml-4"></div>
-                    <span className="text-sm text-gray-600 font-primary">Page Views</span>
-                  </div>
-                </div>
-                
-                <div className="h-64 flex items-end justify-between gap-2">
-                  {analyticsData.dailyViews.slice(-7).map((day, index) => (
-                    <div key={day.date} className="flex-1 flex flex-col items-center">
-                      <div className="w-full flex flex-col gap-1">
-                        <div 
-                          className="bg-primary-500 rounded-t"
-                          style={{ 
-                            height: `${Math.max(4, (day.visitors / Math.max(...analyticsData.dailyViews.map(d => d.visitors))) * 200)}px` 
-                          }}
-                        ></div>
-                        <div 
-                          className="bg-blue-500 rounded-b"
-                          style={{ 
-                            height: `${Math.max(4, (day.views / Math.max(...analyticsData.dailyViews.map(d => d.views))) * 100)}px` 
-                          }}
-                        ></div>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-2 font-primary">
-                        {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
-                      </div>
-                    </div>
+          {/* Hourly Activity Chart */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Clock className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Hourly Activity</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={hourlyChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="hour" stroke="#6b7280" fontSize={12} />
+                <YAxis stroke="#6b7280" fontSize={12} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                  }} 
+                />
+                <Bar dataKey="visits" fill={colors.secondary} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </motion.div>
+        </div>
+
+        {/* Device and Browser Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          {/* Device Statistics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Smartphone className="w-5 h-5 text-green-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Devices</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={deviceChartData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {deviceChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={[colors.primary, colors.secondary, colors.success][index % 3]} />
                   ))}
-                </div>
-              </div>
-
-              {/* Device Breakdown */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Device Breakdown</h3>
-                
-                <div className="space-y-4">
-                  {analyticsData.deviceTypes.map((device, index) => {
-                    const DeviceIcon = getDeviceIcon(device.device);
-                    return (
-                      <div key={device.device} className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            index === 0 ? 'bg-primary-100' : index === 1 ? 'bg-blue-100' : 'bg-green-100'
-                          }`}>
-                            <DeviceIcon className={`w-5 h-5 ${
-                              index === 0 ? 'text-primary-600' : index === 1 ? 'text-blue-600' : 'text-green-600'
-                            }`} />
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900 font-primary capitalize">{device.device}</div>
-                            <div className="text-sm text-gray-600 font-primary">{device.visitors} visitors</div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="w-24 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                index === 0 ? 'bg-primary-500' : index === 1 ? 'bg-blue-500' : 'bg-green-500'
-                              }`}
-                              style={{ width: `${device.percentage}%` }}
-                            ></div>
-                          </div>
-                          <span className="text-sm font-medium text-gray-900 font-primary w-12 text-right">
-                            {device.percentage}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Geographic Data */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Top Countries */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Top Countries</h3>
-                
-                <div className="space-y-4">
-                  {analyticsData.topCountries.slice(0, 5).map((country, index) => (
-                    <div key={country.country} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <MapPin className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 font-primary">{country.country}</div>
-                          <div className="text-sm text-gray-600 font-primary">{country.visitors} visitors</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-primary-500 h-2 rounded-full"
-                            style={{ width: `${country.percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 font-primary w-10 text-right">
-                          {country.percentage}%
-                        </span>
-                      </div>
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="space-y-2">
+              {deviceChartData.map((stat, index) => {
+                const IconComponent = deviceIcons[stat.name as keyof typeof deviceIcons] || Monitor;
+                return (
+                  <div key={stat.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <IconComponent className="w-4 h-4 text-gray-600" />
+                      <span className="text-sm font-medium text-gray-900 font-primary">{stat.name}</span>
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Top Referrers */}
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Traffic Sources</h3>
-                
-                <div className="space-y-4">
-                  {analyticsData.referrers.slice(0, 5).map((referrer, index) => (
-                    <div key={referrer.referrer} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <ExternalLink className="w-4 h-4 text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 font-primary">{referrer.referrer}</div>
-                          <div className="text-sm text-gray-600 font-primary">{referrer.visitors} visitors</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-20 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-500 h-2 rounded-full"
-                            style={{ width: `${referrer.percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 font-primary w-10 text-right">
-                          {referrer.percentage}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+                    <span className="text-sm text-gray-600 font-primary">{stat.percentage}%</span>
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
-        )}
 
-        {/* Analytics Tab */}
-        {activeTab === 'analytics' && analyticsData && (
+          {/* Browser Statistics */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
+            transition={{ delay: 0.7 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
           >
-            {/* Hourly Activity */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">24-Hour Activity</h3>
-              
-              <div className="h-64 flex items-end justify-between gap-1">
-                {analyticsData.hourlyViews.map((hour) => (
-                  <div key={hour.hour} className="flex-1 flex flex-col items-center">
-                    <div 
-                      className="bg-gradient-to-t from-primary-500 to-primary-400 rounded-t w-full"
-                      style={{ 
-                        height: `${Math.max(4, (hour.views / Math.max(...analyticsData.hourlyViews.map(h => h.views))) * 200)}px` 
-                      }}
-                      title={`${hour.hour}:00 - ${hour.views} views, ${hour.visitors} visitors`}
-                    ></div>
-                    <div className="text-xs text-gray-500 mt-2 font-primary">
-                      {hour.hour.toString().padStart(2, '0')}
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <div className="flex items-center gap-3 mb-6">
+              <Globe className="w-5 h-5 text-purple-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Browsers</h3>
             </div>
-
-            {/* Conversion Funnel */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Conversion Funnel</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-primary-50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-primary-600" />
-                    <span className="font-medium text-gray-900 font-primary">Total Visitors</span>
-                  </div>
-                  <span className="text-lg font-bold text-primary-600 font-heading">
-                    {analyticsData.totalVisitors}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Activity className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium text-gray-900 font-primary">Engaged Visitors</span>
-                  </div>
-                  <span className="text-lg font-bold text-blue-600 font-heading">
-                    {Math.round(analyticsData.totalVisitors * (100 - analyticsData.bounceRate) / 100)}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
-                  <div className="flex items-center gap-3">
-                    <Target className="w-5 h-5 text-green-600" />
-                    <span className="font-medium text-gray-900 font-primary">Conversions</span>
-                  </div>
-                  <span className="text-lg font-bold text-green-600 font-heading">
-                    {analyticsData.conversions.reduce((sum, c) => sum + c.count, 0)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Conversion Types */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Conversion Types</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {analyticsData.conversions.map((conversion, index) => {
-                  const getConversionIcon = (type: string) => {
-                    switch (type) {
-                      case 'email_click': return Mail;
-                      case 'phone_click': return Phone;
-                      case 'form_submission': return FileText;
-                      case 'download': return Download;
-                      case 'external_link': return ExternalLink;
-                      case 'social_click': return Share2;
-                      default: return Target;
-                    }
-                  };
-
-                  const ConversionIcon = getConversionIcon(conversion.type);
-
-                  return (
-                    <div key={conversion.type} className="p-4 border border-gray-200 rounded-xl">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-                          <ConversionIcon className="w-5 h-5 text-primary-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 font-primary capitalize">
-                            {conversion.type.replace('_', ' ')}
-                          </div>
-                          <div className="text-sm text-gray-600 font-primary">
-                            {conversion.count} conversions
-                          </div>
-                        </div>
-                      </div>
-                      <div className="text-2xl font-bold text-gray-900 font-heading">
-                        {conversion.count}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <BarChart data={browserChartData} layout="horizontal">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis type="number" stroke="#6b7280" fontSize={12} />
+                <YAxis dataKey="name" type="category" stroke="#6b7280" fontSize={12} width={60} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff', 
+                    border: '1px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                  }} 
+                />
+                <Bar dataKey="value" fill={colors.purple} radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </motion.div>
-        )}
 
-        {/* Visitors Tab */}
-        {activeTab === 'visitors' && analyticsData && (
+          {/* Top Countries */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
+            transition={{ delay: 0.8 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
           >
-            {/* Real-time Visitors */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 font-heading">Real-time Activity</h3>
-                <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-xl">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="font-medium font-primary">Live</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-green-600 mb-2 font-heading">
-                    {realTimeData?.activeVisitors || 0}
-                  </div>
-                  <div className="text-gray-600 font-primary">Active Visitors</div>
-                </div>
-
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-blue-600 mb-2 font-heading">
-                    {Object.keys(realTimeData?.currentPages || {}).length}
-                  </div>
-                  <div className="text-gray-600 font-primary">Active Pages</div>
-                </div>
-
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-purple-600 mb-2 font-heading">
-                    {realTimeData?.recentEvents?.length || 0}
-                  </div>
-                  <div className="text-gray-600 font-primary">Recent Events</div>
-                </div>
-              </div>
-
-              {/* Recent Events */}
-              {realTimeData?.recentEvents && realTimeData.recentEvents.length > 0 && (
-                <div className="mt-6">
-                  <h4 className="font-semibold text-gray-900 mb-4 font-heading">Recent Activity</h4>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {realTimeData.recentEvents.map((event: any, index: number) => (
-                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900 font-primary">
-                            {event.type.replace('_', ' ').toUpperCase()}
-                          </div>
-                          <div className="text-xs text-gray-600 font-primary">
-                            {new Date(event.timestamp).toLocaleTimeString()}
-                          </div>
-                        </div>
-                        <div className="text-xs text-gray-500 font-primary">
-                          {event.data?.country || 'Unknown'}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center gap-3 mb-6">
+              <MapPin className="w-5 h-5 text-orange-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Top Countries</h3>
             </div>
-
-            {/* Browser Statistics */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Browser Statistics</h3>
-              
-              <div className="space-y-4">
-                {analyticsData.browsers.map((browser, index) => {
-                  const BrowserIcon = getBrowserIcon(browser.browser);
-                  return (
-                    <div key={browser.browser} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                          <BrowserIcon className="w-5 h-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 font-primary">{browser.browser}</div>
-                          <div className="text-sm text-gray-600 font-primary">{browser.visitors} visitors</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-primary-500 h-2 rounded-full"
-                            style={{ width: `${browser.percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium text-gray-900 font-primary w-12 text-right">
-                          {browser.percentage}%
-                        </span>
-                      </div>
+            <div className="space-y-4">
+              {countryChartData.map((country, index) => {
+                const percentage = Math.round((country.value / (analytics?.totalVisits || 1)) * 100);
+                return (
+                  <div key={country.name} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900 font-primary">{country.name}</span>
+                      <span className="text-sm text-gray-600 font-primary">{country.value} ({percentage}%)</span>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Operating Systems */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Operating Systems</h3>
-              
-              <div className="space-y-4">
-                {analyticsData.operatingSystems.map((os, index) => (
-                  <div key={os.os} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                        <Monitor className="w-5 h-5 text-gray-600" />
-                      </div>
-                      <div>
-                        <div className="font-medium text-gray-900 font-primary">{os.os}</div>
-                        <div className="text-sm text-gray-600 font-primary">{os.visitors} visitors</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-32 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full"
-                          style={{ width: `${os.percentage}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 font-primary w-12 text-right">
-                        {os.percentage}%
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Performance Tab */}
-        {activeTab === 'performance' && analyticsData && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
-          >
-            {/* Performance Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Timer className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsData.performanceMetrics.averageLoadTime}ms
-                    </div>
-                    <div className="text-gray-600 font-primary">Load Time</div>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-green-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(100, (3000 - analyticsData.performanceMetrics.averageLoadTime) / 30)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsData.performanceMetrics.averageFirstContentfulPaint}ms
-                    </div>
-                    <div className="text-gray-600 font-primary">First Paint</div>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(100, (2000 - analyticsData.performanceMetrics.averageFirstContentfulPaint) / 20)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <HardDrive className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsData.performanceMetrics.totalResourceSize}KB
-                    </div>
-                    <div className="text-gray-600 font-primary">Page Size</div>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-purple-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(100, analyticsData.performanceMetrics.totalResourceSize / 10)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <Activity className="w-6 h-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsData.performanceMetrics.averageEngagementScore}
-                    </div>
-                    <div className="text-gray-600 font-primary">Engagement</div>
-                  </div>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-orange-500 h-2 rounded-full"
-                    style={{ width: `${Math.min(100, analyticsData.performanceMetrics.averageEngagementScore)}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Performance Recommendations */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Performance Recommendations</h3>
-              
-              <div className="space-y-4">
-                {analyticsData.performanceMetrics.averageLoadTime > 3000 && (
-                  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-200">
-                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-red-900 font-primary">Slow Load Time</div>
-                      <div className="text-sm text-red-700 font-primary">
-                        Your page takes {analyticsData.performanceMetrics.averageLoadTime}ms to load. Consider optimizing images and reducing resource size.
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {analyticsData.performanceMetrics.totalResourceSize > 1000 && (
-                  <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
-                    <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-yellow-900 font-primary">Large Page Size</div>
-                      <div className="text-sm text-yellow-700 font-primary">
-                        Your page size is {analyticsData.performanceMetrics.totalResourceSize}KB. Consider compressing images and minifying code.
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {analyticsData.performanceMetrics.averageEngagementScore < 50 && (
-                  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                    <Target className="w-5 h-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-blue-900 font-primary">Low Engagement</div>
-                      <div className="text-sm text-blue-700 font-primary">
-                        User engagement is below average. Consider improving content and user experience.
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {analyticsData.performanceMetrics.averageLoadTime <= 3000 && 
-                 analyticsData.performanceMetrics.totalResourceSize <= 1000 && 
-                 analyticsData.performanceMetrics.averageEngagementScore >= 50 && (
-                  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
-                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                    <div>
-                      <div className="font-medium text-green-900 font-primary">Excellent Performance</div>
-                      <div className="text-sm text-green-700 font-primary">
-                        Your website is performing well across all metrics. Keep up the great work!
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Content Tab */}
-        {activeTab === 'content' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
-          >
-            {/* Content Management */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-semibold text-gray-900 font-heading">Content Management</h3>
-                <div className="flex items-center gap-3">
-                  <button className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary">
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit Content
-                  </button>
-                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary">
-                    <Copy className="w-4 h-4 mr-2" />
-                    Backup
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-6 border border-gray-200 rounded-xl">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Layers className="w-6 h-6 text-blue-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-2 font-heading">
-                    {currentProject.sections.length}
-                  </div>
-                  <div className="text-gray-600 font-primary">Total Sections</div>
-                </div>
-
-                <div className="text-center p-6 border border-gray-200 rounded-xl">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-2 font-heading">
-                    {currentProject.sections.filter(s => s.data?.title || s.data?.name).length}
-                  </div>
-                  <div className="text-gray-600 font-primary">Content Blocks</div>
-                </div>
-
-                <div className="text-center p-6 border border-gray-200 rounded-xl">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <Image className="w-6 h-6 text-purple-600" />
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 mb-2 font-heading">
-                    {currentProject.sections.filter(s => s.data?.image || s.data?.backgroundImage).length}
-                  </div>
-                  <div className="text-gray-600 font-primary">Images</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Page Performance by Section */}
-            {analyticsData && (
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Page Performance</h3>
-                
-                <div className="space-y-4">
-                  {analyticsData.topPages.map((page, index) => (
-                    <div key={page.page} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
-                          <Globe className="w-5 h-5 text-gray-600" />
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 font-primary">{page.page}</div>
-                          <div className="text-sm text-gray-600 font-primary">
-                            {page.views} views • {formatDuration(page.avgTime)} avg. time
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <div className="text-lg font-bold text-gray-900 font-heading">{page.views}</div>
-                          <div className="text-sm text-gray-600 font-primary">Views</div>
-                        </div>
-                        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                          <ExternalLink className="w-4 h-4 text-gray-600" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </motion.div>
-        )}
-
-        {/* Settings Tab */}
-        {activeTab === 'settings' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
-          >
-            {/* Website Settings */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Website Settings</h3>
-              
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website Name</label>
-                    <input
-                      type="text"
-                      value={currentProject.name}
-                      onChange={(e) => updateProject(currentProject.id, { name: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website URL</label>
-                    <div className="flex items-center">
-                      <span className="px-3 py-3 bg-gray-100 text-gray-600 rounded-l-xl border border-r-0 border-gray-300 text-sm font-mono">
-                        /site/
-                      </span>
-                      <input
-                        type="text"
-                        value={currentProject.websiteUrl}
-                        onChange={(e) => updateProject(currentProject.id, { websiteUrl: e.target.value })}
-                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="h-2 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${percentage}%`,
+                          backgroundColor: [colors.primary, colors.secondary, colors.success, colors.warning, colors.purple][index % 5]
+                        }}
                       />
                     </div>
                   </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Description</label>
-                  <textarea
-                    value={currentProject.description || ''}
-                    onChange={(e) => updateProject(currentProject.id, { description: e.target.value })}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none font-primary"
-                    placeholder="Enter website description..."
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <div className="font-medium text-gray-900 font-primary">Published Status</div>
-                    <div className="text-sm text-gray-600 font-primary">
-                      {currentProject.isPublished ? 'Your website is live and accessible to visitors' : 'Your website is in draft mode'}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => updateProject(currentProject.id, { isPublished: !currentProject.isPublished })}
-                    className={`px-6 py-3 rounded-xl font-medium transition-colors ${
-                      currentProject.isPublished
-                        ? 'bg-red-600 text-white hover:bg-red-700'
-                        : 'bg-green-600 text-white hover:bg-green-700'
-                    }`}
-                  >
-                    {currentProject.isPublished ? 'Unpublish' : 'Publish'}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Analytics Settings */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Analytics Settings</h3>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <div className="font-medium text-gray-900 font-primary">Analytics Tracking</div>
-                    <div className="text-sm text-gray-600 font-primary">Collect visitor data and website performance metrics</div>
-                  </div>
-                  <button className="w-12 h-6 bg-primary-600 rounded-full">
-                    <div className="w-5 h-5 bg-white rounded-full translate-x-6 transition-transform"></div>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <div className="font-medium text-gray-900 font-primary">Real-time Monitoring</div>
-                    <div className="text-sm text-gray-600 font-primary">Monitor visitor activity in real-time</div>
-                  </div>
-                  <button className="w-12 h-6 bg-primary-600 rounded-full">
-                    <div className="w-5 h-5 bg-white rounded-full translate-x-6 transition-transform"></div>
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <div className="font-medium text-gray-900 font-primary">Performance Monitoring</div>
-                    <div className="text-sm text-gray-600 font-primary">Track page load times and performance metrics</div>
-                  </div>
-                  <button className="w-12 h-6 bg-primary-600 rounded-full">
-                    <div className="w-5 h-5 bg-white rounded-full translate-x-6 transition-transform"></div>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Data Management */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Data Management</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <Download className="w-5 h-5 text-primary-600" />
-                  <div className="text-left">
-                    <div className="font-medium text-gray-900 font-primary">Export Analytics Data</div>
-                    <div className="text-sm text-gray-600 font-primary">Download all analytics data as CSV</div>
-                  </div>
-                </button>
-
-                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <Trash2 className="w-5 h-5 text-red-600" />
-                  <div className="text-left">
-                    <div className="font-medium text-gray-900 font-primary">Clear Analytics Data</div>
-                    <div className="text-sm text-gray-600 font-primary">Remove all collected analytics data</div>
-                  </div>
-                </button>
-
-                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <Save className="w-5 h-5 text-green-600" />
-                  <div className="text-left">
-                    <div className="font-medium text-gray-900 font-primary">Backup Website</div>
-                    <div className="text-sm text-gray-600 font-primary">Create a complete backup of your website</div>
-                  </div>
-                </button>
-
-                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
-                  <Upload className="w-5 h-5 text-blue-600" />
-                  <div className="text-left">
-                    <div className="font-medium text-gray-900 font-primary">Restore Backup</div>
-                    <div className="text-sm text-gray-600 font-primary">Restore website from a backup file</div>
-                  </div>
-                </button>
-              </div>
+                );
+              })}
             </div>
           </motion.div>
-        )}
+        </div>
+
+        {/* Quick Actions */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+        >
+          <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Quick Actions</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button
+              onClick={() => navigate(`/editor/${project.id}`)}
+              className="flex items-center gap-3 p-4 bg-primary-50 text-primary-700 rounded-xl hover:bg-primary-100 transition-colors"
+            >
+              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <div className="font-medium font-primary">Edit Website</div>
+                <div className="text-sm font-primary">Make changes to your site</div>
+              </div>
+            </button>
+
+            {project.isPublished && (
+              <a
+                href={`/site/${project.websiteUrl}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 p-4 bg-green-50 text-green-700 rounded-xl hover:bg-green-100 transition-colors"
+              >
+                <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
+                  <Globe className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <div className="font-medium font-primary">View Live Site</div>
+                  <div className="text-sm font-primary">See your published website</div>
+                </div>
+              </a>
+            )}
+
+            <button
+              onClick={() => {
+                optimizedStorage.clearAnalyticsForProject(project.id);
+                window.location.reload();
+              }}
+              className="flex items-center gap-3 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 transition-colors"
+            >
+              <div className="w-10 h-10 bg-gray-600 rounded-lg flex items-center justify-center">
+                <Activity className="w-5 h-5 text-white" />
+              </div>
+              <div className="text-left">
+                <div className="font-medium font-primary">Reset Analytics</div>
+                <div className="text-sm font-primary">Clear all analytics data</div>
+              </div>
+            </button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
