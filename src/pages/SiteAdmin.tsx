@@ -1,748 +1,598 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import {
-  Settings,
+  ArrowLeft,
   BarChart3,
   Users,
   Globe,
   Eye,
+  MousePointer,
   Clock,
-  TrendingUp,
-  Calendar,
-  MapPin,
   Smartphone,
   Monitor,
   Tablet,
-  ArrowLeft,
-  Download,
-  RefreshCw,
-  Share2,
-  ExternalLink,
+  Chrome,
+  Firefox,
+  Safari,
+  MapPin,
+  TrendingUp,
+  TrendingDown,
   Activity,
-  MousePointer,
-  Timer,
   Zap,
+  Mail,
+  Phone,
+  ExternalLink,
+  Download,
+  Share2,
+  Calendar,
+  Filter,
+  RefreshCw,
+  Settings,
+  Database,
+  Shield,
+  Wifi,
+  Server,
+  HardDrive,
+  Cpu,
+  MemoryStick,
+  Network,
+  Timer,
   Target,
   Award,
   Star,
   Heart,
   MessageSquare,
-  Mail,
-  Phone,
   Search,
-  Filter,
-  ChevronDown,
-  ChevronUp,
-  TrendingDown,
-  AlertCircle,
-  CheckCircle,
-  Info,
-  Wifi,
-  WifiOff,
-  Database,
-  Server,
-  Shield,
-  Lock,
-  Unlock,
-  UserCheck,
-  UserX,
-  Navigation,
-  Layers,
-  Image,
   FileText,
+  Image,
   Video,
   Music,
-  Camera,
   Code,
+  Layers,
   Palette,
   Layout,
-  Grid,
-  List,
-  Plus,
-  Minus,
-  X,
-  Check,
   Edit,
   Trash2,
+  Plus,
   Copy,
   Save,
   Upload,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
+  Info,
+  Bell,
+  Lock,
+  Unlock,
+  Key,
+  UserCheck,
+  UserX,
   Flag,
   Bookmark,
   Tag,
-  Link as LinkIcon,
-  Home,
-  Building,
-  ShoppingBag,
-  Briefcase,
-  GraduationCap,
-  Car,
-  Utensils,
-  Gamepad2,
-  Music2,
-  Headphones,
-  Mic,
-  Radio,
-  Tv,
-  Film,
-  Book,
-  Newspaper,
-  PenTool,
-  Brush,
-  Scissors,
-  Ruler,
-  Compass,
-  Calculator,
-  Clock3,
-  Calendar as CalendarIcon,
-  Bell,
-  BellOff,
-  Volume2,
-  VolumeX,
-  Play,
-  Pause,
-  Square,
-  SkipForward,
-  SkipBack,
-  Repeat,
-  Shuffle,
+  Link,
   Maximize,
   Minimize,
   RotateCcw,
-  RotateCw,
-  ZoomIn,
-  ZoomOut,
-  Move,
-  Crop,
-  Aperture,
-  Focus,
-  Sun,
-  Moon,
-  Cloud,
-  CloudRain,
-  Snowflake,
-  Wind,
-  Thermometer,
-  Umbrella,
-  Rainbow,
-  Sunrise,
-  Sunset,
-  Mountain,
-  Trees,
-  Flower,
-  Leaf,
-  Feather,
-  Flame,
-  Droplets,
-  Waves,
-  Sparkles,
-  Gem,
-  Crown,
-  Medal,
-  Trophy,
-  Gift,
-  Package,
-  ShoppingCart,
-  CreditCard,
-  DollarSign,
-  Euro,
-  PoundSterling,
-  Yen,
-  Bitcoin,
-  Banknote,
-  Wallet,
-  PiggyBank,
-  TrendingUpIcon,
-  LineChart,
-  PieChart,
-  BarChart,
-  ScatterChart,
-  Map,
-  MapPin2,
-  Navigation2,
-  Compass2,
-  Route,
-  Car2,
-  Truck,
-  Bus,
-  Train,
-  Plane,
-  Ship,
-  Bike,
-  Scooter,
-  Fuel,
-  Battery,
-  BatteryLow,
-  Plug,
   Power,
-  PowerOff,
-  Cpu,
-  HardDrive,
-  MemoryStick,
-  Usb,
-  Bluetooth,
-  Wifi2,
-  Signal,
-  SignalHigh,
-  SignalLow,
-  SignalZero,
-  Antenna,
-  Radio2,
-  Satellite,
-  Router,
-  Ethernet,
-  Cable,
-  Headset,
-  Microphone,
-  Speaker,
-  Volume,
-  VolumeDown,
-  VolumeUp,
-  Mute,
-  Unmute,
-  Record,
-  StopCircle,
   PlayCircle,
   PauseCircle,
-  FastForward,
-  Rewind,
-  SkipForward2,
-  SkipBack2,
-  Repeat1,
-  Repeat2,
-  Shuffle2,
-  List2,
-  Grid2,
-  Columns,
-  Rows,
-  Table,
-  Database2,
-  Server2,
-  Cloud2,
-  CloudDownload,
-  CloudUpload,
-  CloudOff,
-  HardDriveDownload,
-  HardDriveUpload,
-  FolderOpen,
-  Folder,
-  File,
-  FileImage,
-  FileVideo,
-  FileAudio,
-  FileText2,
-  FilePdf,
-  FileSpreadsheet,
-  FileCode,
-  FileArchive,
-  FileX,
-  FileCheck,
-  FilePlus,
-  FileMinus,
-  FileEdit,
-  FileCopy,
-  FileSearch,
-  Archive,
-  Package2,
-  Inbox,
-  Outbox,
-  Send,
-  SendHorizontal,
-  Reply,
-  ReplyAll,
-  Forward,
-  Paperclip,
-  AtSign,
-  Hash,
-  Percent,
-  Ampersand,
-  Asterisk,
-  Slash,
-  Backslash,
-  Pipe,
-  Equal,
-  NotEqual,
-  LessThan,
-  LessThanEqual,
-  GreaterThan,
-  GreaterThanEqual,
-  Plus2,
-  Minus2,
-  Multiply,
-  Divide,
-  Modulo,
-  Exponent,
-  SquareRoot,
-  Infinity,
-  Pi,
-  Sigma,
-  Delta,
-  Alpha,
-  Beta,
-  Gamma,
-  Lambda,
-  Omega,
-  Phi,
-  Psi,
-  Chi,
-  Theta,
-  Mu,
-  Nu,
-  Xi,
-  Omicron,
-  Rho,
-  Tau,
-  Upsilon,
-  Zeta,
-  Eta,
-  Iota,
-  Kappa
+  StopCircle,
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { optimizedStorage } from '../utils/optimizedStorage';
 import { analyticsStorage } from '../utils/analyticsStorage';
 import CommonHeader from '../components/CommonHeader';
 
+interface AnalyticsData {
+  totalVisitors: number;
+  uniqueVisitors: number;
+  pageViews: number;
+  averageSessionDuration: number;
+  bounceRate: number;
+  conversionRate: number;
+  topCountries: { country: string; visitors: number; percentage: number }[];
+  topCities: { city: string; visitors: number; percentage: number }[];
+  deviceTypes: { device: string; visitors: number; percentage: number }[];
+  browsers: { browser: string; visitors: number; percentage: number }[];
+  operatingSystems: { os: string; visitors: number; percentage: number }[];
+  referrers: { referrer: string; visitors: number; percentage: number }[];
+  topPages: { page: string; views: number; avgTime: number }[];
+  hourlyViews: { hour: number; views: number; visitors: number }[];
+  dailyViews: { date: string; views: number; visitors: number }[];
+  conversions: { type: string; count: number; value: number }[];
+  realTimeVisitors: number;
+  performanceMetrics: {
+    averageLoadTime: number;
+    averageFirstContentfulPaint: number;
+    totalResourceSize: number;
+    averageEngagementScore: number;
+  };
+}
+
 const SiteAdmin: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { projects, setCurrentProject, updateProject, deleteProject } = useProject();
-  
-  const [project, setProject] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'content' | 'settings' | 'realtime'>('overview');
-  const [analyticsSummary, setAnalyticsSummary] = useState<any>(null);
-  const [dateRange, setDateRange] = useState<'today' | 'week' | 'month' | 'year'>('week');
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({
-    name: '',
-    description: '',
-    category: '',
-    seoKeywords: '',
-  });
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { projects, currentProject, setCurrentProject, updateProject } = useProject();
 
-  // Load project data
+  const [activeTab, setActiveTab] = useState<'overview' | 'analytics' | 'visitors' | 'performance' | 'content' | 'settings'>('overview');
+  const [dateRange, setDateRange] = useState<'today' | '7days' | '30days' | '90days' | 'all'>('7days');
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [realTimeData, setRealTimeData] = useState<any>(null);
+  const [selectedMetric, setSelectedMetric] = useState<string>('visitors');
+  const [showFilters, setShowFilters] = useState(false);
+  const [autoRefresh, setAutoRefresh] = useState(true);
+
   useEffect(() => {
     if (id) {
-      loadProjectData();
-    }
-  }, [id, projects]);
-
-  // Load analytics when project changes
-  useEffect(() => {
-    if (project) {
-      loadAnalyticsData();
-      // Set up real-time updates
-      const interval = setInterval(loadAnalyticsData, 30000); // Update every 30 seconds
-      return () => clearInterval(interval);
-    }
-  }, [project, dateRange]);
-
-  const loadProjectData = () => {
-    setLoading(true);
-    try {
-      // First try to find in current projects
-      let foundProject = projects.find(p => p.id === id);
-      
-      // If not found, try optimized storage
-      if (!foundProject) {
-        foundProject = optimizedStorage.getProject(id!);
-      }
-      
-      // If still not found, try all stored projects
-      if (!foundProject) {
-        const allProjects = optimizedStorage.getAllProjects();
-        foundProject = allProjects.find(p => p.id === id);
-      }
-
-      if (foundProject) {
-        setProject(foundProject);
-        setCurrentProject(foundProject);
-        
-        // Initialize edit form
-        setEditForm({
-          name: foundProject.name,
-          description: foundProject.description || '',
-          category: foundProject.category || 'business',
-          seoKeywords: foundProject.seoKeywords?.join(', ') || '',
-        });
-        
-        console.log('✅ Project loaded for admin:', foundProject);
+      const project = projects.find(p => p.id === id);
+      if (project) {
+        setCurrentProject(project);
+        loadAnalyticsData(project.id);
       } else {
-        console.log('❌ Project not found:', id);
-        // Don't redirect, show error state instead
+        console.log('Project not found for admin:', id);
+        navigate('/dashboard');
       }
-    } catch (error) {
-      console.error('❌ Error loading project:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [id, projects, setCurrentProject, navigate]);
 
-  const loadAnalyticsData = () => {
+  // Auto-refresh data every 30 seconds
+  useEffect(() => {
+    if (!autoRefresh || !currentProject) return;
+
+    const interval = setInterval(() => {
+      loadAnalyticsData(currentProject.id);
+      loadRealTimeData(currentProject.id);
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [autoRefresh, currentProject]);
+
+  const loadAnalyticsData = async (projectId: string) => {
+    setIsLoading(true);
     try {
-      if (!project) return;
+      // Get analytics events from optimized storage
+      const analyticsEvents = optimizedStorage.getAnalyticsForProject(projectId);
       
-      // Get date range
+      // Calculate date range
       const now = new Date();
       let startDate = new Date();
       
       switch (dateRange) {
         case 'today':
-          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          startDate.setHours(0, 0, 0, 0);
           break;
-        case 'week':
-          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        case '7days':
+          startDate.setDate(now.getDate() - 7);
           break;
-        case 'month':
-          startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        case '30days':
+          startDate.setDate(now.getDate() - 30);
           break;
-        case 'year':
-          startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+        case '90days':
+          startDate.setDate(now.getDate() - 90);
+          break;
+        case 'all':
+          startDate = new Date(0);
           break;
       }
 
-      // Generate sample data if none exists
-      generateSampleAnalyticsIfNeeded(project.id);
+      // Filter events by date range
+      const filteredEvents = analyticsEvents.filter(event => 
+        new Date(event.timestamp) >= startDate
+      );
+
+      // Process analytics data
+      const processedData = processAnalyticsEvents(filteredEvents);
+      setAnalyticsData(processedData);
       
-      // Get analytics summary
-      const summary = analyticsStorage.generateAnalyticsSummary(project.id, { start: startDate, end: now });
-      setAnalyticsSummary(summary);
-      
-      console.log('✅ Analytics data loaded for project:', project.id);
+      console.log('📊 Analytics data loaded:', processedData);
     } catch (error) {
       console.error('❌ Error loading analytics data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const generateSampleAnalyticsIfNeeded = (projectId: string) => {
-    try {
-      // Check if we already have analytics data for this project
-      const existingData = analyticsStorage.getProjectAnalytics(projectId);
-      if (existingData.sessions.length > 0) {
-        return; // Already has data
-      }
-      
-      console.log('🔄 Generating sample analytics data for project:', projectId);
-      
-      // Generate realistic sample data for the last 30 days
-      const now = new Date();
-      const countries = ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'Canada', 'Brazil', 'India', 'China'];
-      const cities = ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney', 'Toronto', 'São Paulo', 'Mumbai', 'Shanghai'];
-      const browsers = ['Chrome', 'Firefox', 'Safari', 'Edge', 'Opera'];
-      const devices = ['desktop', 'mobile', 'tablet'] as const;
-      const operatingSystems = ['Windows', 'macOS', 'Linux', 'iOS', 'Android'];
-      const referrers = ['google.com', 'facebook.com', 'twitter.com', 'linkedin.com', 'direct', 'bing.com', 'yahoo.com'];
-      
-      for (let i = 0; i < 30; i++) {
-        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-        const dailySessions = Math.floor(Math.random() * 25) + 5; // 5-30 sessions per day
-        
-        for (let j = 0; j < dailySessions; j++) {
-          // Create a realistic session
-          const sessionStart = new Date(date.getTime() + Math.random() * 24 * 60 * 60 * 1000);
-          const sessionDuration = Math.floor(Math.random() * 600) + 30; // 30 seconds to 10 minutes
-          const sessionEnd = new Date(sessionStart.getTime() + sessionDuration * 1000);
-          
-          const country = countries[Math.floor(Math.random() * countries.length)];
-          const city = cities[Math.floor(Math.random() * cities.length)];
-          const browser = browsers[Math.floor(Math.random() * browsers.length)];
-          const device = devices[Math.floor(Math.random() * devices.length)];
-          const os = operatingSystems[Math.floor(Math.random() * operatingSystems.length)];
-          const referrer = referrers[Math.floor(Math.random() * referrers.length)];
-          
-          // Simulate a session with the analytics storage
-          const tempSession = {
-            id: `sample_session_${Date.now()}_${Math.random()}`,
-            projectId,
-            sessionStart,
-            sessionEnd,
-            duration: sessionDuration,
-            pageViews: Math.floor(Math.random() * 5) + 1, // 1-5 page views
-            interactions: Math.floor(Math.random() * 10), // 0-10 interactions
-            device,
-            browser,
-            os,
-            country,
-            city,
-            referrer,
-            userAgent: `Mozilla/5.0 (${os}) ${browser}`,
-            screenResolution: device === 'mobile' ? '375x667' : device === 'tablet' ? '768x1024' : '1920x1080',
-            language: 'en-US',
-            timezone: 'America/New_York',
-            isReturning: Math.random() > 0.7, // 30% returning visitors
-            bounced: Math.random() > 0.6, // 40% bounce rate
-            conversionEvents: [],
-          };
-          
-          // Save session data directly to localStorage
-          const sessions = JSON.parse(localStorage.getItem('templates_uz_analytics_sessions') || '[]');
-          sessions.push(tempSession);
-          localStorage.setItem('templates_uz_analytics_sessions', JSON.stringify(sessions, (key, value) => {
-            if (value instanceof Date) {
-              return { __type: 'Date', value: value.toISOString() };
-            }
-            return value;
-          }));
-          
-          // Generate page views for this session
-          const pages = ['/', '/about', '/services', '/contact', '/portfolio'];
-          for (let k = 0; k < tempSession.pageViews; k++) {
-            const page = k === 0 ? '/' : pages[Math.floor(Math.random() * pages.length)];
-            const pageViewTime = new Date(sessionStart.getTime() + (k * (sessionDuration / tempSession.pageViews) * 1000));
-            
-            const pageView = {
-              id: `sample_pageview_${Date.now()}_${Math.random()}`,
-              projectId,
-              sessionId: tempSession.id,
-              timestamp: pageViewTime,
-              page,
-              title: `Page ${page}`,
-              timeOnPage: Math.floor(Math.random() * 120) + 10, // 10-130 seconds
-              scrollDepth: Math.floor(Math.random() * 100), // 0-100%
-              exitPage: k === tempSession.pageViews - 1,
-              referrer: k === 0 ? referrer : pages[Math.floor(Math.random() * pages.length)],
-              device,
-              browser,
-              os,
-              country,
-              city,
-              loadTime: Math.floor(Math.random() * 3000) + 500, // 500-3500ms
-            };
-            
-            const pageViews = JSON.parse(localStorage.getItem('templates_uz_analytics_pageviews') || '[]');
-            pageViews.push(pageView);
-            localStorage.setItem('templates_uz_analytics_pageviews', JSON.stringify(pageViews, (key, value) => {
-              if (value instanceof Date) {
-                return { __type: 'Date', value: value.toISOString() };
-              }
-              return value;
-            }));
-          }
-          
-          // Generate interactions for this session
-          for (let k = 0; k < tempSession.interactions; k++) {
-            const interactionTime = new Date(sessionStart.getTime() + Math.random() * sessionDuration * 1000);
-            const interactionTypes = ['click', 'scroll', 'hover', 'form_submit'] as const;
-            const elements = ['button', 'link', 'form', 'image', 'nav', 'footer'];
-            
-            const interaction = {
-              id: `sample_interaction_${Date.now()}_${Math.random()}`,
-              projectId,
-              sessionId: tempSession.id,
-              timestamp: interactionTime,
-              type: interactionTypes[Math.floor(Math.random() * interactionTypes.length)],
-              element: elements[Math.floor(Math.random() * elements.length)],
-              elementText: `Sample ${elements[Math.floor(Math.random() * elements.length)]}`,
-              elementPosition: { x: Math.floor(Math.random() * 1920), y: Math.floor(Math.random() * 1080) },
-            };
-            
-            const interactions = JSON.parse(localStorage.getItem('templates_uz_analytics_interactions') || '[]');
-            interactions.push(interaction);
-            localStorage.setItem('templates_uz_analytics_interactions', JSON.stringify(interactions, (key, value) => {
-              if (value instanceof Date) {
-                return { __type: 'Date', value: value.toISOString() };
-              }
-              return value;
-            }));
-          }
-          
-          // Generate conversions (10% of sessions convert)
-          if (Math.random() > 0.9) {
-            const conversionTypes = ['contact_form', 'newsletter', 'download', 'external_link', 'social_share'] as const;
-            const conversionTime = new Date(sessionStart.getTime() + Math.random() * sessionDuration * 1000);
-            
-            const conversion = {
-              id: `sample_conversion_${Date.now()}_${Math.random()}`,
-              projectId,
-              sessionId: tempSession.id,
-              timestamp: conversionTime,
-              type: conversionTypes[Math.floor(Math.random() * conversionTypes.length)],
-              value: Math.floor(Math.random() * 100) + 1,
-              metadata: { source: 'sample_data' },
-            };
-            
-            const conversions = JSON.parse(localStorage.getItem('templates_uz_analytics_conversions') || '[]');
-            conversions.push(conversion);
-            localStorage.setItem('templates_uz_analytics_conversions', JSON.stringify(conversions, (key, value) => {
-              if (value instanceof Date) {
-                return { __type: 'Date', value: value.toISOString() };
-              }
-              return value;
-            }));
-          }
-          
-          // Generate performance metrics
-          const performanceMetric = {
-            id: `sample_performance_${Date.now()}_${Math.random()}`,
-            projectId,
-            timestamp: sessionStart,
-            loadTime: Math.floor(Math.random() * 3000) + 500,
-            domContentLoaded: Math.floor(Math.random() * 1000) + 200,
-            firstContentfulPaint: Math.floor(Math.random() * 2000) + 300,
-            largestContentfulPaint: Math.floor(Math.random() * 4000) + 1000,
-            cumulativeLayoutShift: Math.random() * 0.3,
-            firstInputDelay: Math.floor(Math.random() * 100) + 10,
-            resourceCount: Math.floor(Math.random() * 50) + 10,
-            resourceSize: Math.floor(Math.random() * 2000000) + 500000, // 500KB - 2.5MB
-            cacheHitRate: Math.random() * 100,
-          };
-          
-          const performanceMetrics = JSON.parse(localStorage.getItem('templates_uz_analytics_performance') || '[]');
-          performanceMetrics.push(performanceMetric);
-          localStorage.setItem('templates_uz_analytics_performance', JSON.stringify(performanceMetrics, (key, value) => {
-            if (value instanceof Date) {
-              return { __type: 'Date', value: value.toISOString() };
-            }
-            return value;
-          }));
-        }
-      }
+  const loadRealTimeData = (projectId: string) => {
+    // Get real-time data (last 5 minutes)
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const recentEvents = optimizedStorage.getAnalyticsForProject(projectId)
+      .filter(event => new Date(event.timestamp) >= fiveMinutesAgo);
 
-      console.log('✅ Sample analytics data generated for project:', projectId);
-    } catch (error) {
-      console.error('❌ Error generating sample analytics:', error);
-    }
-  };
-
-  const handleRefreshAnalytics = async () => {
-    setIsRefreshing(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    loadAnalyticsData();
-    setIsRefreshing(false);
-  };
-
-  const handleExportAnalytics = () => {
-    try {
-      const exportData = {
-        project: {
-          id: project.id,
-          name: project.name,
-          websiteUrl: project.websiteUrl
-        },
-        analytics: analyticsSummary,
-        exportedAt: new Date().toISOString(),
-        dateRange
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${project.name}-analytics-${dateRange}-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('❌ Error exporting analytics:', error);
-    }
-  };
-
-  const handleSaveProject = () => {
-    if (!project) return;
-    
-    const updatedProject = {
-      ...project,
-      name: editForm.name,
-      description: editForm.description,
-      category: editForm.category,
-      seoKeywords: editForm.seoKeywords.split(',').map(k => k.trim()).filter(k => k.length > 0),
-      updatedAt: new Date(),
+    const realTime = {
+      activeVisitors: new Set(recentEvents.filter(e => e.type === 'page_visit').map(e => e.data.visitorId)).size,
+      recentEvents: recentEvents.slice(-10).reverse(),
+      currentPages: recentEvents
+        .filter(e => e.type === 'page_visit')
+        .reduce((acc, event) => {
+          const page = event.data.url || '/';
+          acc[page] = (acc[page] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>),
     };
-    
-    updateProject(project.id, updatedProject);
-    setProject(updatedProject);
-    setIsEditing(false);
+
+    setRealTimeData(realTime);
   };
 
-  const handleUnpublishProject = () => {
-    if (!project) return;
+  const processAnalyticsEvents = (events: any[]): AnalyticsData => {
+    // Group events by type
+    const eventsByType = events.reduce((acc, event) => {
+      if (!acc[event.type]) acc[event.type] = [];
+      acc[event.type].push(event);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    // Calculate basic metrics
+    const pageVisits = eventsByType.page_visit || [];
+    const uniqueVisitors = new Set(pageVisits.map(e => e.data.visitorId)).size;
+    const totalVisitors = pageVisits.length;
+    const pageViews = pageVisits.length;
+
+    // Calculate session durations
+    const sessionDurations = eventsByType.time_spent || [];
+    const averageSessionDuration = sessionDurations.length > 0 
+      ? sessionDurations.reduce((sum, e) => sum + (e.data.totalTime || 0), 0) / sessionDurations.length / 1000
+      : 0;
+
+    // Calculate bounce rate
+    const engagementEvents = eventsByType.engagement_signal || [];
+    const engagedSessions = new Set(engagementEvents.map(e => e.data.sessionId || e.data.visitorId)).size;
+    const bounceRate = totalVisitors > 0 ? ((totalVisitors - engagedSessions) / totalVisitors) * 100 : 0;
+
+    // Calculate conversion rate
+    const conversions = eventsByType.conversion || [];
+    const conversionRate = totalVisitors > 0 ? (conversions.length / totalVisitors) * 100 : 0;
+
+    // Process geographic data
+    const geoEvents = eventsByType.geographic_info || [];
+    const countryStats = processCountryStats(geoEvents);
+    const cityStats = processCityStats(geoEvents);
+
+    // Process device data
+    const deviceEvents = eventsByType.device_info || [];
+    const deviceStats = processDeviceStats(deviceEvents);
+    const browserStats = processBrowserStats(deviceEvents);
+    const osStats = processOSStats(deviceEvents);
+
+    // Process referrer data
+    const referrerEvents = eventsByType.referrer_info || [];
+    const referrerStats = processReferrerStats(referrerEvents);
+
+    // Process page data
+    const pageStats = processPageStats(pageVisits);
+
+    // Process hourly/daily views
+    const hourlyViews = processHourlyViews(pageVisits);
+    const dailyViews = processDailyViews(pageVisits);
+
+    // Process conversions
+    const conversionStats = processConversions(conversions);
+
+    // Process performance metrics
+    const performanceEvents = eventsByType.page_performance || [];
+    const performanceMetrics = processPerformanceMetrics(performanceEvents, engagementEvents);
+
+    return {
+      totalVisitors,
+      uniqueVisitors,
+      pageViews,
+      averageSessionDuration,
+      bounceRate,
+      conversionRate,
+      topCountries: countryStats,
+      topCities: cityStats,
+      deviceTypes: deviceStats,
+      browsers: browserStats,
+      operatingSystems: osStats,
+      referrers: referrerStats,
+      topPages: pageStats,
+      hourlyViews,
+      dailyViews,
+      conversions: conversionStats,
+      realTimeVisitors: realTimeData?.activeVisitors || 0,
+      performanceMetrics,
+    };
+  };
+
+  const processCountryStats = (events: any[]) => {
+    const countryCount = events.reduce((acc, event) => {
+      const country = event.data.country || 'Unknown';
+      acc[country] = (acc[country] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = events.length;
+    return Object.entries(countryCount)
+      .map(([country, count]) => ({
+        country,
+        visitors: count,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.visitors - a.visitors)
+      .slice(0, 10);
+  };
+
+  const processCityStats = (events: any[]) => {
+    const cityCount = events.reduce((acc, event) => {
+      const city = `${event.data.city || 'Unknown'}, ${event.data.country || 'Unknown'}`;
+      acc[city] = (acc[city] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = events.length;
+    return Object.entries(cityCount)
+      .map(([city, count]) => ({
+        city,
+        visitors: count,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.visitors - a.visitors)
+      .slice(0, 10);
+  };
+
+  const processDeviceStats = (events: any[]) => {
+    const deviceCount = events.reduce((acc, event) => {
+      const device = event.data.deviceType || 'Unknown';
+      acc[device] = (acc[device] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = events.length;
+    return Object.entries(deviceCount)
+      .map(([device, count]) => ({
+        device,
+        visitors: count,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.visitors - a.visitors);
+  };
+
+  const processBrowserStats = (events: any[]) => {
+    const browserCount = events.reduce((acc, event) => {
+      const browser = event.data.browser || 'Unknown';
+      acc[browser] = (acc[browser] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = events.length;
+    return Object.entries(browserCount)
+      .map(([browser, count]) => ({
+        browser,
+        visitors: count,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.visitors - a.visitors);
+  };
+
+  const processOSStats = (events: any[]) => {
+    const osCount = events.reduce((acc, event) => {
+      const os = event.data.os || 'Unknown';
+      acc[os] = (acc[os] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = events.length;
+    return Object.entries(osCount)
+      .map(([os, count]) => ({
+        os,
+        visitors: count,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.visitors - a.visitors);
+  };
+
+  const processReferrerStats = (events: any[]) => {
+    const referrerCount = events.reduce((acc, event) => {
+      const referrer = event.data.referrerType === 'direct' ? 'Direct' : 
+                     event.data.referrerDomain || event.data.referrer || 'Unknown';
+      acc[referrer] = (acc[referrer] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = events.length;
+    return Object.entries(referrerCount)
+      .map(([referrer, count]) => ({
+        referrer,
+        visitors: count,
+        percentage: Math.round((count / total) * 100),
+      }))
+      .sort((a, b) => b.visitors - a.visitors)
+      .slice(0, 10);
+  };
+
+  const processPageStats = (events: any[]) => {
+    const pageStats = events.reduce((acc, event) => {
+      const page = event.data.url || '/';
+      if (!acc[page]) {
+        acc[page] = { views: 0, totalTime: 0 };
+      }
+      acc[page].views++;
+      acc[page].totalTime += event.data.timeOnPage || 0;
+      return acc;
+    }, {} as Record<string, { views: number; totalTime: number }>);
+
+    return Object.entries(pageStats)
+      .map(([page, stats]) => ({
+        page,
+        views: stats.views,
+        avgTime: Math.round(stats.totalTime / stats.views / 1000),
+      }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 10);
+  };
+
+  const processHourlyViews = (events: any[]) => {
+    const hourlyData: Record<number, { views: number; visitors: Set<string> }> = {};
     
-    if (window.confirm('Are you sure you want to unpublish this website? It will no longer be accessible to visitors.')) {
-      updateProject(project.id, { isPublished: false });
-      setProject({ ...project, isPublished: false });
+    // Initialize all hours
+    for (let i = 0; i < 24; i++) {
+      hourlyData[i] = { views: 0, visitors: new Set() };
+    }
+
+    events.forEach(event => {
+      const hour = new Date(event.timestamp).getHours();
+      hourlyData[hour].views++;
+      hourlyData[hour].visitors.add(event.data.visitorId);
+    });
+
+    return Object.entries(hourlyData).map(([hour, data]) => ({
+      hour: parseInt(hour),
+      views: data.views,
+      visitors: data.visitors.size,
+    }));
+  };
+
+  const processDailyViews = (events: any[]) => {
+    const dailyData: Record<string, { views: number; visitors: Set<string> }> = {};
+
+    events.forEach(event => {
+      const date = new Date(event.timestamp).toISOString().split('T')[0];
+      if (!dailyData[date]) {
+        dailyData[date] = { views: 0, visitors: new Set() };
+      }
+      dailyData[date].views++;
+      dailyData[date].visitors.add(event.data.visitorId);
+    });
+
+    return Object.entries(dailyData)
+      .map(([date, data]) => ({
+        date,
+        views: data.views,
+        visitors: data.visitors.size,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  };
+
+  const processConversions = (events: any[]) => {
+    const conversionStats = events.reduce((acc, event) => {
+      const type = event.data.type || 'unknown';
+      if (!acc[type]) {
+        acc[type] = { count: 0, value: 0 };
+      }
+      acc[type].count++;
+      acc[type].value += event.data.value || 0;
+      return acc;
+    }, {} as Record<string, { count: number; value: number }>);
+
+    return Object.entries(conversionStats)
+      .map(([type, stats]) => ({
+        type,
+        count: stats.count,
+        value: stats.value,
+      }))
+      .sort((a, b) => b.count - a.count);
+  };
+
+  const processPerformanceMetrics = (performanceEvents: any[], engagementEvents: any[]) => {
+    const avgLoadTime = performanceEvents.length > 0
+      ? performanceEvents.reduce((sum, e) => sum + (e.data.totalLoadTime || 0), 0) / performanceEvents.length
+      : 0;
+
+    const avgFCP = performanceEvents.length > 0
+      ? performanceEvents.reduce((sum, e) => sum + (e.data.firstContentfulPaint || 0), 0) / performanceEvents.length
+      : 0;
+
+    const totalResourceSize = performanceEvents.length > 0
+      ? performanceEvents.reduce((sum, e) => sum + (e.data.totalResourceSize || 0), 0) / performanceEvents.length
+      : 0;
+
+    const avgEngagementScore = engagementEvents.length > 0
+      ? engagementEvents.reduce((sum, e) => sum + (e.data.totalScore || 0), 0) / engagementEvents.length
+      : 0;
+
+    return {
+      averageLoadTime: Math.round(avgLoadTime),
+      averageFirstContentfulPaint: Math.round(avgFCP),
+      totalResourceSize: Math.round(totalResourceSize / 1024), // Convert to KB
+      averageEngagementScore: Math.round(avgEngagementScore),
+    };
+  };
+
+  const getDeviceIcon = (device: string) => {
+    switch (device.toLowerCase()) {
+      case 'mobile': return Smartphone;
+      case 'tablet': return Tablet;
+      case 'desktop': return Monitor;
+      default: return Monitor;
     }
   };
 
-  const handleDeleteProject = () => {
-    if (!project) return;
+  const getBrowserIcon = (browser: string) => {
+    switch (browser.toLowerCase()) {
+      case 'chrome': return Chrome;
+      case 'firefox': return Firefox;
+      case 'safari': return Safari;
+      default: return Globe;
+    }
+  };
+
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
+
+  const formatDuration = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m ${secs}s`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
+  };
+
+  const getChangeIndicator = (current: number, previous: number) => {
+    if (previous === 0) return { icon: TrendingUp, color: 'text-green-600', text: 'New' };
     
-    if (window.confirm('Are you sure you want to permanently delete this website? This action cannot be undone.')) {
-      deleteProject(project.id);
-      navigate('/dashboard');
+    const change = ((current - previous) / previous) * 100;
+    if (change > 0) {
+      return { icon: TrendingUp, color: 'text-green-600', text: `+${change.toFixed(1)}%` };
+    } else if (change < 0) {
+      return { icon: TrendingDown, color: 'text-red-600', text: `${change.toFixed(1)}%` };
+    } else {
+      return { icon: Activity, color: 'text-gray-600', text: '0%' };
     }
   };
-
-  const handleClearAnalytics = () => {
-    if (window.confirm('Are you sure you want to clear all analytics data? This action cannot be undone.')) {
-      analyticsStorage.clearAllAnalytics();
-      loadAnalyticsData();
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2 font-heading">Loading Admin Panel</h2>
-          <p className="text-gray-600 font-primary">Please wait while we load your website data...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4 font-heading">Website Not Found</h2>
-          <p className="text-gray-600 mb-6 font-primary">
-            The website with ID "{id}" doesn't exist or you don't have permission to access it.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors shadow-elegant font-display"
-            >
-              Go to Dashboard
-            </button>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors shadow-glow font-display"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
-    { id: 'analytics', label: 'Analytics', icon: TrendingUp },
-    { id: 'realtime', label: 'Real-time', icon: Activity },
+    { id: 'analytics', label: 'Analytics', icon: Activity },
+    { id: 'visitors', label: 'Visitors', icon: Users },
+    { id: 'performance', label: 'Performance', icon: Zap },
     { id: 'content', label: 'Content', icon: FileText },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
+  if (!currentProject) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg">Loading admin panel...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <CommonHeader />
 
-      {/* Page Header */}
-      <div className="bg-white/95 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Admin Header */}
+      <div className="bg-white/95 backdrop-blur-xl border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
@@ -751,137 +601,209 @@ const SiteAdmin: React.FC = () => {
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
-              
+
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Settings className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 font-heading">Admin Panel</h1>
-                  <p className="text-gray-600 font-primary">{project.name} - {project.websiteUrl}</p>
+                  <h1 className="text-2xl font-bold text-gray-900 font-heading">
+                    {currentProject.name} - Admin Panel
+                  </h1>
+                  <p className="text-gray-600 font-primary">
+                    Comprehensive website analytics and management
+                  </p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-xl border border-green-200">
-                <Globe className="w-4 h-4" />
-                <span className="font-medium font-primary">{project.isPublished ? 'Live' : 'Draft'}</span>
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="font-medium font-primary text-sm">
+                  {realTimeData?.activeVisitors || 0} Active
+                </span>
               </div>
-              
-              {project.isPublished && (
-                <button
-                  onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  View Site
-                </button>
-              )}
-              
+
               <button
-                onClick={() => navigate(`/editor/${project.id}`)}
-                className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                className={`p-2 rounded-xl transition-colors ${
+                  autoRefresh ? 'bg-primary-100 text-primary-600' : 'bg-gray-100 text-gray-600'
+                }`}
+                title={autoRefresh ? 'Disable auto-refresh' : 'Enable auto-refresh'}
               >
-                <Edit className="w-4 h-4" />
-                Edit
+                <RefreshCw className={`w-5 h-5 ${autoRefresh ? 'animate-spin' : ''}`} />
+              </button>
+
+              <button
+                onClick={() => loadAnalyticsData(currentProject.id)}
+                className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Refresh Data
               </button>
             </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 mt-6">
+            {tabs.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                  activeTab === id
+                    ? 'bg-white text-primary-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="font-primary hidden sm:inline">{label}</span>
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 mb-8">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id as any)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                activeTab === id
-                  ? 'bg-white text-red-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+        {/* Date Range Selector */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <select
+              value={dateRange}
+              onChange={(e) => setDateRange(e.target.value as any)}
+              className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white font-primary"
             >
-              <Icon className="w-4 h-4" />
-              <span className="font-primary">{label}</span>
+              <option value="today">Today</option>
+              <option value="7days">Last 7 days</option>
+              <option value="30days">Last 30 days</option>
+              <option value="90days">Last 90 days</option>
+              <option value="all">All time</option>
+            </select>
+
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
+            >
+              <Filter className="w-4 h-4" />
+              Filters
             </button>
-          ))}
+          </div>
+
+          <div className="text-sm text-gray-500 font-primary">
+            Last updated: {new Date().toLocaleTimeString()}
+          </div>
         </div>
 
         {/* Overview Tab */}
-        {activeTab === 'overview' && analyticsSummary && (
+        {activeTab === 'overview' && analyticsData && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="space-y-8"
           >
             {/* Key Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
+                  <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-primary-600" />
+                  </div>
+                  <div className="flex items-center gap-1 text-green-600">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm font-medium">+12.5%</span>
+                  </div>
+                </div>
+                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
+                  {formatNumber(analyticsData.totalVisitors)}
+                </div>
+                <div className="text-gray-600 font-primary">Total Visitors</div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
                     <Eye className="w-6 h-6 text-blue-600" />
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <div className="flex items-center gap-1 text-green-600">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm font-medium">+8.3%</span>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.overview.totalPageViews.toLocaleString()}</div>
-                <div className="text-sm text-gray-600 font-primary">Total Views</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
+                  {formatNumber(analyticsData.pageViews)}
+                </div>
+                <div className="text-gray-600 font-primary">Page Views</div>
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Users className="w-6 h-6 text-green-600" />
+                    <Clock className="w-6 h-6 text-green-600" />
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
+                  <div className="flex items-center gap-1 text-red-600">
+                    <TrendingDown className="w-4 h-4" />
+                    <span className="text-sm font-medium">-2.1%</span>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.overview.uniqueVisitors.toLocaleString()}</div>
-                <div className="text-sm text-gray-600 font-primary">Unique Visitors</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
+                  {formatDuration(analyticsData.averageSessionDuration)}
+                </div>
+                <div className="text-gray-600 font-primary">Avg. Session</div>
               </div>
 
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Clock className="w-6 h-6 text-purple-600" />
+                  <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-yellow-600" />
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
-                </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{Math.round(analyticsSummary.overview.averageSessionDuration / 60)}m</div>
-                <div className="text-sm text-gray-600 font-primary">Avg. Session Time</div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-orange-600" />
+                  <div className="flex items-center gap-1 text-green-600">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="text-sm font-medium">+5.7%</span>
                   </div>
-                  <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
-                <div className="text-2xl font-bold text-gray-900 font-heading">{analyticsSummary.overview.conversionRate.toFixed(1)}%</div>
-                <div className="text-sm text-gray-600 font-primary">Conversion Rate</div>
+                <div className="text-3xl font-bold text-gray-900 mb-1 font-heading">
+                  {analyticsData.conversionRate.toFixed(1)}%
+                </div>
+                <div className="text-gray-600 font-primary">Conversion Rate</div>
               </div>
             </div>
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Daily Views Chart */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Visitors Chart */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Daily Views</h3>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 font-heading">Visitors Over Time</h3>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-primary-500 rounded-full"></div>
+                    <span className="text-sm text-gray-600 font-primary">Visitors</span>
+                    <div className="w-3 h-3 bg-blue-500 rounded-full ml-4"></div>
+                    <span className="text-sm text-gray-600 font-primary">Page Views</span>
+                  </div>
+                </div>
+                
                 <div className="h-64 flex items-end justify-between gap-2">
-                  {analyticsSummary.traffic.dailyViews.slice(-7).map((day, index) => (
+                  {analyticsData.dailyViews.slice(-7).map((day, index) => (
                     <div key={day.date} className="flex-1 flex flex-col items-center">
-                      <div
-                        className="w-full bg-primary-500 rounded-t-lg transition-all hover:bg-primary-600"
-                        style={{
-                          height: `${Math.max((day.views / Math.max(...analyticsSummary.traffic.dailyViews.map(d => d.views))) * 200, 10)}px`
-                        }}
-                      ></div>
-                      <div className="text-xs text-gray-600 mt-2 font-primary">
+                      <div className="w-full flex flex-col gap-1">
+                        <div 
+                          className="bg-primary-500 rounded-t"
+                          style={{ 
+                            height: `${Math.max(4, (day.visitors / Math.max(...analyticsData.dailyViews.map(d => d.visitors))) * 200)}px` 
+                          }}
+                        ></div>
+                        <div 
+                          className="bg-blue-500 rounded-b"
+                          style={{ 
+                            height: `${Math.max(4, (day.views / Math.max(...analyticsData.dailyViews.map(d => d.views))) * 100)}px` 
+                          }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-2 font-primary">
                         {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
                       </div>
-                      <div className="text-xs font-semibold text-gray-900 font-primary">{day.views}</div>
                     </div>
                   ))}
                 </div>
@@ -889,25 +811,36 @@ const SiteAdmin: React.FC = () => {
 
               {/* Device Breakdown */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Device Breakdown</h3>
+                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Device Breakdown</h3>
+                
                 <div className="space-y-4">
-                  {analyticsSummary.demographics.devices.map((device) => {
-                    const Icon = device.device === 'desktop' ? Monitor : 
-                                device.device === 'mobile' ? Smartphone : Tablet;
+                  {analyticsData.deviceTypes.map((device, index) => {
+                    const DeviceIcon = getDeviceIcon(device.device);
                     return (
                       <div key={device.device} className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Icon className="w-5 h-5 text-gray-600" />
-                          <span className="font-medium text-gray-900 capitalize font-primary">{device.device}</span>
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            index === 0 ? 'bg-primary-100' : index === 1 ? 'bg-blue-100' : 'bg-green-100'
+                          }`}>
+                            <DeviceIcon className={`w-5 h-5 ${
+                              index === 0 ? 'text-primary-600' : index === 1 ? 'text-blue-600' : 'text-green-600'
+                            }`} />
+                          </div>
+                          <div>
+                            <div className="font-medium text-gray-900 font-primary capitalize">{device.device}</div>
+                            <div className="text-sm text-gray-600 font-primary">{device.visitors} visitors</div>
+                          </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary-500 rounded-full transition-all"
+                          <div className="w-24 bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                index === 0 ? 'bg-primary-500' : index === 1 ? 'bg-blue-500' : 'bg-green-500'
+                              }`}
                               style={{ width: `${device.percentage}%` }}
                             ></div>
                           </div>
-                          <span className="text-sm font-semibold text-gray-900 w-12 text-right font-primary">
+                          <span className="text-sm font-medium text-gray-900 font-primary w-12 text-right">
                             {device.percentage}%
                           </span>
                         </div>
@@ -918,37 +851,67 @@ const SiteAdmin: React.FC = () => {
               </div>
             </div>
 
-            {/* Top Pages and Referrers */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Geographic Data */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Top Countries */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Pages</h3>
-                <div className="space-y-3">
-                  {analyticsSummary.behavior.topPages.map((page, index) => (
-                    <div key={page.page} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Top Countries</h3>
+                
+                <div className="space-y-4">
+                  {analyticsData.topCountries.slice(0, 5).map((country, index) => (
+                    <div key={country.country} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-primary-600 font-primary">{index + 1}</span>
+                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                          <MapPin className="w-4 h-4 text-gray-600" />
                         </div>
-                        <span className="font-medium text-gray-900 font-primary">{page.page}</span>
+                        <div>
+                          <div className="font-medium text-gray-900 font-primary">{country.country}</div>
+                          <div className="text-sm text-gray-600 font-primary">{country.visitors} visitors</div>
+                        </div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-600 font-primary">{page.views} views</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-primary-500 h-2 rounded-full"
+                            style={{ width: `${country.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 font-primary w-10 text-right">
+                          {country.percentage}%
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
+              {/* Top Referrers */}
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Top Referrers</h3>
-                <div className="space-y-3">
-                  {analyticsSummary.behavior.topReferrers.map((referrer, index) => (
-                    <div key={referrer.referrer} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Traffic Sources</h3>
+                
+                <div className="space-y-4">
+                  {analyticsData.referrers.slice(0, 5).map((referrer, index) => (
+                    <div key={referrer.referrer} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-green-600 font-primary">{index + 1}</span>
+                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                          <ExternalLink className="w-4 h-4 text-gray-600" />
                         </div>
-                        <span className="font-medium text-gray-900 font-primary">{referrer.referrer}</span>
+                        <div>
+                          <div className="font-medium text-gray-900 font-primary">{referrer.referrer}</div>
+                          <div className="text-sm text-gray-600 font-primary">{referrer.visitors} visitors</div>
+                        </div>
                       </div>
-                      <span className="text-sm font-semibold text-gray-600 font-primary">{referrer.visitors} visitors</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-blue-500 h-2 rounded-full"
+                            style={{ width: `${referrer.percentage}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-sm font-medium text-gray-900 font-primary w-10 text-right">
+                          {referrer.percentage}%
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -958,136 +921,27 @@ const SiteAdmin: React.FC = () => {
         )}
 
         {/* Analytics Tab */}
-        {activeTab === 'analytics' && analyticsSummary && (
+        {activeTab === 'analytics' && analyticsData && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="space-y-8"
           >
-            {/* Analytics Controls */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 font-heading">Advanced Analytics</h2>
-                  <p className="text-gray-600 font-primary">Detailed insights into your website performance</p>
-                </div>
-                
-                <div className="flex items-center gap-3">
-                  <select
-                    value={dateRange}
-                    onChange={(e) => setDateRange(e.target.value as any)}
-                    className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
-                  >
-                    <option value="today">Today</option>
-                    <option value="week">Last 7 days</option>
-                    <option value="month">Last 30 days</option>
-                    <option value="year">Last year</option>
-                  </select>
-                  
-                  <button
-                    onClick={handleRefreshAnalytics}
-                    disabled={isRefreshing}
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary disabled:opacity-50"
-                  >
-                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    Refresh
-                  </button>
-                  
-                  <button
-                    onClick={handleExportAnalytics}
-                    className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-                  >
-                    <Download className="w-4 h-4" />
-                    Export
-                  </button>
-                  
-                  <button
-                    onClick={handleClearAnalytics}
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    Clear Data
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Performance Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-gray-900 font-heading">
-                      {analyticsSummary.performance.averageLoadTime}ms
-                    </div>
-                    <div className="text-sm text-gray-600 font-primary">Avg. Load Time</div>
-                  </div>
-                </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full">
-                  <div
-                    className="h-full bg-blue-500 rounded-full transition-all"
-                    style={{ width: `${Math.min((3000 - analyticsSummary.performance.averageLoadTime) / 3000 * 100, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Activity className="w-5 h-5 text-green-600" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-gray-900 font-heading">
-                      {analyticsSummary.performance.averageDOMContentLoaded}ms
-                    </div>
-                    <div className="text-sm text-gray-600 font-primary">DOM Content Loaded</div>
-                  </div>
-                </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full">
-                  <div
-                    className="h-full bg-green-500 rounded-full transition-all"
-                    style={{ width: `${Math.min((1000 - analyticsSummary.performance.averageDOMContentLoaded) / 1000 * 100, 100)}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
-                    <Target className="w-5 h-5 text-yellow-600" />
-                  </div>
-                  <div>
-                    <div className="text-lg font-bold text-gray-900 font-heading">
-                      {analyticsSummary.overview.bounceRate.toFixed(1)}%
-                    </div>
-                    <div className="text-sm text-gray-600 font-primary">Bounce Rate</div>
-                  </div>
-                </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full">
-                  <div
-                    className="h-full bg-yellow-500 rounded-full transition-all"
-                    style={{ width: `${analyticsSummary.overview.bounceRate}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-
             {/* Hourly Activity */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Hourly Activity</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">24-Hour Activity</h3>
+              
               <div className="h-64 flex items-end justify-between gap-1">
-                {analyticsSummary.traffic.hourlyViews.map((hour) => (
+                {analyticsData.hourlyViews.map((hour) => (
                   <div key={hour.hour} className="flex-1 flex flex-col items-center">
-                    <div
-                      className="w-full bg-primary-500 rounded-t-lg transition-all hover:bg-primary-600"
-                      style={{
-                        height: `${Math.max((hour.views / Math.max(...analyticsSummary.traffic.hourlyViews.map(h => h.views))) * 200, 2)}px`
+                    <div 
+                      className="bg-gradient-to-t from-primary-500 to-primary-400 rounded-t w-full"
+                      style={{ 
+                        height: `${Math.max(4, (hour.views / Math.max(...analyticsData.hourlyViews.map(h => h.views))) * 200)}px` 
                       }}
+                      title={`${hour.hour}:00 - ${hour.views} views, ${hour.visitors} visitors`}
                     ></div>
-                    <div className="text-xs text-gray-600 mt-2 font-primary">
+                    <div className="text-xs text-gray-500 mt-2 font-primary">
                       {hour.hour.toString().padStart(2, '0')}
                     </div>
                   </div>
@@ -1095,103 +949,217 @@ const SiteAdmin: React.FC = () => {
               </div>
             </div>
 
-            {/* Geographic Data */}
+            {/* Conversion Funnel */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Geographic Distribution</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {analyticsSummary.demographics.countries.slice(0, 10).map((country, index) => (
-                  <div key={country.country} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <span className="text-xs font-bold text-primary-600 font-primary">{index + 1}</span>
-                      </div>
-                      <span className="font-medium text-gray-900 font-primary">{country.country}</span>
-                    </div>
-                    <span className="text-sm font-semibold text-gray-600 font-primary">{country.visitors} visits</span>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Conversion Funnel</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-primary-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-5 h-5 text-primary-600" />
+                    <span className="font-medium text-gray-900 font-primary">Total Visitors</span>
                   </div>
-                ))}
+                  <span className="text-lg font-bold text-primary-600 font-heading">
+                    {analyticsData.totalVisitors}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Activity className="w-5 h-5 text-blue-600" />
+                    <span className="font-medium text-gray-900 font-primary">Engaged Visitors</span>
+                  </div>
+                  <span className="text-lg font-bold text-blue-600 font-heading">
+                    {Math.round(analyticsData.totalVisitors * (100 - analyticsData.bounceRate) / 100)}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Target className="w-5 h-5 text-green-600" />
+                    <span className="font-medium text-gray-900 font-primary">Conversions</span>
+                  </div>
+                  <span className="text-lg font-bold text-green-600 font-heading">
+                    {analyticsData.conversions.reduce((sum, c) => sum + c.count, 0)}
+                  </span>
+                </div>
               </div>
             </div>
-            
-            {/* Browser and OS Statistics */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Browser Distribution</h3>
-                <div className="space-y-3">
-                  {analyticsSummary.demographics.browsers.map((browser, index) => (
-                    <div key={browser.browser} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-blue-600 font-primary">{index + 1}</span>
+
+            {/* Conversion Types */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Conversion Types</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {analyticsData.conversions.map((conversion, index) => {
+                  const getConversionIcon = (type: string) => {
+                    switch (type) {
+                      case 'email_click': return Mail;
+                      case 'phone_click': return Phone;
+                      case 'form_submission': return FileText;
+                      case 'download': return Download;
+                      case 'external_link': return ExternalLink;
+                      case 'social_click': return Share2;
+                      default: return Target;
+                    }
+                  };
+
+                  const ConversionIcon = getConversionIcon(conversion.type);
+
+                  return (
+                    <div key={conversion.type} className="p-4 border border-gray-200 rounded-xl">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                          <ConversionIcon className="w-5 h-5 text-primary-600" />
                         </div>
-                        <span className="font-medium text-gray-900 font-primary">{browser.browser}</span>
+                        <div>
+                          <div className="font-medium text-gray-900 font-primary capitalize">
+                            {conversion.type.replace('_', ' ')}
+                          </div>
+                          <div className="text-sm text-gray-600 font-primary">
+                            {conversion.count} conversions
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900 font-heading">
+                        {conversion.count}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Visitors Tab */}
+        {activeTab === 'visitors' && analyticsData && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-8"
+          >
+            {/* Real-time Visitors */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 font-heading">Real-time Activity</h3>
+                <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-xl">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-medium font-primary">Live</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-green-600 mb-2 font-heading">
+                    {realTimeData?.activeVisitors || 0}
+                  </div>
+                  <div className="text-gray-600 font-primary">Active Visitors</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-blue-600 mb-2 font-heading">
+                    {Object.keys(realTimeData?.currentPages || {}).length}
+                  </div>
+                  <div className="text-gray-600 font-primary">Active Pages</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-purple-600 mb-2 font-heading">
+                    {realTimeData?.recentEvents?.length || 0}
+                  </div>
+                  <div className="text-gray-600 font-primary">Recent Events</div>
+                </div>
+              </div>
+
+              {/* Recent Events */}
+              {realTimeData?.recentEvents && realTimeData.recentEvents.length > 0 && (
+                <div className="mt-6">
+                  <h4 className="font-semibold text-gray-900 mb-4 font-heading">Recent Activity</h4>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {realTimeData.recentEvents.map((event: any, index: number) => (
+                      <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-gray-900 font-primary">
+                            {event.type.replace('_', ' ').toUpperCase()}
+                          </div>
+                          <div className="text-xs text-gray-600 font-primary">
+                            {new Date(event.timestamp).toLocaleTimeString()}
+                          </div>
+                        </div>
+                        <div className="text-xs text-gray-500 font-primary">
+                          {event.data?.country || 'Unknown'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Browser Statistics */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Browser Statistics</h3>
+              
+              <div className="space-y-4">
+                {analyticsData.browsers.map((browser, index) => {
+                  const BrowserIcon = getBrowserIcon(browser.browser);
+                  return (
+                    <div key={browser.browser} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                          <BrowserIcon className="w-5 h-5 text-gray-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 font-primary">{browser.browser}</div>
+                          <div className="text-sm text-gray-600 font-primary">{browser.visitors} visitors</div>
+                        </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-500 rounded-full transition-all"
+                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                          <div 
+                            className="bg-primary-500 h-2 rounded-full"
                             style={{ width: `${browser.percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-semibold text-gray-600 font-primary">{browser.percentage}%</span>
+                        <span className="text-sm font-medium text-gray-900 font-primary w-12 text-right">
+                          {browser.percentage}%
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Operating Systems</h3>
-                <div className="space-y-3">
-                  {analyticsSummary.demographics.operatingSystems.map((os, index) => (
-                    <div key={os.os} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <span className="text-xs font-bold text-purple-600 font-primary">{index + 1}</span>
-                        </div>
-                        <span className="font-medium text-gray-900 font-primary">{os.os}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-purple-500 rounded-full transition-all"
-                            style={{ width: `${os.percentage}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-semibold text-gray-600 font-primary">{os.percentage}%</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
-            
-            {/* Conversion Funnel */}
+
+            {/* Operating Systems */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Conversion Funnel</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Operating Systems</h3>
+              
               <div className="space-y-4">
-                {analyticsSummary.conversions.conversionFunnel.map((step, index) => (
-                  <div key={step.step} className="relative">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center gap-4">
-                        <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                          <span className="text-sm font-bold text-primary-600 font-primary">{index + 1}</span>
-                        </div>
-                        <div>
-                          <div className="font-medium text-gray-900 font-primary">{step.step}</div>
-                          <div className="text-sm text-gray-600 font-primary">{step.visitors} visitors</div>
-                        </div>
+                {analyticsData.operatingSystems.map((os, index) => (
+                  <div key={os.os} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                        <Monitor className="w-5 h-5 text-gray-600" />
                       </div>
-                      <div className="text-right">
-                        <div className="text-lg font-bold text-gray-900 font-heading">{step.conversionRate}%</div>
-                        <div className="text-sm text-gray-600 font-primary">conversion rate</div>
+                      <div>
+                        <div className="font-medium text-gray-900 font-primary">{os.os}</div>
+                        <div className="text-sm text-gray-600 font-primary">{os.visitors} visitors</div>
                       </div>
                     </div>
-                    {index < analyticsSummary.conversions.conversionFunnel.length - 1 && (
-                      <div className="flex justify-center py-2">
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full"
+                          style={{ width: `${os.percentage}%` }}
+                        ></div>
                       </div>
-                    )}
+                      <span className="text-sm font-medium text-gray-900 font-primary w-12 text-right">
+                        {os.percentage}%
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1199,107 +1167,150 @@ const SiteAdmin: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Real-time Tab */}
-        {activeTab === 'realtime' && analyticsSummary && (
+        {/* Performance Tab */}
+        {activeTab === 'performance' && analyticsData && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="space-y-8"
           >
-            {/* Real-time Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Performance Metrics */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Activity className="w-5 h-5 text-green-600" />
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                    <Timer className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsSummary.realTime.activeVisitors}
+                      {analyticsData.performanceMetrics.averageLoadTime}ms
                     </div>
-                    <div className="text-sm text-gray-600 font-primary">Active Visitors</div>
+                    <div className="text-gray-600 font-primary">Load Time</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-xs text-gray-600 font-primary">Live now</span>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full"
+                    style={{ width: `${Math.min(100, (3000 - analyticsData.performanceMetrics.averageLoadTime) / 30)}%` }}
+                  ></div>
                 </div>
               </div>
-              
+
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <Eye className="w-5 h-5 text-blue-600" />
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsSummary.realTime.currentPageViews.reduce((sum, page) => sum + page.viewers, 0)}
+                      {analyticsData.performanceMetrics.averageFirstContentfulPaint}ms
                     </div>
-                    <div className="text-sm text-gray-600 font-primary">Page Views (5 min)</div>
+                    <div className="text-gray-600 font-primary">First Paint</div>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 font-primary">Last 5 minutes</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-500 h-2 rounded-full"
+                    style={{ width: `${Math.min(100, (2000 - analyticsData.performanceMetrics.averageFirstContentfulPaint) / 20)}%` }}
+                  ></div>
+                </div>
               </div>
-              
+
               <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Target className="w-5 h-5 text-purple-600" />
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                    <HardDrive className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-gray-900 font-heading">
-                      {analyticsSummary.conversions.totalConversions}
+                      {analyticsData.performanceMetrics.totalResourceSize}KB
                     </div>
-                    <div className="text-sm text-gray-600 font-primary">Total Conversions</div>
+                    <div className="text-gray-600 font-primary">Page Size</div>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500 font-primary">All time</div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-purple-500 h-2 rounded-full"
+                    style={{ width: `${Math.min(100, analyticsData.performanceMetrics.totalResourceSize / 10)}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                    <Activity className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-gray-900 font-heading">
+                      {analyticsData.performanceMetrics.averageEngagementScore}
+                    </div>
+                    <div className="text-gray-600 font-primary">Engagement</div>
+                  </div>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-orange-500 h-2 rounded-full"
+                    style={{ width: `${Math.min(100, analyticsData.performanceMetrics.averageEngagementScore)}%` }}
+                  ></div>
+                </div>
               </div>
             </div>
-            
-            {/* Current Page Views */}
+
+            {/* Performance Recommendations */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Current Page Views</h3>
-              <div className="space-y-3">
-                {analyticsSummary.realTime.currentPageViews.map((page, index) => (
-                  <div key={page.page} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                    <div className="flex items-center gap-3">
-                      <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center">
-                        <span className="text-xs font-bold text-green-600 font-primary">{index + 1}</span>
-                      </div>
-                      <span className="font-medium text-gray-900 font-primary">{page.page}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span className="text-sm font-semibold text-gray-600 font-primary">{page.viewers} viewers</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Recent Events */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 font-heading">Recent Activity</h3>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {analyticsSummary.realTime.recentEvents.map((event, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      event.type === 'pageview' ? 'bg-blue-100' :
-                      event.type === 'interaction' ? 'bg-green-100' : 'bg-purple-100'
-                    }`}>
-                      {event.type === 'pageview' && <Eye className="w-4 h-4 text-blue-600" />}
-                      {event.type === 'interaction' && <MousePointer className="w-4 h-4 text-green-600" />}
-                      {event.type === 'conversion' && <Target className="w-4 h-4 text-purple-600" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 font-primary">{event.details}</div>
-                      <div className="text-xs text-gray-600 font-primary">
-                        {event.timestamp.toLocaleTimeString()}
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Performance Recommendations</h3>
+              
+              <div className="space-y-4">
+                {analyticsData.performanceMetrics.averageLoadTime > 3000 && (
+                  <div className="flex items-start gap-3 p-4 bg-red-50 rounded-xl border border-red-200">
+                    <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-red-900 font-primary">Slow Load Time</div>
+                      <div className="text-sm text-red-700 font-primary">
+                        Your page takes {analyticsData.performanceMetrics.averageLoadTime}ms to load. Consider optimizing images and reducing resource size.
                       </div>
                     </div>
                   </div>
-                ))}
+                )}
+
+                {analyticsData.performanceMetrics.totalResourceSize > 1000 && (
+                  <div className="flex items-start gap-3 p-4 bg-yellow-50 rounded-xl border border-yellow-200">
+                    <Info className="w-5 h-5 text-yellow-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-yellow-900 font-primary">Large Page Size</div>
+                      <div className="text-sm text-yellow-700 font-primary">
+                        Your page size is {analyticsData.performanceMetrics.totalResourceSize}KB. Consider compressing images and minifying code.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {analyticsData.performanceMetrics.averageEngagementScore < 50 && (
+                  <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                    <Target className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-blue-900 font-primary">Low Engagement</div>
+                      <div className="text-sm text-blue-700 font-primary">
+                        User engagement is below average. Consider improving content and user experience.
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {analyticsData.performanceMetrics.averageLoadTime <= 3000 && 
+                 analyticsData.performanceMetrics.totalResourceSize <= 1000 && 
+                 analyticsData.performanceMetrics.averageEngagementScore >= 50 && (
+                  <div className="flex items-start gap-3 p-4 bg-green-50 rounded-xl border border-green-200">
+                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <div className="font-medium text-green-900 font-primary">Excellent Performance</div>
+                      <div className="text-sm text-green-700 font-primary">
+                        Your website is performing well across all metrics. Keep up the great work!
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
@@ -1310,66 +1321,90 @@ const SiteAdmin: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="space-y-8"
           >
+            {/* Content Management */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4 font-heading">Content Management</h2>
-              <p className="text-gray-600 mb-6 font-primary">Manage your website content and sections</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div className="p-4 border border-gray-200 rounded-xl hover:border-primary-300 transition-colors">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Layers className="w-5 h-5 text-primary-600" />
-                    <span className="font-medium text-gray-900 font-primary">Sections</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 font-heading">{project.sections.length}</div>
-                  <div className="text-sm text-gray-600 font-primary">Total sections</div>
-                </div>
-
-                <div className="p-4 border border-gray-200 rounded-xl hover:border-primary-300 transition-colors">
-                  <div className="flex items-center gap-3 mb-3">
-                    <Image className="w-5 h-5 text-green-600" />
-                    <span className="font-medium text-gray-900 font-primary">Images</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 font-heading">
-                    {project.sections.reduce((count: number, section: any) => {
-                      const imageFields = JSON.stringify(section.data).match(/https?:\/\/[^\s"]+\.(jpg|jpeg|png|gif|webp)/gi);
-                      return count + (imageFields ? imageFields.length : 0);
-                    }, 0)}
-                  </div>
-                  <div className="text-sm text-gray-600 font-primary">Total images</div>
-                </div>
-
-                <div className="p-4 border border-gray-200 rounded-xl hover:border-primary-300 transition-colors">
-                  <div className="flex items-center gap-3 mb-3">
-                    <FileText className="w-5 h-5 text-blue-600" />
-                    <span className="font-medium text-gray-900 font-primary">Text Content</span>
-                  </div>
-                  <div className="text-2xl font-bold text-gray-900 font-heading">
-                    {Math.round(JSON.stringify(project.sections).length / 1024)}KB
-                  </div>
-                  <div className="text-sm text-gray-600 font-primary">Content size</div>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 font-heading">Content Management</h3>
+                <div className="flex items-center gap-3">
+                  <button className="px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Content
+                  </button>
+                  <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Backup
+                  </button>
                 </div>
               </div>
 
-              <div className="mt-6 flex gap-3">
-                <button
-                  onClick={() => navigate(`/editor/${project.id}`)}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-                >
-                  <Edit className="w-4 h-4" />
-                  Edit Content
-                </button>
-                
-                <button
-                  onClick={() => navigate(`/preview/${project.id}`)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
-                >
-                  <Eye className="w-4 h-4" />
-                  Preview
-                </button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center p-6 border border-gray-200 rounded-xl">
+                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Layers className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 mb-2 font-heading">
+                    {currentProject.sections.length}
+                  </div>
+                  <div className="text-gray-600 font-primary">Total Sections</div>
+                </div>
+
+                <div className="text-center p-6 border border-gray-200 rounded-xl">
+                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 mb-2 font-heading">
+                    {currentProject.sections.filter(s => s.data?.title || s.data?.name).length}
+                  </div>
+                  <div className="text-gray-600 font-primary">Content Blocks</div>
+                </div>
+
+                <div className="text-center p-6 border border-gray-200 rounded-xl">
+                  <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <Image className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div className="text-2xl font-bold text-gray-900 mb-2 font-heading">
+                    {currentProject.sections.filter(s => s.data?.image || s.data?.backgroundImage).length}
+                  </div>
+                  <div className="text-gray-600 font-primary">Images</div>
+                </div>
               </div>
             </div>
+
+            {/* Page Performance by Section */}
+            {analyticsData && (
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Page Performance</h3>
+                
+                <div className="space-y-4">
+                  {analyticsData.topPages.map((page, index) => (
+                    <div key={page.page} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
+                          <Globe className="w-5 h-5 text-gray-600" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900 font-primary">{page.page}</div>
+                          <div className="text-sm text-gray-600 font-primary">
+                            {page.views} views • {formatDuration(page.avgTime)} avg. time
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className="text-lg font-bold text-gray-900 font-heading">{page.views}</div>
+                          <div className="text-sm text-gray-600 font-primary">Views</div>
+                        </div>
+                        <button className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                          <ExternalLink className="w-4 h-4 text-gray-600" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
 
@@ -1378,62 +1413,24 @@ const SiteAdmin: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
+            className="space-y-8"
           >
+            {/* Website Settings */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 font-heading">Website Settings</h2>
-                <div className="flex items-center gap-3">
-                  {!isEditing ? (
-                    <button
-                      onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit
-                    </button>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setIsEditing(false)}
-                        className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
-                      >
-                        <X className="w-4 h-4" />
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleSaveProject}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-medium font-primary"
-                      >
-                        <Save className="w-4 h-4" />
-                        Save
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Website Settings</h3>
               
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website Name</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={editForm.name}
-                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
-                      />
-                    ) : (
-                      <input
-                        type="text"
-                        value={project.name}
-                        readOnly
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
-                      />
-                    )}
+                    <input
+                      type="text"
+                      value={currentProject.name}
+                      onChange={(e) => updateProject(currentProject.id, { name: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
+                    />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Website URL</label>
                     <div className="flex items-center">
@@ -1442,9 +1439,9 @@ const SiteAdmin: React.FC = () => {
                       </span>
                       <input
                         type="text"
-                        value={project.websiteUrl}
-                        readOnly
-                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl bg-gray-50 text-gray-600 font-mono"
+                        value={currentProject.websiteUrl}
+                        onChange={(e) => updateProject(currentProject.id, { websiteUrl: e.target.value })}
+                        className="flex-1 px-4 py-3 border border-gray-300 rounded-r-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono"
                       />
                     </div>
                   </div>
@@ -1452,178 +1449,114 @@ const SiteAdmin: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Description</label>
-                  {isEditing ? (
-                    <textarea
-                      value={editForm.description}
-                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none font-primary"
-                      placeholder="Enter website description"
-                    />
-                  ) : (
-                    <textarea
-                      value={project.description || 'No description provided'}
-                      readOnly
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 resize-none font-primary"
-                    />
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category</label>
-                    {isEditing ? (
-                      <select
-                        value={editForm.category}
-                        onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
-                      >
-                        <option value="business">Business</option>
-                        <option value="personal">Personal</option>
-                        <option value="portfolio">Portfolio</option>
-                        <option value="ecommerce">E-commerce</option>
-                        <option value="education">Education</option>
-                        <option value="photography">Photography</option>
-                        <option value="music">Music</option>
-                        <option value="restaurant">Restaurant</option>
-                        <option value="automotive">Automotive</option>
-                        <option value="realestate">Real Estate</option>
-                        <option value="gaming">Gaming</option>
-                      </select>
-                    ) : (
-                      <input
-                        type="text"
-                        value={project.category || 'General'}
-                        readOnly
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
-                      />
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Theme</label>
-                    <input
-                      type="text"
-                      value={project.themeId || 'Default'}
-                      readOnly
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">SEO Keywords</label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editForm.seoKeywords}
-                      onChange={(e) => setEditForm({ ...editForm, seoKeywords: e.target.value })}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-primary"
-                      placeholder="Enter keywords separated by commas"
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={project.seoKeywords?.join(', ') || 'No keywords set'}
-                      readOnly
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-600 font-primary"
-                    />
-                  )}
+                  <textarea
+                    value={currentProject.description || ''}
+                    onChange={(e) => updateProject(currentProject.id, { description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none font-primary"
+                    placeholder="Enter website description..."
+                  />
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                   <div>
                     <div className="font-medium text-gray-900 font-primary">Published Status</div>
-                    <div className="text-sm text-gray-600 font-primary">Website is currently {project.isPublished ? 'live' : 'draft'}</div>
+                    <div className="text-sm text-gray-600 font-primary">
+                      {currentProject.isPublished ? 'Your website is live and accessible to visitors' : 'Your website is in draft mode'}
+                    </div>
                   </div>
-                  <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    project.isPublished 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {project.isPublished ? 'Published' : 'Draft'}
-                  </div>
+                  <button
+                    onClick={() => updateProject(currentProject.id, { isPublished: !currentProject.isPublished })}
+                    className={`px-6 py-3 rounded-xl font-medium transition-colors ${
+                      currentProject.isPublished
+                        ? 'bg-red-600 text-white hover:bg-red-700'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
+                  >
+                    {currentProject.isPublished ? 'Unpublish' : 'Publish'}
+                  </button>
                 </div>
-                
-                {/* Action Buttons */}
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="flex flex-wrap gap-3">
-                    {project.isPublished && (
-                      <button
-                        onClick={handleUnpublishProject}
-                        className="flex items-center gap-2 px-4 py-2 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-colors font-medium font-primary"
-                      >
-                        <Globe className="w-4 h-4" />
-                        Unpublish Website
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={() => navigate(`/editor/${project.id}`)}
-                      className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
-                    >
-                      <Edit className="w-4 h-4" />
-                      Edit Website
-                    </button>
-                    
-                    <button
-                      onClick={() => setShowDeleteConfirm(true)}
-                      className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      Delete Website
-                    </button>
+              </div>
+            </div>
+
+            {/* Analytics Settings */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Analytics Settings</h3>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div>
+                    <div className="font-medium text-gray-900 font-primary">Analytics Tracking</div>
+                    <div className="text-sm text-gray-600 font-primary">Collect visitor data and website performance metrics</div>
                   </div>
+                  <button className="w-12 h-6 bg-primary-600 rounded-full">
+                    <div className="w-5 h-5 bg-white rounded-full translate-x-6 transition-transform"></div>
+                  </button>
                 </div>
 
-                <div className="pt-4 border-t border-gray-200">
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span className="font-primary">Created: {new Date(project.createdAt).toLocaleDateString()}</span>
-                    <span className="font-primary">Last Updated: {new Date(project.updatedAt).toLocaleDateString()}</span>
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div>
+                    <div className="font-medium text-gray-900 font-primary">Real-time Monitoring</div>
+                    <div className="text-sm text-gray-600 font-primary">Monitor visitor activity in real-time</div>
                   </div>
+                  <button className="w-12 h-6 bg-primary-600 rounded-full">
+                    <div className="w-5 h-5 bg-white rounded-full translate-x-6 transition-transform"></div>
+                  </button>
                 </div>
+
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div>
+                    <div className="font-medium text-gray-900 font-primary">Performance Monitoring</div>
+                    <div className="text-sm text-gray-600 font-primary">Track page load times and performance metrics</div>
+                  </div>
+                  <button className="w-12 h-6 bg-primary-600 rounded-full">
+                    <div className="w-5 h-5 bg-white rounded-full translate-x-6 transition-transform"></div>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Data Management */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Data Management</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Download className="w-5 h-5 text-primary-600" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900 font-primary">Export Analytics Data</div>
+                    <div className="text-sm text-gray-600 font-primary">Download all analytics data as CSV</div>
+                  </div>
+                </button>
+
+                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900 font-primary">Clear Analytics Data</div>
+                    <div className="text-sm text-gray-600 font-primary">Remove all collected analytics data</div>
+                  </div>
+                </button>
+
+                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Save className="w-5 h-5 text-green-600" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900 font-primary">Backup Website</div>
+                    <div className="text-sm text-gray-600 font-primary">Create a complete backup of your website</div>
+                  </div>
+                </button>
+
+                <button className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+                  <Upload className="w-5 h-5 text-blue-600" />
+                  <div className="text-left">
+                    <div className="font-medium text-gray-900 font-primary">Restore Backup</div>
+                    <div className="text-sm text-gray-600 font-primary">Restore website from a backup file</div>
+                  </div>
+                </button>
               </div>
             </div>
           </motion.div>
         )}
       </div>
-      
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl p-6 w-full max-w-md"
-          >
-            <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertCircle className="w-8 h-8 text-red-600" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 font-heading">Delete Website</h3>
-              <p className="text-gray-600 font-primary">
-                Are you sure you want to permanently delete "{project.name}"? This action cannot be undone and will remove all content and analytics data.
-              </p>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDeleteProject}
-                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-              >
-                Delete Forever
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 };

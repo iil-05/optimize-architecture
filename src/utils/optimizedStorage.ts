@@ -429,6 +429,156 @@ export class OptimizedStorageManager {
     }
   }
 
+  // Enhanced analytics methods for SiteAdmin
+  public getAnalyticsForProject(projectId: string): any[] {
+    const table = this.getAnalyticsTable();
+    if (!table) return [];
+    
+    return table.data
+      .filter((item: any) => item.projectId === projectId)
+      .map((item: any) => ({
+        ...item,
+        timestamp: new Date(item.timestamp)
+      }))
+      .sort((a: any, b: any) => b.timestamp.getTime() - a.timestamp.getTime());
+  }
+
+  public getAnalyticsSummary(projectId: string, dateRange?: { start: Date; end: Date }): any {
+    const events = this.getAnalyticsForProject(projectId);
+    
+    // Filter by date range if provided
+    const filteredEvents = dateRange 
+      ? events.filter(event => 
+          event.timestamp >= dateRange.start && event.timestamp <= dateRange.end
+        )
+      : events;
+
+    // Group events by type
+    const eventsByType = filteredEvents.reduce((acc, event) => {
+      if (!acc[event.type]) acc[event.type] = [];
+      acc[event.type].push(event);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    return {
+      totalEvents: filteredEvents.length,
+      eventTypes: Object.keys(eventsByType),
+      eventsByType,
+      dateRange: {
+        start: filteredEvents.length > 0 ? new Date(Math.min(...filteredEvents.map(e => e.timestamp.getTime()))) : null,
+        end: filteredEvents.length > 0 ? new Date(Math.max(...filteredEvents.map(e => e.timestamp.getTime()))) : null,
+      },
+      uniqueVisitors: new Set(filteredEvents.map(e => e.data?.visitorId).filter(Boolean)).size,
+      uniqueSessions: new Set(filteredEvents.map(e => e.data?.sessionId).filter(Boolean)).size,
+    };
+  }
+
+  public exportAnalyticsData(projectId: string): string {
+    const events = this.getAnalyticsForProject(projectId);
+    const summary = this.getAnalyticsSummary(projectId);
+    
+    const exportData = {
+      metadata: {
+        projectId,
+        exportedAt: new Date().toISOString(),
+        totalEvents: events.length,
+        dateRange: summary.dateRange,
+      },
+      summary,
+      events: events.map(event => ({
+        ...event,
+        timestamp: event.timestamp.toISOString(),
+      })),
+    };
+
+    return JSON.stringify(exportData, null, 2);
+  }
+
+  public clearAnalyticsForProject(projectId: string): void {
+    const table = this.getAnalyticsTable();
+    if (!table) return;
+    
+    table.data = table.data.filter((item: any) => item.projectId !== projectId);
+    table.metadata.lastUpdated = new Date().toISOString();
+    table.metadata.totalRecords = table.data.length;
+    
+    this.saveToStorage(this.STORAGE_KEYS.ANALYTICS_DATA, table);
+    console.log('🧹 Analytics data cleared for project:', projectId);
+  }
+
+  public getAnalyticsMetrics(projectId: string): {
+    totalEvents: number;
+    uniqueVisitors: number;
+    pageViews: number;
+    conversions: number;
+    averageSessionDuration: number;
+    topCountries: { country: string; count: number }[];
+    topDevices: { device: string; count: number }[];
+    topBrowsers: { browser: string; count: number }[];
+  } {
+    const events = this.getAnalyticsForProject(projectId);
+    
+    const pageVisits = events.filter(e => e.type === 'page_visit');
+    const conversions = events.filter(e => e.type === 'conversion');
+    const timeSpentEvents = events.filter(e => e.type === 'time_spent');
+    
+    // Calculate metrics
+    const uniqueVisitors = new Set(pageVisits.map(e => e.data?.visitorId).filter(Boolean)).size;
+    const averageSessionDuration = timeSpentEvents.length > 0
+      ? timeSpentEvents.reduce((sum, e) => sum + (e.data?.totalTime || 0), 0) / timeSpentEvents.length / 1000
+      : 0;
+
+    // Top countries
+    const countryCount = events
+      .filter(e => e.data?.country)
+      .reduce((acc, e) => {
+        const country = e.data.country;
+        acc[country] = (acc[country] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const topCountries = Object.entries(countryCount)
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Top devices
+    const deviceCount = events
+      .filter(e => e.data?.device)
+      .reduce((acc, e) => {
+        const device = e.data.device;
+        acc[device] = (acc[device] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const topDevices = Object.entries(deviceCount)
+      .map(([device, count]) => ({ device, count }))
+      .sort((a, b) => b.count - a.count);
+
+    // Top browsers
+    const browserCount = events
+      .filter(e => e.data?.browser)
+      .reduce((acc, e) => {
+        const browser = e.data.browser;
+        acc[browser] = (acc[browser] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const topBrowsers = Object.entries(browserCount)
+      .map(([browser, count]) => ({ browser, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      totalEvents: events.length,
+      uniqueVisitors,
+      pageViews: pageVisits.length,
+      conversions: conversions.length,
+      averageSessionDuration,
+      topCountries,
+      topDevices,
+      topBrowsers,
+    };
+  }
   private getOrCreateSessionId(): string {
     let sessionId = sessionStorage.getItem('templates_uz_session_id');
     if (!sessionId) {
