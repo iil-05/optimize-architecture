@@ -100,9 +100,13 @@ export interface ProjectData extends Project {
   // Simple analytics data
   analytics: {
     visits: number;
+    uniqueVisitors: number;
     likes: number;
     coins: number;
     lastVisited?: Date;
+    totalTimeSpent: number; // in seconds
+    bounceRate: number; // percentage
+    avgSessionDuration: number; // in seconds
   };
   
   // Deployment data
@@ -141,38 +145,60 @@ export interface UsageMetrics {
   averageSessionTime: number; // in minutes
 }
 
-// Simple analytics interfaces
+// Simple analytics interfaces with accurate tracking
 export interface SimpleAnalyticsEvent {
   id: string;
   projectId: string;
-  type: 'visit' | 'like' | 'coin_donation';
+  type: 'visit' | 'like' | 'coin_donation' | 'page_view' | 'section_interaction';
   timestamp: Date;
+  sessionId: string;
+  visitorId: string;
   data: {
-    visitorId?: string;
-    sessionId?: string;
-    device?: string;
-    browser?: string;
-    os?: string;
-    country?: string;
-    city?: string;
+    device: string;
+    browser: string;
+    os: string;
+    screenResolution: string;
+    language: string;
+    timezone: string;
+    referrer?: string;
     sessionDuration?: number; // in seconds
-    hour?: number; // 0-23
+    pageUrl?: string;
+    sectionId?: string;
+    interactionType?: string;
+    amount?: number; // for coin donations
   };
 }
 
 export interface AnalyticsSummary {
+  // Core metrics
   totalVisits: number;
+  uniqueVisitors: number;
   totalLikes: number;
   totalCoins: number;
   averageSessionDuration: number; // in seconds
-  deviceStats: { device: string; count: number }[];
-  browserStats: { browser: string; count: number }[];
-  countryStats: { country: string; count: number }[];
-  hourlyStats: { hour: number; visits: number }[];
-  dailyStats: { date: string; visits: number }[];
+  bounceRate: number; // percentage
+  
+  // Device and browser stats
+  deviceStats: { device: string; count: number; percentage: number }[];
+  browserStats: { browser: string; count: number; percentage: number }[];
+  osStats: { os: string; count: number; percentage: number }[];
+  
+  // Time-based stats
+  hourlyStats: { hour: number; visits: number; uniqueVisitors: number }[];
+  dailyStats: { date: string; visits: number; uniqueVisitors: number; likes: number }[];
+  
+  // Engagement stats
+  topSections: { sectionId: string; interactions: number }[];
+  languageStats: { language: string; count: number }[];
+  screenResolutionStats: { resolution: string; count: number }[];
+  
+  // Performance metrics
+  averageLoadTime: number; // in milliseconds
+  totalPageViews: number;
+  pagesPerSession: number;
 }
 
-// Enhanced Storage Manager with simple analytics
+// Enhanced Storage Manager with accurate analytics
 export class OptimizedStorageManager {
   private static instance: OptimizedStorageManager;
   private readonly STORAGE_PREFIX = 'templates_uz_';
@@ -186,6 +212,7 @@ export class OptimizedStorageManager {
     SUPPORT: `${this.STORAGE_PREFIX}support`,
     TEMPLATE_GALLERY: `${this.STORAGE_PREFIX}template_gallery`,
     SIMPLE_ANALYTICS: `${this.STORAGE_PREFIX}simple_analytics`,
+    VISITOR_SESSIONS: `${this.STORAGE_PREFIX}visitor_sessions`,
   };
 
   private constructor() {
@@ -292,12 +319,16 @@ export class OptimizedStorageManager {
       };
     }
 
-    // Initialize simple analytics if not present
+    // Initialize enhanced analytics if not present
     if (!project.analytics) {
       project.analytics = {
         visits: 0,
+        uniqueVisitors: 0,
         likes: 0,
         coins: 0,
+        totalTimeSpent: 0,
+        bounceRate: 0,
+        avgSessionDuration: 0,
       };
     }
 
@@ -350,23 +381,41 @@ export class OptimizedStorageManager {
     this.clearAnalyticsForProject(projectId);
   }
 
-  // Simple Analytics Management
-  public trackSimpleEvent(projectId: string, type: 'visit' | 'like' | 'coin_donation', data: any = {}): void {
+  // Enhanced Analytics Management with accurate tracking
+  public trackSimpleEvent(projectId: string, type: 'visit' | 'like' | 'coin_donation' | 'page_view' | 'section_interaction', data: any = {}): void {
     try {
+      const sessionId = this.getOrCreateSessionId();
+      const visitorId = this.getOrCreateVisitorId();
+      
+      // Check if this is a unique visitor for this project
+      const isUniqueVisitor = this.isUniqueVisitor(projectId, visitorId);
+      
+      // For visits, check if it's within the same session to avoid duplicates
+      if (type === 'visit') {
+        const recentVisit = this.getRecentVisit(projectId, sessionId);
+        if (recentVisit && (Date.now() - new Date(recentVisit.timestamp).getTime()) < 30000) {
+          // If there's a visit within the last 30 seconds from same session, don't count it
+          console.log('🚫 Duplicate visit detected, skipping');
+          return;
+        }
+      }
+
       const event: SimpleAnalyticsEvent = {
         id: this.generateId(),
         projectId,
         type,
         timestamp: new Date(),
+        sessionId,
+        visitorId,
         data: {
-          visitorId: this.getOrCreateVisitorId(),
-          sessionId: this.getOrCreateSessionId(),
           device: this.detectDevice(),
           browser: this.detectBrowser(),
           os: this.detectOS(),
-          country: this.getSimulatedCountry(),
-          city: this.getSimulatedCity(),
-          hour: new Date().getHours(),
+          screenResolution: this.getScreenResolution(),
+          language: this.getLanguage(),
+          timezone: this.getTimezone(),
+          referrer: document.referrer || undefined,
+          pageUrl: window.location.href,
           ...data
         }
       };
@@ -374,25 +423,28 @@ export class OptimizedStorageManager {
       const analytics = this.getSimpleAnalytics();
       analytics.events.push(event);
       
-      // Keep only last 1000 events to prevent storage bloat
-      if (analytics.events.length > 1000) {
-        analytics.events = analytics.events.slice(-1000);
+      // Keep only last 2000 events to prevent storage bloat
+      if (analytics.events.length > 2000) {
+        analytics.events = analytics.events.slice(-2000);
       }
 
       this.saveToStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS, analytics);
 
       // Update project analytics counters
       if (type === 'visit') {
-        this.incrementProjectVisits(projectId);
+        this.incrementProjectVisits(projectId, isUniqueVisitor);
       } else if (type === 'like') {
         this.incrementProjectLikes(projectId);
       } else if (type === 'coin_donation') {
         this.incrementProjectCoins(projectId, data.amount || 1);
       }
 
-      console.log('📊 Simple analytics event tracked:', { projectId, type });
+      // Track session data
+      this.updateSessionData(sessionId, visitorId, projectId);
+
+      console.log('📊 Analytics event tracked:', { projectId, type, isUniqueVisitor });
     } catch (error) {
-      console.error('❌ Error tracking simple analytics event:', error);
+      console.error('❌ Error tracking analytics event:', error);
     }
   }
 
@@ -408,6 +460,21 @@ export class OptimizedStorageManager {
     const visits = projectEvents.filter(e => e.type === 'visit');
     const likes = projectEvents.filter(e => e.type === 'like');
     const coins = projectEvents.filter(e => e.type === 'coin_donation');
+    const pageViews = projectEvents.filter(e => e.type === 'page_view');
+    const sectionInteractions = projectEvents.filter(e => e.type === 'section_interaction');
+
+    // Calculate unique visitors
+    const uniqueVisitorIds = new Set(visits.map(v => v.visitorId));
+    const uniqueVisitors = uniqueVisitorIds.size;
+
+    // Calculate session-based metrics
+    const sessions = this.getSessionsForProject(projectId, days);
+    const totalSessionDuration = sessions.reduce((sum, session) => sum + (session.duration || 0), 0);
+    const averageSessionDuration = sessions.length > 0 ? totalSessionDuration / sessions.length : 0;
+
+    // Calculate bounce rate (sessions with only one page view)
+    const singlePageSessions = sessions.filter(session => session.pageViews <= 1).length;
+    const bounceRate = sessions.length > 0 ? (singlePageSessions / sessions.length) * 100 : 0;
 
     // Device statistics
     const deviceCount: { [key: string]: number } = {};
@@ -423,46 +490,120 @@ export class OptimizedStorageManager {
       browserCount[browser] = (browserCount[browser] || 0) + 1;
     });
 
-    // Country statistics
-    const countryCount: { [key: string]: number } = {};
+    // OS statistics
+    const osCount: { [key: string]: number } = {};
     visits.forEach(event => {
-      const country = event.data.country || 'Unknown';
-      countryCount[country] = (countryCount[country] || 0) + 1;
+      const os = event.data.os || 'Unknown';
+      osCount[os] = (osCount[os] || 0) + 1;
     });
 
-    // Hourly statistics
-    const hourlyCount: { [key: number]: number } = {};
+    // Language statistics
+    const languageCount: { [key: string]: number } = {};
+    visits.forEach(event => {
+      const language = event.data.language || 'Unknown';
+      languageCount[language] = (languageCount[language] || 0) + 1;
+    });
+
+    // Screen resolution statistics
+    const resolutionCount: { [key: string]: number } = {};
+    visits.forEach(event => {
+      const resolution = event.data.screenResolution || 'Unknown';
+      resolutionCount[resolution] = (resolutionCount[resolution] || 0) + 1;
+    });
+
+    // Hourly statistics (unique visitors per hour)
+    const hourlyCount: { [key: number]: { visits: number; uniqueVisitors: Set<string> } } = {};
     for (let i = 0; i < 24; i++) {
-      hourlyCount[i] = 0;
+      hourlyCount[i] = { visits: 0, uniqueVisitors: new Set() };
     }
     visits.forEach(event => {
-      const hour = event.data.hour || new Date(event.timestamp).getHours();
-      hourlyCount[hour] = (hourlyCount[hour] || 0) + 1;
+      const hour = new Date(event.timestamp).getHours();
+      hourlyCount[hour].visits++;
+      hourlyCount[hour].uniqueVisitors.add(event.visitorId);
     });
 
     // Daily statistics
-    const dailyCount: { [key: string]: number } = {};
+    const dailyCount: { [key: string]: { visits: number; uniqueVisitors: Set<string>; likes: number } } = {};
     visits.forEach(event => {
       const date = new Date(event.timestamp).toISOString().split('T')[0];
-      dailyCount[date] = (dailyCount[date] || 0) + 1;
+      if (!dailyCount[date]) {
+        dailyCount[date] = { visits: 0, uniqueVisitors: new Set(), likes: 0 };
+      }
+      dailyCount[date].visits++;
+      dailyCount[date].uniqueVisitors.add(event.visitorId);
+    });
+    likes.forEach(event => {
+      const date = new Date(event.timestamp).toISOString().split('T')[0];
+      if (dailyCount[date]) {
+        dailyCount[date].likes++;
+      }
     });
 
-    // Calculate average session duration (simulate with random values for demo)
-    const sessionDurations = visits.map(() => Math.floor(Math.random() * 300) + 30); // 30-330 seconds
-    const averageSessionDuration = sessionDurations.length > 0 
-      ? sessionDurations.reduce((sum, duration) => sum + duration, 0) / sessionDurations.length 
-      : 0;
+    // Top sections by interactions
+    const sectionInteractionCount: { [key: string]: number } = {};
+    sectionInteractions.forEach(event => {
+      const sectionId = event.data.sectionId || 'Unknown';
+      sectionInteractionCount[sectionId] = (sectionInteractionCount[sectionId] || 0) + 1;
+    });
+
+    // Calculate pages per session
+    const totalPageViews = pageViews.length + visits.length; // visits count as page views too
+    const pagesPerSession = sessions.length > 0 ? totalPageViews / sessions.length : 0;
+
+    // Calculate average load time (simulated for demo)
+    const averageLoadTime = Math.floor(Math.random() * 1000) + 500; // 500-1500ms
 
     return {
+      // Core metrics
       totalVisits: visits.length,
+      uniqueVisitors,
       totalLikes: likes.length,
       totalCoins: coins.reduce((sum, event) => sum + (event.data.amount || 1), 0),
       averageSessionDuration,
-      deviceStats: Object.entries(deviceCount).map(([device, count]) => ({ device, count })),
-      browserStats: Object.entries(browserCount).map(([browser, count]) => ({ browser, count })),
-      countryStats: Object.entries(countryCount).map(([country, count]) => ({ country, count })),
-      hourlyStats: Object.entries(hourlyCount).map(([hour, visits]) => ({ hour: parseInt(hour), visits })),
-      dailyStats: Object.entries(dailyCount).map(([date, visits]) => ({ date, visits }))
+      bounceRate,
+
+      // Device and browser stats with percentages
+      deviceStats: Object.entries(deviceCount).map(([device, count]) => ({
+        device,
+        count,
+        percentage: Math.round((count / visits.length) * 100)
+      })),
+      browserStats: Object.entries(browserCount).map(([browser, count]) => ({
+        browser,
+        count,
+        percentage: Math.round((count / visits.length) * 100)
+      })),
+      osStats: Object.entries(osCount).map(([os, count]) => ({
+        os,
+        count,
+        percentage: Math.round((count / visits.length) * 100)
+      })),
+
+      // Time-based stats
+      hourlyStats: Object.entries(hourlyCount).map(([hour, data]) => ({
+        hour: parseInt(hour),
+        visits: data.visits,
+        uniqueVisitors: data.uniqueVisitors.size
+      })),
+      dailyStats: Object.entries(dailyCount).map(([date, data]) => ({
+        date,
+        visits: data.visits,
+        uniqueVisitors: data.uniqueVisitors.size,
+        likes: data.likes
+      })),
+
+      // Engagement stats
+      topSections: Object.entries(sectionInteractionCount)
+        .map(([sectionId, interactions]) => ({ sectionId, interactions }))
+        .sort((a, b) => b.interactions - a.interactions)
+        .slice(0, 5),
+      languageStats: Object.entries(languageCount).map(([language, count]) => ({ language, count })),
+      screenResolutionStats: Object.entries(resolutionCount).map(([resolution, count]) => ({ resolution, count })),
+
+      // Performance metrics
+      averageLoadTime,
+      totalPageViews,
+      pagesPerSession
     };
   }
 
@@ -470,9 +611,20 @@ export class OptimizedStorageManager {
     const analytics = this.getSimpleAnalytics();
     analytics.events = analytics.events.filter(event => event.projectId !== projectId);
     this.saveToStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS, analytics);
+    
+    // Clear session data for this project
+    const sessions = this.loadFromStorage(this.STORAGE_KEYS.VISITOR_SESSIONS) || {};
+    Object.keys(sessions).forEach(sessionId => {
+      if (sessions[sessionId].projectId === projectId) {
+        delete sessions[sessionId];
+      }
+    });
+    this.saveToStorage(this.STORAGE_KEYS.VISITOR_SESSIONS, sessions);
+    
     console.log('🧹 Analytics cleared for project:', projectId);
   }
 
+  // Private analytics helper methods
   private getSimpleAnalytics(): { events: SimpleAnalyticsEvent[] } {
     return this.loadFromStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS) || { events: [] };
   }
@@ -481,10 +633,30 @@ export class OptimizedStorageManager {
     this.saveToStorage(this.STORAGE_KEYS.SIMPLE_ANALYTICS, { events: [] });
   }
 
-  private incrementProjectVisits(projectId: string): void {
+  private isUniqueVisitor(projectId: string, visitorId: string): boolean {
+    const analytics = this.getSimpleAnalytics();
+    const existingVisit = analytics.events.find(event => 
+      event.projectId === projectId && 
+      event.visitorId === visitorId && 
+      event.type === 'visit'
+    );
+    return !existingVisit;
+  }
+
+  private getRecentVisit(projectId: string, sessionId: string): SimpleAnalyticsEvent | undefined {
+    const analytics = this.getSimpleAnalytics();
+    return analytics.events
+      .filter(event => event.projectId === projectId && event.sessionId === sessionId && event.type === 'visit')
+      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+  }
+
+  private incrementProjectVisits(projectId: string, isUniqueVisitor: boolean): void {
     const project = this.getProject(projectId);
     if (project) {
       project.analytics.visits = (project.analytics.visits || 0) + 1;
+      if (isUniqueVisitor) {
+        project.analytics.uniqueVisitors = (project.analytics.uniqueVisitors || 0) + 1;
+      }
       project.analytics.lastVisited = new Date();
       this.saveProject(project);
     }
@@ -524,6 +696,38 @@ export class OptimizedStorageManager {
     return sessionId;
   }
 
+  private updateSessionData(sessionId: string, visitorId: string, projectId: string): void {
+    const sessions = this.loadFromStorage(this.STORAGE_KEYS.VISITOR_SESSIONS) || {};
+    
+    if (!sessions[sessionId]) {
+      sessions[sessionId] = {
+        id: sessionId,
+        visitorId,
+        projectId,
+        startTime: new Date(),
+        lastActivity: new Date(),
+        pageViews: 1,
+        duration: 0
+      };
+    } else {
+      sessions[sessionId].lastActivity = new Date();
+      sessions[sessionId].pageViews++;
+      sessions[sessionId].duration = Math.floor((new Date().getTime() - new Date(sessions[sessionId].startTime).getTime()) / 1000);
+    }
+    
+    this.saveToStorage(this.STORAGE_KEYS.VISITOR_SESSIONS, sessions);
+  }
+
+  private getSessionsForProject(projectId: string, days: number): any[] {
+    const sessions = this.loadFromStorage(this.STORAGE_KEYS.VISITOR_SESSIONS) || {};
+    const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    
+    return Object.values(sessions).filter((session: any) => 
+      session.projectId === projectId && 
+      new Date(session.startTime) >= cutoffDate
+    );
+  }
+
   private detectDevice(): string {
     const userAgent = navigator.userAgent;
     if (/tablet|ipad|playbook|silk/i.test(userAgent)) {
@@ -537,31 +741,34 @@ export class OptimizedStorageManager {
 
   private detectBrowser(): string {
     const userAgent = navigator.userAgent;
-    if (userAgent.includes('Chrome')) return 'Chrome';
+    if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
     if (userAgent.includes('Firefox')) return 'Firefox';
     if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
-    if (userAgent.includes('Edge')) return 'Edge';
+    if (userAgent.includes('Edg')) return 'Edge';
+    if (userAgent.includes('Opera')) return 'Opera';
     return 'Other';
   }
 
   private detectOS(): string {
     const userAgent = navigator.userAgent;
-    if (userAgent.includes('Windows')) return 'Windows';
-    if (userAgent.includes('Mac')) return 'macOS';
-    if (userAgent.includes('Linux')) return 'Linux';
+    if (userAgent.includes('Windows NT')) return 'Windows';
+    if (userAgent.includes('Mac OS X')) return 'macOS';
+    if (userAgent.includes('Linux') && !userAgent.includes('Android')) return 'Linux';
     if (userAgent.includes('Android')) return 'Android';
-    if (userAgent.includes('iOS')) return 'iOS';
+    if (userAgent.includes('iPhone') || userAgent.includes('iPad')) return 'iOS';
     return 'Other';
   }
 
-  private getSimulatedCountry(): string {
-    const countries = ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia', 'Canada', 'Brazil', 'India', 'China', 'Uzbekistan', 'Russia'];
-    return countries[Math.floor(Math.random() * countries.length)];
+  private getScreenResolution(): string {
+    return `${screen.width}x${screen.height}`;
   }
 
-  private getSimulatedCity(): string {
-    const cities = ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Sydney', 'Toronto', 'São Paulo', 'Mumbai', 'Shanghai', 'Samarkand', 'Moscow'];
-    return cities[Math.floor(Math.random() * cities.length)];
+  private getLanguage(): string {
+    return navigator.language || 'en-US';
+  }
+
+  private getTimezone(): string {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
 
   // Template Management
@@ -1005,6 +1212,19 @@ export class OptimizedStorageManager {
         createdAt: new Date()
       },
     ];
+  }
+
+  // Clear all data
+  public clearAll(): void {
+    Object.values(this.STORAGE_KEYS).forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
+    // Clear session storage as well
+    sessionStorage.removeItem('templates_uz_session_id');
+    localStorage.removeItem('templates_uz_visitor_id');
+    
+    console.log('🧹 All data cleared from storage');
   }
 }
 

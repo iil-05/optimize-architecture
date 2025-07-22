@@ -1,7 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BarChart3, Users, Heart, Coins, Globe, Smartphone, Monitor, Tablet, Chrome, Siren as Firefox, Variable as Safari, Clock, Calendar, TrendingUp, MapPin, Eye, Activity } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  BarChart3, 
+  Users, 
+  Heart, 
+  Coins, 
+  Globe, 
+  Smartphone, 
+  Monitor, 
+  Tablet, 
+  Chrome, 
+  Eye, 
+  Activity,
+  Clock,
+  Calendar,
+  TrendingUp,
+  MousePointer,
+  Zap,
+  Target,
+  Timer,
+  Languages,
+  Maximize,
+  Wifi
+} from 'lucide-react';
 import {
   AreaChart,
   Area,
@@ -93,7 +116,9 @@ const SiteAdmin: React.FC = () => {
     purple: '#8b5cf6',
     pink: '#ec4899',
     indigo: '#6366f1',
-    orange: '#f97316'
+    orange: '#f97316',
+    emerald: '#059669',
+    violet: '#7c3aed'
   };
 
   // Device icons mapping
@@ -106,9 +131,10 @@ const SiteAdmin: React.FC = () => {
   // Browser icons mapping
   const browserIcons = {
     Chrome: Chrome,
-    Firefox: Firefox,
-    Safari: Safari,
+    Firefox: Wifi,
+    Safari: Globe,
     Edge: Globe,
+    Opera: Globe,
     Other: Globe
   };
 
@@ -116,34 +142,54 @@ const SiteAdmin: React.FC = () => {
   const deviceChartData = analytics?.deviceStats.map(stat => ({
     name: stat.device,
     value: stat.count,
-    percentage: Math.round((stat.count / analytics.totalVisits) * 100)
+    percentage: stat.percentage
   })) || [];
 
   const browserChartData = analytics?.browserStats.map(stat => ({
     name: stat.browser,
-    value: stat.count
+    value: stat.count,
+    percentage: stat.percentage
+  })) || [];
+
+  const osChartData = analytics?.osStats.map(stat => ({
+    name: stat.os,
+    value: stat.count,
+    percentage: stat.percentage
   })) || [];
 
   const hourlyChartData = analytics?.hourlyStats.map(stat => ({
     hour: `${stat.hour}:00`,
-    visits: stat.visits
+    visits: stat.visits,
+    uniqueVisitors: stat.uniqueVisitors
   })) || [];
 
   const dailyChartData = analytics?.dailyStats.slice(-7).map(stat => ({
     date: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    visits: stat.visits
+    visits: stat.visits,
+    uniqueVisitors: stat.uniqueVisitors,
+    likes: stat.likes
   })) || [];
 
-  const countryChartData = analytics?.countryStats.slice(0, 5).map(stat => ({
-    name: stat.country,
+  const languageChartData = analytics?.languageStats.slice(0, 5).map(stat => ({
+    name: stat.language,
+    value: stat.count
+  })) || [];
+
+  const resolutionChartData = analytics?.screenResolutionStats.slice(0, 5).map(stat => ({
+    name: stat.resolution,
     value: stat.count
   })) || [];
 
   // Format duration
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}m ${remainingSeconds}s`;
+  };
+
+  // Format percentage
+  const formatPercentage = (value: number) => {
+    return `${Math.round(value)}%`;
   };
 
   return (
@@ -166,7 +212,7 @@ const SiteAdmin: React.FC = () => {
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-gray-900 font-heading">{project.name} - Analytics</h1>
-                  <p className="text-sm text-gray-600 font-primary">Website performance insights</p>
+                  <p className="text-sm text-gray-600 font-primary">Real-time website insights</p>
                 </div>
               </div>
             </div>
@@ -199,71 +245,179 @@ const SiteAdmin: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Overview Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Overview Cards - Enhanced with 10+ statistics */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          {/* Total Visits */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-primary-100 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary-600" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+                <Eye className="w-5 h-5 text-primary-600" />
               </div>
-              <TrendingUp className="w-5 h-5 text-green-500" />
+              <TrendingUp className="w-4 h-4 text-green-500" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalVisits || 0}</h3>
-            <p className="text-gray-600 font-primary">Total Visits</p>
+            <p className="text-xs text-gray-500 font-medium font-primary">Total Visits</p>
           </motion.div>
 
+          {/* Unique Visitors */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                <Heart className="w-6 h-6 text-red-600" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 text-blue-600" />
               </div>
-              <Heart className="w-5 h-5 text-red-500" />
+              <Users className="w-4 h-4 text-blue-500" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalLikes || 0}</h3>
-            <p className="text-gray-600 font-primary">Likes</p>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.uniqueVisitors || 0}</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Unique Visitors</p>
           </motion.div>
 
+          {/* Likes */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                <Coins className="w-6 h-6 text-yellow-600" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                <Heart className="w-5 h-5 text-red-600" />
               </div>
-              <Coins className="w-5 h-5 text-yellow-500" />
+              <Heart className="w-4 h-4 text-red-500" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalCoins || 0}</h3>
-            <p className="text-gray-600 font-primary">Coins Donated</p>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalLikes || 0}</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Likes</p>
           </motion.div>
 
+          {/* Coins Donated */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                <Clock className="w-6 h-6 text-blue-600" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
+                <Coins className="w-5 h-5 text-yellow-600" />
               </div>
-              <Activity className="w-5 h-5 text-blue-500" />
+              <Coins className="w-4 h-4 text-yellow-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalCoins || 0}</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Coins Donated</p>
+          </motion.div>
+
+          {/* Average Session Duration */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 text-purple-600" />
+              </div>
+              <Timer className="w-4 h-4 text-purple-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-900 font-heading">
+              {formatDuration(analytics?.averageSessionDuration || 0)}
+            </h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Avg. Session</p>
+          </motion.div>
+
+          {/* Bounce Rate */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Target className="w-5 h-5 text-orange-600" />
+              </div>
+              <Activity className="w-4 h-4 text-orange-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{formatPercentage(analytics?.bounceRate || 0)}</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Bounce Rate</p>
+          </motion.div>
+
+          {/* Total Page Views */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <Globe className="w-5 h-5 text-green-600" />
+              </div>
+              <Eye className="w-4 h-4 text-green-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{analytics?.totalPageViews || 0}</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Page Views</p>
+          </motion.div>
+
+          {/* Pages Per Session */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+                <MousePointer className="w-5 h-5 text-indigo-600" />
+              </div>
+              <Zap className="w-4 h-4 text-indigo-500" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 font-heading">{(analytics?.pagesPerSession || 0).toFixed(1)}</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Pages/Session</p>
+          </motion.div>
+
+          {/* Average Load Time */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                <Zap className="w-5 h-5 text-emerald-600" />
+              </div>
+              <Activity className="w-4 h-4 text-emerald-500" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 font-heading">{analytics?.averageLoadTime || 0}ms</h3>
+            <p className="text-xs text-gray-500 font-medium font-primary">Avg. Load Time</p>
+          </motion.div>
+
+          {/* Top Section Interactions */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-white rounded-2xl p-4 shadow-lg border border-gray-200 hover:shadow-xl transition-all"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 bg-violet-100 rounded-xl flex items-center justify-center">
+                <MousePointer className="w-5 h-5 text-violet-600" />
+              </div>
+              <Target className="w-4 h-4 text-violet-500" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 font-heading">
-              {formatDuration(Math.round(analytics?.averageSessionDuration || 0))}
+              {analytics?.topSections.reduce((sum, section) => sum + section.interactions, 0) || 0}
             </h3>
-            <p className="text-gray-600 font-primary">Avg. Session</p>
+            <p className="text-xs text-gray-500 font-medium font-primary">Interactions</p>
           </motion.div>
         </div>
 
@@ -278,7 +432,7 @@ const SiteAdmin: React.FC = () => {
           >
             <div className="flex items-center gap-3 mb-6">
               <Calendar className="w-5 h-5 text-primary-600" />
-              <h3 className="text-lg font-semibold text-gray-900 font-heading">Daily Visits</h3>
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Daily Activity</h3>
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={dailyChartData}>
@@ -293,13 +447,36 @@ const SiteAdmin: React.FC = () => {
                     boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                   }} 
                 />
+                <Legend />
                 <Area 
                   type="monotone" 
                   dataKey="visits" 
+                  stackId="1"
                   stroke={colors.primary} 
                   fill={colors.primary}
-                  fillOpacity={0.1}
-                  strokeWidth={3}
+                  fillOpacity={0.3}
+                  strokeWidth={2}
+                  name="Total Visits"
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="uniqueVisitors" 
+                  stackId="2"
+                  stroke={colors.secondary} 
+                  fill={colors.secondary}
+                  fillOpacity={0.3}
+                  strokeWidth={2}
+                  name="Unique Visitors"
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="likes" 
+                  stackId="3"
+                  stroke={colors.success} 
+                  fill={colors.success}
+                  fillOpacity={0.3}
+                  strokeWidth={2}
+                  name="Likes"
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -329,13 +506,15 @@ const SiteAdmin: React.FC = () => {
                     boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                   }} 
                 />
-                <Bar dataKey="visits" fill={colors.secondary} radius={[4, 4, 0, 0]} />
+                <Legend />
+                <Bar dataKey="visits" fill={colors.secondary} radius={[4, 4, 0, 0]} name="Visits" />
+                <Bar dataKey="uniqueVisitors" fill={colors.purple} radius={[4, 4, 0, 0]} name="Unique Visitors" />
               </BarChart>
             </ResponsiveContainer>
           </motion.div>
         </div>
 
-        {/* Device and Browser Stats */}
+        {/* Device, Browser, and OS Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           {/* Device Statistics */}
           <motion.div
@@ -411,7 +590,7 @@ const SiteAdmin: React.FC = () => {
             </ResponsiveContainer>
           </motion.div>
 
-          {/* Top Countries */}
+          {/* Operating System Statistics */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -419,17 +598,17 @@ const SiteAdmin: React.FC = () => {
             className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
           >
             <div className="flex items-center gap-3 mb-6">
-              <MapPin className="w-5 h-5 text-orange-600" />
-              <h3 className="text-lg font-semibold text-gray-900 font-heading">Top Countries</h3>
+              <Monitor className="w-5 h-5 text-orange-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Operating Systems</h3>
             </div>
             <div className="space-y-4">
-              {countryChartData.map((country, index) => {
-                const percentage = Math.round((country.value / (analytics?.totalVisits || 1)) * 100);
+              {osChartData.map((os, index) => {
+                const percentage = os.percentage || 0;
                 return (
-                  <div key={country.name} className="space-y-2">
+                  <div key={os.name} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-gray-900 font-primary">{country.name}</span>
-                      <span className="text-sm text-gray-600 font-primary">{country.value} ({percentage}%)</span>
+                      <span className="text-sm font-medium text-gray-900 font-primary">{os.name}</span>
+                      <span className="text-sm text-gray-600 font-primary">{os.value} ({percentage}%)</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
@@ -447,11 +626,109 @@ const SiteAdmin: React.FC = () => {
           </motion.div>
         </div>
 
+        {/* Additional Analytics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          {/* Language Statistics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Languages className="w-5 h-5 text-indigo-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Languages</h3>
+            </div>
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <Pie
+                  data={languageChartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {languageChartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={[colors.indigo, colors.pink, colors.emerald, colors.orange, colors.violet][index % 5]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </motion.div>
+
+          {/* Screen Resolution Statistics */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <Maximize className="w-5 h-5 text-pink-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Screen Resolutions</h3>
+            </div>
+            <div className="space-y-4">
+              {resolutionChartData.map((resolution, index) => {
+                const total = resolutionChartData.reduce((sum, item) => sum + item.value, 0);
+                const percentage = total > 0 ? Math.round((resolution.value / total) * 100) : 0;
+                return (
+                  <div key={resolution.name} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-900 font-primary">{resolution.name}</span>
+                      <span className="text-sm text-gray-600 font-primary">{resolution.value} ({percentage}%)</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="h-2 rounded-full transition-all duration-500"
+                        style={{ 
+                          width: `${percentage}%`,
+                          backgroundColor: [colors.pink, colors.indigo, colors.emerald, colors.orange, colors.violet][index % 5]
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Top Sections Interactions */}
+        {analytics?.topSections && analytics.topSections.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.1 }}
+            className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200 mb-8"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <MousePointer className="w-5 h-5 text-emerald-600" />
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Top Section Interactions</h3>
+            </div>
+            <div className="space-y-3">
+              {analytics.topSections.map((section, index) => (
+                <div key={section.sectionId} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <span className="text-sm font-bold text-emerald-600">#{index + 1}</span>
+                    </div>
+                    <span className="font-medium text-gray-900 font-primary">{section.sectionId}</span>
+                  </div>
+                  <span className="text-sm text-gray-600 font-primary">{section.interactions} interactions</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
+          transition={{ delay: 1.2 }}
           className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
         >
           <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Quick Actions</h3>

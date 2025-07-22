@@ -27,6 +27,7 @@ const SiteViewer: React.FC = () => {
   const [activeTheme, setActiveTheme] = useState(currentTheme);
   const [hasLiked, setHasLiked] = useState(false);
   const [showCoinDonation, setShowCoinDonation] = useState(false);
+  const [sessionStartTime] = useState(Date.now());
 
   useEffect(() => {
     const loadWebsite = async () => {
@@ -66,7 +67,7 @@ const SiteViewer: React.FC = () => {
             }
           }
 
-          // Track simple visit
+          // Track visit with accurate data
           trackVisit(foundProject.id);
 
           // Check if user has already liked this site
@@ -89,11 +90,32 @@ const SiteViewer: React.FC = () => {
     loadWebsite();
   }, [websiteUrl, projects, updateTheme]);
 
-  // Track simple visit
+  // Track page unload to calculate session duration
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (project) {
+        const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 1000);
+        optimizedStorage.trackSimpleEvent(project.id, 'visit', {
+          sessionDuration,
+          pageUrl: window.location.href,
+          exitTime: new Date().toISOString()
+        });
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [project, sessionStartTime]);
+
+  // Track accurate visit with real user data
   const trackVisit = (projectId: string) => {
     try {
       optimizedStorage.trackSimpleEvent(projectId, 'visit', {
-        sessionDuration: Math.floor(Math.random() * 300) + 30, // 30-330 seconds simulation
+        pageUrl: window.location.href,
+        referrer: document.referrer || undefined,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toISOString(),
+        sessionStartTime: sessionStartTime
       });
       
       console.log('📊 Visit tracked for project:', projectId);
@@ -107,7 +129,10 @@ const SiteViewer: React.FC = () => {
 
     try {
       // Track like event
-      optimizedStorage.trackSimpleEvent(project.id, 'like');
+      optimizedStorage.trackSimpleEvent(project.id, 'like', {
+        timestamp: new Date().toISOString(),
+        pageUrl: window.location.href
+      });
 
       // Save to local storage to prevent multiple likes
       const likedSites = JSON.parse(localStorage.getItem('templates_uz_liked_sites') || '[]');
@@ -126,12 +151,35 @@ const SiteViewer: React.FC = () => {
 
     try {
       // Track coin donation event
-      optimizedStorage.trackSimpleEvent(project.id, 'coin_donation', { amount });
+      optimizedStorage.trackSimpleEvent(project.id, 'coin_donation', { 
+        amount,
+        timestamp: new Date().toISOString(),
+        pageUrl: window.location.href
+      });
 
       setShowCoinDonation(false);
       console.log('🪙 Coin donation tracked:', { projectId: project.id, amount });
+      
+      // Show success message
+      alert(`Thank you for donating ${amount} coin${amount > 1 ? 's' : ''}! 🪙`);
     } catch (error) {
       console.error('❌ Error tracking coin donation:', error);
+    }
+  };
+
+  // Track section interactions
+  const handleSectionInteraction = (sectionId: string, interactionType: string) => {
+    if (!project) return;
+
+    try {
+      optimizedStorage.trackSimpleEvent(project.id, 'section_interaction', {
+        sectionId,
+        interactionType,
+        timestamp: new Date().toISOString(),
+        pageUrl: window.location.href
+      });
+    } catch (error) {
+      console.error('❌ Error tracking section interaction:', error);
     }
   };
 
@@ -319,7 +367,7 @@ const SiteViewer: React.FC = () => {
               className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
             >
               Create Your Own Website
-            </motion.button>
+            </button>
           </div>
         </div>
       ) : (
@@ -332,6 +380,8 @@ const SiteViewer: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
+                onClick={() => handleSectionInteraction(section.id, 'click')}
+                onMouseEnter={() => handleSectionInteraction(section.id, 'hover')}
               >
                 <SectionRenderer
                   section={section}
