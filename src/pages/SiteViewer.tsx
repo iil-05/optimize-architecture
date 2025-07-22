@@ -9,7 +9,6 @@ import {
   Heart,
   Coins
 } from 'lucide-react';
-import { useProject } from '../contexts/ProjectContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { themeRegistry } from '../core/ThemeRegistry';
 import SectionRenderer from '../components/SectionRenderer';
@@ -18,7 +17,6 @@ import { optimizedStorage } from '../utils/optimizedStorage';
 
 const SiteViewer: React.FC = () => {
   const { websiteUrl } = useParams<{ websiteUrl: string }>();
-  const { projects } = useProject();
   const { updateTheme, currentTheme } = useTheme();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -39,22 +37,15 @@ const SiteViewer: React.FC = () => {
 
       console.log('🔍 Looking for website with URL:', websiteUrl);
 
-      // First try to find in current projects
-      let foundProject = projects.find(p => p.websiteUrl === websiteUrl);
-
-      // If not found in current projects, try to load from optimized storage
-      if (!foundProject) {
-        const allStoredProjects = optimizedStorage.getAllProjects();
-        foundProject = allStoredProjects.find(p => p.websiteUrl === websiteUrl);
-      }
+      // Load from optimized storage (accessible without login)
+      const allStoredProjects = optimizedStorage.getAllProjects();
+      const foundProject = allStoredProjects.find(p => p.websiteUrl === websiteUrl);
 
       if (foundProject) {
         console.log('✅ Found project:', foundProject);
 
-        // Check if project is published or if we're in development mode
-        const isDevelopment = import.meta.env.DEV;
-
-        if (foundProject.isPublished || isDevelopment) {
+        // Check if project is published (always allow in development)
+        if (foundProject.isPublished || import.meta.env.DEV) {
           setProject(foundProject);
 
           // Apply project's theme
@@ -88,7 +79,7 @@ const SiteViewer: React.FC = () => {
     };
 
     loadWebsite();
-  }, [websiteUrl, projects, updateTheme]);
+  }, [websiteUrl, updateTheme]);
 
   // Track page unload to calculate session duration
   useEffect(() => {
