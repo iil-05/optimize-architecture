@@ -19,7 +19,7 @@ const Preview: React.FC = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { projects, currentProject, setCurrentProject } = useProject();
+  const { projects, currentProject, setCurrentProject, updateProject } = useProject();
   const { currentTheme, updateTheme } = useTheme();
   const [showHeader, setShowHeader] = useState(true);
   const [projectTheme, setProjectTheme] = useState(currentTheme);

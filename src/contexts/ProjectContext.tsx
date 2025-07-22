@@ -162,7 +162,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
         if (updates.isPublished && !project.isPublished) {
           console.log('🌐 Website published:', {
             name: updatedProject.name,
-            url: `${window.location.origin}/site/${updatedProject.websiteUrl}`,
+            url: `${import.meta.env.VITE_USER_SITE_BASE_URL || window.location.origin + '/site'}/${updatedProject.websiteUrl}`,
             websiteUrl: updatedProject.websiteUrl
           });
           

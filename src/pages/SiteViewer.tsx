@@ -98,7 +98,7 @@ const SiteViewer: React.FC = () => {
 
           setError(null);
         } else {
-          console.log('❌ Website found but not published');
+          console.log('❌ Website found but not published. isPublished:', foundProject.isPublished);
           setError('This website is not published yet');
         }
       } else {

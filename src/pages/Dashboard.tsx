@@ -571,13 +571,13 @@ const Dashboard: React.FC = () => {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className={`inline-flex items-center px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-semibold shadow-medium ${project.isPublished
-                          ? 'bg-green-50 text-green-700 border border-green-200'
-                          : 'bg-yellow-50 text-yellow-700 border border-yellow-200'
+                          ? 'bg-green-100 text-green-800 border-2 border-green-300 shadow-lg'
+                          : 'bg-orange-100 text-orange-800 border-2 border-orange-300 shadow-lg'
                           }`}
                       >
-                        <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-1.5 sm:mr-2 ${project.isPublished ? 'bg-green-500' : 'bg-yellow-500'
+                        <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-1.5 sm:mr-2 animate-pulse ${project.isPublished ? 'bg-green-600' : 'bg-orange-600'
                           }`}></div>
-                        <span className="font-primary">{project.isPublished ? t('dashboard.projects.live') : t('dashboard.projects.draft')}</span>
+                        <span className="font-primary font-bold">{project.isPublished ? '🌐 LIVE' : '📝 DRAFT'}</span>
                       </motion.span>
                     </div>
 
@@ -651,8 +651,8 @@ const Dashboard: React.FC = () => {
                     {/* Website URL */}
                     <div className="flex items-center gap-2 mb-3 p-2 bg-gray-50 rounded-lg">
                       <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4 text-primary-500 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm text-primary-600 font-mono truncate">
-                        {project.isPublished ? `${userSiteBaseUrl}${project.websiteUrl}` : `No Publish`}
+                      <span className={`text-xs sm:text-sm font-mono truncate ${project.isPublished ? 'text-green-600 font-bold' : 'text-gray-500'}`}>
+                        {project.isPublished ? `${userSiteBaseUrl}/${project.websiteUrl}` : 'Not Published Yet'}
                       </span>
                     </div>
 
@@ -694,12 +694,12 @@ const Dashboard: React.FC = () => {
                       {project.isPublished && (
                         <motion.button
                           onClick={() => {
-                            const siteUrl = `/site/${project.websiteUrl}`;
+                            const siteUrl = `${userSiteBaseUrl}/${project.websiteUrl}`;
                             window.open(siteUrl, '_blank');
                           }}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors font-semibold text-sm font-primary"
+                          className="px-3 py-2.5 sm:px-4 sm:py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-colors font-semibold text-sm font-primary shadow-lg"
                           title="View Published Site"
                         >
                           <Globe className="w-3 h-3 sm:w-4 sm:h-4" />

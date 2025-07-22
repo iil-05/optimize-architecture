@@ -308,7 +308,7 @@ export class OptimizedStorageManager {
     // Update deployment status based on isPublished
     if (project.isPublished && project.deployment.status === 'draft') {
       project.deployment.status = 'published';
-      project.deployment.publishedUrl = `/site/${project.websiteUrl}`;
+      project.deployment.publishedUrl = `${import.meta.env.VITE_USER_SITE_BASE_URL || 'http://localhost:5173/site'}/${project.websiteUrl}`;
       project.deployment.lastDeployed = new Date();
       
       // Add deployment record
@@ -317,7 +317,7 @@ export class OptimizedStorageManager {
         timestamp: new Date(),
         version: project.metadata.version,
         status: 'success',
-        url: `/site/${project.websiteUrl}`,
+        url: `${import.meta.env.VITE_USER_SITE_BASE_URL || 'http://localhost:5173/site'}/${project.websiteUrl}`,
         notes: 'Website published successfully'
       });
     } else if (!project.isPublished && project.deployment.status === 'published') {
