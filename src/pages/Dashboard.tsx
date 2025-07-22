@@ -62,6 +62,9 @@ const Dashboard: React.FC = () => {
   const [sortBy, setSortBy] = useState<'updated' | 'created' | 'name'>('updated');
   const [urlError, setUrlError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+  
+  // Get the user site base URL from environment or use a default
+  const userSiteBaseUrl = import.meta.env.VITE_USER_SITE_BASE_URL || 'https://templates.uz/';
 
   // Website categories
   const categories = [
@@ -232,24 +235,15 @@ const Dashboard: React.FC = () => {
         .map(keyword => keyword.trim())
         .filter(keyword => keyword.length > 0);
 
-      // Create enhanced project data
-      const projectData = {
-        name: newProjectName.trim(),
-        websiteUrl: userSiteBaseUrl.replace(/^https?:\/\//, '') + newWebsiteUrl.trim(),
-        category: newCategory,
-        seoKeywords,
-        logo: logoBase64,
-        favicon: faviconBase64,
-      };
-
+      // Create the project with proper parameters
       const project = createProject(
-        projectData.name,
-        undefined, // No description field
-        projectData.websiteUrl,
-        projectData.category,
-        projectData.seoKeywords,
-        projectData.logo,
-        projectData.favicon
+        newProjectName.trim(),
+        undefined, // description
+        newWebsiteUrl.trim(), // websiteUrl
+        newCategory, // category
+        seoKeywords, // seoKeywords
+        logoBase64, // logo
+        faviconBase64 // favicon
       );
 
       // Reset form
@@ -778,7 +772,7 @@ const Dashboard: React.FC = () => {
                   </label>
                   <div className="flex items-center">
                     <span className="px-3 py-3 sm:py-4 bg-gray-100 text-gray-600 rounded-l-xl border border-r-0 border-gray-300 text-sm sm:text-base font-mono">
-                      {userSiteBaseUrl.replace(/^https?:\/\//, '')}
+                      templates.uz/
                     </span>
                     <input
                       type="text"
