@@ -63,9 +63,6 @@ const Dashboard: React.FC = () => {
   const [urlError, setUrlError] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   
-  // Get the user site base URL from environment or use a default
-  const userSiteBaseUrl = import.meta.env.VITE_USER_SITE_BASE_URL || 'https://templates.uz/';
-
   // Website categories
   const categories = [
     { id: 'business', name: 'Business', icon: Building, description: 'Corporate websites, agencies, consulting' },
