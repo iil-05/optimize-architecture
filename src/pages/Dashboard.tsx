@@ -693,7 +693,10 @@ const Dashboard: React.FC = () => {
                       </motion.button>
                       {project.isPublished && (
                         <motion.button
-                          onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
+                          onClick={() => {
+                            const siteUrl = `/site/${project.websiteUrl}`;
+                            window.open(siteUrl, '_blank');
+                          }}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                           className="px-3 py-2.5 sm:px-4 sm:py-3 bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-colors font-semibold text-sm font-primary"

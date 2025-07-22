@@ -339,7 +339,10 @@ const Editor: React.FC = () => {
 
             {currentProject.isPublished && (
               <button
-                onClick={() => window.open(`/site/${currentProject.websiteUrl}`, '_blank')}
+                onClick={() => {
+                  const siteUrl = `/site/${currentProject.websiteUrl}`;
+                  window.open(siteUrl, '_blank');
+                }}
                 className="flex items-center gap-1.5 xl:gap-2 px-4 xl:px-6 py-2.5 xl:py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-semibold shadow-glow font-display text-sm xl:text-base"
               >
                 <Globe className="w-3 h-3 xl:w-4 xl:h-4" />

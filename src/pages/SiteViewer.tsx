@@ -21,13 +21,16 @@ import {
   Code,
   Smartphone,
   Monitor,
-  Tablet
+  Tablet,
+  Home,
+  Zap
 } from 'lucide-react';
 import { useProject } from '../contexts/ProjectContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { themeRegistry } from '../core/ThemeRegistry';
 import SectionRenderer from '../components/SectionRenderer';
 import { Project } from '../types';
+import { optimizedStorage } from '../utils/optimizedStorage';
 
 const SiteViewer: React.FC = () => {
   const { websiteUrl } = useParams<{ websiteUrl: string }>();
@@ -53,34 +56,66 @@ const SiteViewer: React.FC = () => {
       }
 
       console.log('🔍 Looking for website with URL:', websiteUrl);
-      console.log('📋 Available projects:', projects.map(p => ({ id: p.id, name: p.name, websiteUrl: p.websiteUrl, isPublished: p.isPublished })));
+      console.log('📋 Available projects:', projects.map(p => ({ 
+        id: p.id, 
+        name: p.name, 
+        websiteUrl: p.websiteUrl, 
+        isPublished: p.isPublished 
+      })));
 
-      // Find project by websiteUrl
-      const foundProject = projects.find(p => 
-        p.websiteUrl === websiteUrl && p.isPublished
+      // First try to find in current projects
+      let foundProject = projects.find(p => 
+        p.websiteUrl === websiteUrl
       );
+
+      // If not found in current projects, try to load from optimized storage
+      if (!foundProject) {
+        const allStoredProjects = optimizedStorage.getAllProjects();
+        foundProject = allStoredProjects.find(p => 
+          p.websiteUrl === websiteUrl
+        );
+      }
       
       if (foundProject) {
-        console.log('✅ Found published project:', foundProject);
-        setProject(foundProject);
+        console.log('✅ Found project:', foundProject);
         
-        // Apply project's theme
-        if (foundProject.themeId) {
-          const theme = themeRegistry.getTheme(foundProject.themeId);
-          if (theme) {
-            console.log('🎨 Applying theme:', theme.name);
-            setActiveTheme(theme);
-            updateTheme(foundProject.themeId);
+        // Check if project is published or if we're in development mode
+        const isDevelopment = import.meta.env.DEV;
+        
+        if (foundProject.isPublished || isDevelopment) {
+          setProject(foundProject);
+          
+          // Apply project's theme
+          if (foundProject.themeId) {
+            const theme = themeRegistry.getTheme(foundProject.themeId);
+            if (theme) {
+              console.log('🎨 Applying theme:', theme.name);
+              setActiveTheme(theme);
+              updateTheme(foundProject.themeId);
+            }
           }
+          
+          // Simulate view count increment
+          const storedViews = localStorage.getItem(`site_views_${foundProject.id}`);
+          const currentViews = storedViews ? parseInt(storedViews) : Math.floor(Math.random() * 500) + 50;
+          setViewCount(currentViews + 1);
+          localStorage.setItem(`site_views_${foundProject.id}`, (currentViews + 1).toString());
+          
+          // Update project analytics
+          if (foundProject.analytics) {
+            foundProject.analytics.views = currentViews + 1;
+            foundProject.analytics.lastViewed = new Date();
+            optimizedStorage.saveProject(foundProject);
+          }
+          
+          setError(null);
+        } else {
+          console.log('❌ Website found but not published');
+          setError('This website is not published yet');
         }
-        
-        // Simulate view count increment (in real app, this would be tracked in backend)
-        setViewCount(Math.floor(Math.random() * 1000) + 100);
-        
-        setError(null);
       } else {
-        console.log('❌ Website not found or not published');
-        setError('Website not found or not published');
+        console.log('❌ Website not found');
+        setError('Website not found');
       }
       
       setIsLoading(false);
@@ -123,7 +158,10 @@ const SiteViewer: React.FC = () => {
 
   const handleLike = () => {
     setIsLiked(!isLiked);
-    // In a real app, this would update the like count in the database
+    // Store like status in localStorage
+    if (project) {
+      localStorage.setItem(`site_liked_${project.id}`, (!isLiked).toString());
+    }
   };
 
   const getCategoryIcon = (category: string) => {
@@ -161,7 +199,7 @@ const SiteViewer: React.FC = () => {
             className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full mx-auto mb-6"
           />
           <h2 className="text-2xl font-bold text-gray-900 mb-2 font-heading">Loading Website...</h2>
-          <p className="text-gray-600 font-primary">Please wait while we load the website</p>
+          <p className="text-gray-600 font-primary">Please wait while we load {websiteUrl}</p>
         </div>
       </div>
     );
@@ -195,7 +233,10 @@ const SiteViewer: React.FC = () => {
             transition={{ delay: 0.3 }}
             className="text-gray-600 mb-8 font-primary leading-relaxed"
           >
-            {error || `The website "${websiteUrl}" doesn't exist or hasn't been published yet.`}
+            {error === 'This website is not published yet' 
+              ? `The website "${websiteUrl}" exists but hasn't been published yet.`
+              : `The website "${websiteUrl}" doesn't exist or has been removed.`
+            }
           </motion.p>
           
           <motion.div 
@@ -208,15 +249,40 @@ const SiteViewer: React.FC = () => {
               onClick={() => navigate('/')}
               className="px-6 py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-colors font-medium font-primary"
             >
+              <Home className="w-4 h-4 inline mr-2" />
               Go Home
             </button>
             <button
               onClick={() => navigate('/dashboard')}
               className="px-6 py-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium font-primary"
             >
+              <Zap className="w-4 h-4 inline mr-2" />
               Create Your Website
             </button>
           </motion.div>
+
+          {/* Show available websites for debugging in development */}
+          {import.meta.env.DEV && projects.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200"
+            >
+              <h3 className="text-sm font-semibold text-blue-900 mb-2">Available Websites (Dev Mode):</h3>
+              <div className="space-y-1">
+                {projects.map(p => (
+                  <button
+                    key={p.id}
+                    onClick={() => navigate(`/site/${p.websiteUrl}`)}
+                    className="block text-xs text-blue-700 hover:text-blue-900 underline"
+                  >
+                    {p.websiteUrl} - {p.name} {p.isPublished ? '(Published)' : '(Draft)'}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
     );

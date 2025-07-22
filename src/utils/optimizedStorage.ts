@@ -310,9 +310,20 @@ export class OptimizedStorageManager {
       project.deployment.status = 'published';
       project.deployment.publishedUrl = `/site/${project.websiteUrl}`;
       project.deployment.lastDeployed = new Date();
+      
+      // Add deployment record
+      project.deployment.deploymentHistory.push({
+        id: this.generateId(),
+        timestamp: new Date(),
+        version: project.metadata.version,
+        status: 'success',
+        url: `/site/${project.websiteUrl}`,
+        notes: 'Website published successfully'
+      });
     } else if (!project.isPublished && project.deployment.status === 'published') {
       project.deployment.status = 'draft';
     }
+    
     projectsData[project.id] = {
       ...project,
       updatedAt: new Date(),
@@ -320,6 +331,14 @@ export class OptimizedStorageManager {
 
     this.saveToStorage(this.STORAGE_KEYS.PROJECTS, projectsData);
     this.updateProjectStats(project.id);
+    
+    console.log('💾 Project saved to optimized storage:', {
+      id: project.id,
+      name: project.name,
+      websiteUrl: project.websiteUrl,
+      isPublished: project.isPublished,
+      deploymentStatus: project.deployment.status
+    });
   }
 
   public deleteProject(projectId: string): void {

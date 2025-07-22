@@ -165,6 +165,9 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
             url: `${window.location.origin}/site/${updatedProject.websiteUrl}`,
             websiteUrl: updatedProject.websiteUrl
           });
+          
+          // Also save to optimized storage for SiteViewer
+          optimizedStorage.saveProject(updatedProject);
         }
         
         console.log('✅ Project updated:', updatedProject);

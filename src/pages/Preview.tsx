@@ -59,11 +59,19 @@ const Preview: React.FC = () => {
   const handlePublish = () => {
     if (currentProject) {
       // Update project as published
-      const siteUrl = `${window.location.origin}/site/${currentProject.websiteUrl}`;
-      alert(`🎉 Your website has been published!\n\nYou can access it at: ${siteUrl}`);
+      updateProject(currentProject.id, { 
+        isPublished: true,
+        publishUrl: `${window.location.origin}/site/${currentProject.websiteUrl}`
+      });
       
-      // In a real app, you would update the project's published status
-      console.log('Publishing website:', {
+      const siteUrl = `${window.location.origin}/site/${currentProject.websiteUrl}`;
+      
+      // Show success message with link
+      if (window.confirm(`🎉 Your website has been published!\n\nYou can access it at: ${siteUrl}\n\nWould you like to visit your live website now?`)) {
+        window.open(siteUrl, '_blank');
+      }
+      
+      console.log('✅ Website published:', {
         projectId: currentProject.id,
         websiteUrl: currentProject.websiteUrl,
         publishUrl: siteUrl
