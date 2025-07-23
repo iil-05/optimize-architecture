@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff, Mail, Lock, User, Check, ArrowLeft } from 'lucide-react';
-import { toast } from 'react-toastify';
-import { authStorage, AuthData, AuthUser } from '../../utils/authStorage';
 import { useAuth } from '../../hooks/useAuth';
 
 const Register: React.FC = () => {
