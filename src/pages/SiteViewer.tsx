@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
 import {
   Globe,
   AlertCircle,
@@ -100,15 +101,10 @@ const SiteViewer: React.FC = () => {
     optimizedStorage.trackCoinDonation(project.id, amount);
     setShowCoinDonation(false);
     
-    // Use a more subtle notification
-    const notification = document.createElement('div');
-    notification.textContent = `Thank you for donating ${amount} coin${amount > 1 ? 's' : ''}! 🪙`;
-    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      document.body.removeChild(notification);
-    }, 3000);
+    toast.success(`Thank you for donating ${amount} coin${amount > 1 ? 's' : ''}! 🪙`, {
+      position: "top-right",
+      autoClose: 3000,
+    });
   }, [project]);
 
   // Loading state with minimal animations

@@ -124,10 +124,10 @@ const Profile: React.FC = () => {
       setAvatarPreview('');
 
       // Show success message
-      alert('Profile updated successfully!');
+      toast.success('Profile updated successfully!');
     } catch (error) {
       console.error('Error saving profile:', error);
-      alert('Failed to save profile. Please try again.');
+      toast.error('Failed to save profile. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -135,27 +135,35 @@ const Profile: React.FC = () => {
 
   const handlePasswordChange = () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      alert('New passwords do not match');
+      toast.error('New passwords do not match');
       return;
     }
 
     if (passwordForm.newPassword.length < 8) {
-      alert('Password must be at least 8 characters long');
+      toast.error('Password must be at least 8 characters long');
       return;
     }
 
     // In a real app, you would validate the current password and update it
-    alert('Password updated successfully!');
+    toast.success('Password updated successfully!');
     setShowPasswordForm(false);
     setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
   };
 
   const handleDeleteAccount = () => {
-    if (window.confirm('Are you absolutely sure? This action cannot be undone and will permanently delete all your data.')) {
+    toast.warn('Account deletion requested. Please contact support to complete this action.', {
+      autoClose: 5000,
+    });
+    // Note: In a real app, you'd want a more sophisticated confirmation flow
+    // For now, we'll just show a warning instead of actually deleting
+    /*
+    const confirmDelete = window.confirm('Are you absolutely sure? This action cannot be undone and will permanently delete all your data.');
+    if (confirmDelete) {
       optimizedStorage.clearAll();
-      alert('Account deleted successfully');
+      toast.success('Account deleted successfully');
       navigate('/dashboard');
     }
+    */
   };
 
   const getSubscriptionBadge = () => {

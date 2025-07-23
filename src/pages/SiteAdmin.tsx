@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import {
   ArrowLeft,
   BarChart3,
@@ -266,10 +267,10 @@ const SiteAdmin: React.FC = () => {
       setIsEditing(false);
       
       // Show success message
-      alert('Website settings updated successfully!');
+      toast.success('Website settings updated successfully!');
     } catch (error) {
       console.error('Error updating project:', error);
-      alert('Failed to update website settings. Please try again.');
+      toast.error('Failed to update website settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -289,7 +290,7 @@ const SiteAdmin: React.FC = () => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Error deleting project:', error);
-      alert('Failed to delete website. Please try again.');
+      toast.error('Failed to delete website. Please try again.');
     }
   };
 
@@ -314,10 +315,10 @@ const SiteAdmin: React.FC = () => {
       setProject(updatedProject);
       setFormData(prev => ({ ...prev, isPublished: false }));
       
-      alert('Website unpublished successfully!');
+      toast.success('Website unpublished successfully!');
     } catch (error) {
       console.error('Error unpublishing website:', error);
-      alert('Failed to unpublish website. Please try again.');
+      toast.error('Failed to unpublish website. Please try again.');
     }
   };
 

@@ -220,13 +220,13 @@ const Billing: React.FC = () => {
 
   const confirmUpgrade = () => {
     // In a real app, this would process the payment
-    alert(`Upgrading to ${selectedPlan} plan...`);
+    toast.info(`Upgrading to ${selectedPlan} plan...`);
     setShowUpgradeModal(false);
   };
 
   const confirmCoinPurchase = () => {
     // In a real app, this would process the payment
-    alert(`Purchasing ${selectedCoinPackage} coin package...`);
+    toast.info(`Purchasing ${selectedCoinPackage} coin package...`);
     setShowCoinModal(false);
   };
 

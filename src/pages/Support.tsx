@@ -117,7 +117,7 @@ const Support: React.FC = () => {
 
   const handleSubmitTicket = () => {
     if (!ticketForm.subject || !ticketForm.description) {
-      alert('Please fill in all required fields');
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -140,7 +140,7 @@ const Support: React.FC = () => {
       userEmail: optimizedStorage.getUser()?.email || '',
     });
 
-    alert('Support ticket submitted successfully! We\'ll get back to you within 24 hours.');
+    toast.success('Support ticket submitted successfully! We\'ll get back to you within 24 hours.');
   };
 
   const handleFAQHelpful = (faqId: string, helpful: boolean) => {
