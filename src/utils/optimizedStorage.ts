@@ -123,15 +123,25 @@ export interface FAQItem {
 // Template gallery item interface
 export interface TemplateGalleryItem {
   id: string;
+  websiteId: string;
   name: string;
   description: string;
   category: string;
   thumbnail: string;
+  websiteUrl: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
   tags: string[];
-  sections: string[];
+  sectionsCount: number;
+  viewsCount: number;
+  likesCount: number;
+  coinsCount: number;
   rating: number;
   downloads: number;
   isPremium: boolean;
+  price: number;
+  isTemplate: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -142,6 +152,7 @@ export class OptimizedStorage {
     USER_PROFILE: 'templates_uz_user_profile',
     USER_SUBSCRIPTION: 'templates_uz_user_subscription',
     PROJECTS: 'templates_uz_projects',
+    TEMPLATES: 'templates_uz_templates',
     USER_SETTINGS: 'templates_uz_user_settings',
     ANALYTICS: 'templates_uz_analytics',
     SUPPORT_TICKETS: 'templates_uz_support_tickets',
@@ -847,7 +858,52 @@ export class OptimizedStorage {
 
   // Template Gallery Management
   public getTemplateGallery(): TemplateGalleryItem[] {
-    return this.loadFromStorage(this.STORAGE_KEYS.TEMPLATE_GALLERY) || this.getDefaultTemplates();
+    return this.loadFromStorage(this.STORAGE_KEYS.TEMPLATES) || [];
+  }
+
+  public addTemplate(template: TemplateGalleryItem): void {
+    if (!this.isSuperAdmin()) {
+      console.warn('🔒 Access denied: SuperAdmin privileges required');
+      return;
+    }
+    
+    const templates = this.getTemplateGallery();
+    const newTemplate = {
+      ...template,
+      id: `template_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      viewsCount: 0,
+      likesCount: 0,
+      coinsCount: 0,
+      downloads: 0,
+      rating: 0,
+    };
+    
+    templates.push(newTemplate);
+    this.saveToStorage(this.STORAGE_KEYS.TEMPLATES, templates);
+    
+    console.log('✅ Template added to gallery:', newTemplate);
+  }
+
+  public updateTemplate(templateId: string, updates: Partial<TemplateGalleryItem>): void {
+    const templates = this.getTemplateGallery();
+    const index = templates.findIndex(t => t.id === templateId);
+    
+    if (index >= 0) {
+      templates[index] = { ...templates[index], ...updates, updatedAt: new Date() };
+      this.saveToStorage(this.STORAGE_KEYS.TEMPLATES, templates);
+    }
+  }
+
+  public getTemplateById(templateId: string): TemplateGalleryItem | null {
+    const templates = this.getTemplateGallery();
+    return templates.find(t => t.id === templateId) || null;
+  }
+
+  public getTemplateByWebsiteId(websiteId: string): TemplateGalleryItem | null {
+    const templates = this.getTemplateGallery();
+    return templates.find(t => t.websiteId === websiteId) || null;
   }
 
   public searchTemplates(query: string, category?: string): TemplateGalleryItem[] {
@@ -865,37 +921,53 @@ export class OptimizedStorage {
     });
   }
 
-  private getDefaultTemplates(): TemplateGalleryItem[] {
-    return [
-      {
-        id: 'template_business_1',
-        name: 'Modern Business',
-        description: 'Professional business website with clean design',
-        category: 'business',
-        thumbnail: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1',
-        tags: ['business', 'professional', 'modern', 'clean'],
-        sections: ['header-modern', 'hero-modern', 'services-grid', 'about-simple', 'contact-form', 'footer-detailed'],
-        rating: 4.8,
-        downloads: 1250,
-        isPremium: false,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      },
-      {
-        id: 'template_portfolio_1',
-        name: 'Creative Portfolio',
-        description: 'Showcase your work with this stunning portfolio template',
-        category: 'portfolio',
-        thumbnail: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1',
-        tags: ['portfolio', 'creative', 'showcase', 'gallery'],
-        sections: ['header-simple', 'hero-split', 'portfolio-grid', 'about-team', 'contact-form', 'footer-simple'],
-        rating: 4.9,
-        downloads: 890,
-        isPremium: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
+  // Template interaction tracking
+  public trackTemplateLike(templateId: string): void {
+    const template = this.getTemplateById(templateId);
+    if (template) {
+      this.updateTemplate(templateId, { 
+        likesCount: template.likesCount + 1 
+      });
+      
+      // Track in user's liked templates
+      const likedTemplates = this.getLikedTemplates();
+      if (!likedTemplates.includes(templateId)) {
+        likedTemplates.push(templateId);
+        localStorage.setItem('liked_templates', JSON.stringify(likedTemplates));
       }
-    ];
+    }
+  }
+
+  public trackTemplateCoins(templateId: string, amount: number): void {
+    const template = this.getTemplateById(templateId);
+    if (template) {
+      this.updateTemplate(templateId, { 
+        coinsCount: template.coinsCount + amount 
+      });
+    }
+  }
+
+  public trackTemplateDownload(templateId: string): void {
+    const template = this.getTemplateById(templateId);
+    if (template) {
+      this.updateTemplate(templateId, { 
+        downloads: template.downloads + 1,
+        viewsCount: template.viewsCount + 1
+      });
+    }
+  }
+
+  public isTemplateLiked(templateId: string): boolean {
+    const likedTemplates = this.getLikedTemplates();
+    return likedTemplates.includes(templateId);
+  }
+
+  private getLikedTemplates(): string[] {
+    try {
+      return JSON.parse(localStorage.getItem('liked_templates') || '[]');
+    } catch {
+      return [];
+    }
   }
 
   // Theme Management
@@ -1107,10 +1179,10 @@ export class OptimizedStorage {
     if (!localStorage.getItem(this.STORAGE_KEYS.FAQ)) {
       this.saveToStorage(this.STORAGE_KEYS.FAQ, this.getDefaultFAQ());
     }
-    
-    // Initialize template gallery if not exists
-    if (!localStorage.getItem(this.STORAGE_KEYS.TEMPLATE_GALLERY)) {
-      this.saveToStorage(this.STORAGE_KEYS.TEMPLATE_GALLERY, this.getDefaultTemplates());
+
+    // Initialize templates storage if not exists
+    if (!localStorage.getItem(this.STORAGE_KEYS.TEMPLATES)) {
+      this.saveToStorage(this.STORAGE_KEYS.TEMPLATES, []);
     }
   }
 
