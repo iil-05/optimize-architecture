@@ -273,14 +273,15 @@ const CommonHeader: React.FC = () => {
                   <IconComponent className="w-5 h-5" />
                   {item.label}
                 </Link>
-                {isSuperAdmin && (
-                  <Link to="/superadmin" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 transition-colors rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Shield className="w-5 h-5" />
-                    SuperAdmin
-                  </Link>
-                )}
               )
             })}
+
+            {isSuperAdmin && (
+              <Link to="/superadmin" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 transition-colors rounded-xl mx-2" onClick={() => setIsMobileMenuOpen(false)}>
+                <Shield className="w-5 h-5" />
+                SuperAdmin
+              </Link>
+            )}
 
             <div className="border-t border-gray-200 mt-4 pt-4 mx-2">
               <Link
