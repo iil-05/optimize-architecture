@@ -189,9 +189,7 @@ export class OptimizedStorage {
         return parsed.user?.id || null;
       }
       
-      // Fallback to user profile
-      const userProfile = this.getUser();
-      return userProfile?.id || null;
+      return null;
     } catch (error) {
       console.error('Error getting current user ID:', error);
       return null;
