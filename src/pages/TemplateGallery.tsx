@@ -448,8 +448,57 @@ const TemplateGallery: React.FC = () => {
           </motion.div>
         </div>
       )}
+      
+      {/* Coin Donation Modal */}
+      {showCoinModal && selectedTemplateForCoins && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl p-6 w-full max-w-md"
+          >
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Coins className="w-8 h-8 text-yellow-600" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Support Template Creator</h3>
+              <p className="text-gray-600">
+                Show your appreciation for "{selectedTemplateForCoins.name}" by {(selectedTemplateForCoins as any).userName}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              {[1, 5, 10].map((amount) => (
+                <button
+                  key={amount}
+                  onClick={() => handleCoinDonation(amount)}
+                  className="p-4 border-2 border-yellow-200 rounded-xl hover:border-yellow-400 hover:bg-yellow-50 transition-colors text-center"
+                >
+                  <Coins className="w-6 h-6 text-yellow-600 mx-auto mb-2" />
+                  <span className="font-bold text-gray-900">{amount}</span>
+                  <div className="text-xs text-gray-600">coin{amount > 1 ? 's' : ''}</div>
+                </button>
+              ))}
+            </div>
     </div>
   );
 };
 
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowCoinModal(false)}
+                className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleCoinDonation(25)}
+                className="flex-1 px-4 py-3 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700 transition-colors"
+              >
+                Donate 25 Coins
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
 export default TemplateGallery;

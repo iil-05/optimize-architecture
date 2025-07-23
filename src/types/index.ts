@@ -34,6 +34,7 @@ export interface Project {
   createdAt: Date;
   updatedAt: Date;
   isPublished: boolean;
+  isTemplate?: boolean; // Add template flag to Project interface
   publishUrl?: string;
   thumbnail?: string;
 }

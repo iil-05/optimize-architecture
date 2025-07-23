@@ -493,6 +493,19 @@ export class OptimizedStorage {
   public trackCoinDonation(projectId: string, amount: number): void {
     this.trackEvent(projectId, 'coin_donation', { amount });
   }
+  
+  // Template interaction tracking
+  public trackTemplateDownload(creatorUserId: string, templateId: string): void {
+    this.trackEvent(templateId, 'template_download', { creatorUserId });
+  }
+  
+  public trackTemplateLike(creatorUserId: string, templateId: string): void {
+    this.trackEvent(templateId, 'template_like', { creatorUserId });
+  }
+  
+  public trackTemplateCoinDonation(creatorUserId: string, templateId: string, amount: number): void {
+    this.trackEvent(templateId, 'template_coin_donation', { creatorUserId, amount });
+  }
 
   public isProjectLiked(projectId: string): boolean {
     const likedSites = this.getLikedProjects();
