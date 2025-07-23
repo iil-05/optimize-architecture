@@ -13,7 +13,7 @@ import Editor from './pages/Editor';
 import Preview from './pages/Preview';
 import Profile from './pages/Profile';
 import Billing from './pages/Billing';
-// import Settings from './pages/Settings';
+import Settings from './pages/Settings';
 import Team from './pages/Team';
 import Support from './pages/Support';
 import TemplateGallery from './pages/TemplateGallery';
@@ -107,14 +107,14 @@ function App() {
                   </AuthGuard>
                 }
               />
-              {/* <Route
+              <Route
                 path="/settings"
                 element={
                   <AuthGuard>
                     <Settings />
                   </AuthGuard>
                 }
-              /> */}
+              />
               <Route
                 path="/team"
                 element={

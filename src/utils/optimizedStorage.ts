@@ -548,6 +548,14 @@ export class OptimizedStorage {
   }
 
   // User Settings (optimized)
+  public getUserPreferences(): UserSettings {
+    return this.getUserSettings();
+  }
+
+  public saveUserPreferences(preferences: UserSettings): void {
+    this.saveUserSettings(preferences);
+  }
+
   public getUserSettings(): UserSettings {
     const currentUserId = this.getCurrentUserId();
     if (!currentUserId) {
