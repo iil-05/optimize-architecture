@@ -49,7 +49,8 @@ import {
   Tag,
   Monitor,
   Smartphone,
-  Tablet
+  Tablet,
+  UserCheck
 } from 'lucide-react';
 import {
   LineChart,
@@ -68,7 +69,7 @@ import {
   ResponsiveContainer,
   ComposedChart
 } from 'recharts';
-import { optimizedStorage } from '../utils/optimizedStorage';
+import { optimizedStorage, TemplateGalleryItem } from '../utils/optimizedStorage';
 import { useProject } from '../contexts/ProjectContext';
 import { themeRegistry, ThemeDefinition } from '../core/ThemeRegistry';
 import { iconRegistry, IconDefinition } from '../core/IconRegistry';
@@ -155,14 +156,25 @@ interface WebsiteCategory {
 
 const SuperAdmin: React.FC = () => {
   const navigate = useNavigate();
-  const { updateProject, deleteProject } = useProject();
-  const [activeTab, setActiveTab] = useState<'statistics' | 'themes' | 'icons' | 'users' | 'categories' | 'websites' | 'templates'>('statistics');
+  const { updateProject, deleteProject, createProject } = useProject();
+  const [activeTab, setActiveTab] = useState<'statistics' | 'themes' | 'icons' | 'users' | 'categories' | 'websites' | 'templates' | 'overview' | 'projects' | 'analytics' | 'settings'>('overview');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showAddTemplateModal, setShowAddTemplateModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<AdminProject | null>(null);
+
+  // Template form state
+  const [templateForm, setTemplateForm] = useState({
+    category: 'business',
+    price: 0,
+    isPremium: false,
+    tags: '',
+  });
 
   // Check if user is superadmin
   const isAuthorized = optimizedStorage.isSuperAdmin();
@@ -181,7 +193,22 @@ const SuperAdmin: React.FC = () => {
   const [themes, setThemes] = useState<ThemeDefinition[]>([]);
   const [icons, setIcons] = useState<IconDefinition[]>([]);
   const [categories, setCategories] = useState<WebsiteCategory[]>([]);
+  const [templates, setTemplates] = useState<TemplateGalleryItem[]>([]);
   const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
+
+  const websiteCategories = [
+    { id: 'business', name: 'Business', icon: Building },
+    { id: 'personal', name: 'Personal', icon: User },
+    { id: 'portfolio', name: 'Portfolio', icon: Briefcase },
+    { id: 'ecommerce', name: 'E-commerce', icon: ShoppingBag },
+    { id: 'education', name: 'Education', icon: GraduationCap },
+    { id: 'photography', name: 'Photography', icon: Camera },
+    { id: 'music', name: 'Music', icon: Music },
+    { id: 'gaming', name: 'Gaming', icon: Gamepad2 },
+    { id: 'restaurant', name: 'Restaurant', icon: Utensils },
+    { id: 'automotive', name: 'Automotive', icon: Car },
+    { id: 'realestate', name: 'Real Estate', icon: Home },
+  ];
 
   // Load real data
   useEffect(() => {
@@ -207,12 +234,22 @@ const SuperAdmin: React.FC = () => {
       setIcons(allIcons);
 
       // Load categories
-      const websiteCategories = loadWebsiteCategories();
-      setCategories(websiteCategories);
+      const websiteCategoriesData = loadWebsiteCategories();
+      setCategories(websiteCategoriesData);
+
+      // Load templates
+      const templatesData = optimizedStorage.getTemplateGallery();
+      setTemplates(templatesData);
 
       // Calculate real platform statistics
-      const stats = calculateRealPlatformStats(realUsers, realProjects, allThemes, allIcons, websiteCategories);
+      const stats = calculateRealPlatformStats(realUsers, realProjects, allThemes, allIcons, websiteCategoriesData);
       setPlatformStats(stats);
+
+      console.log('✅ SuperAdmin data loaded:', {
+        users: realUsers.length,
+        projects: realProjects.length,
+        templates: templatesData.length
+      });
 
     } catch (error) {
       console.error('Error loading SuperAdmin data:', error);
@@ -335,6 +372,54 @@ const SuperAdmin: React.FC = () => {
     }));
   };
 
+  const handleAddToTemplate = (project: AdminProject) => {
+    setSelectedProject(project);
+    setShowAddTemplateModal(true);
+  };
+
+  const handleCreateTemplate = () => {
+    if (!selectedProject) return;
+
+    try {
+      const newTemplate: Omit<TemplateGalleryItem, 'id' | 'createdAt' | 'updatedAt' | 'viewsCount' | 'likesCount' | 'coinsCount' | 'downloads' | 'rating'> = {
+        websiteId: selectedProject.id,
+        name: selectedProject.name,
+        description: selectedProject.description || 'Professional template created by our community',
+        category: templateForm.category,
+        thumbnail: `https://images.pexels.com/photos/318${Math.floor(Math.random() * 10) + 4290}/pexels-photo-318${Math.floor(Math.random() * 10) + 4290}.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1`,
+        websiteUrl: selectedProject.websiteUrl,
+        userId: selectedProject.userId,
+        userName: selectedProject.userName,
+        userEmail: selectedProject.userEmail,
+        tags: templateForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0),
+        sectionsCount: selectedProject.sectionsCount,
+        isPremium: templateForm.isPremium,
+        price: templateForm.price,
+        isTemplate: true,
+      };
+
+      optimizedStorage.addTemplate(newTemplate as TemplateGalleryItem);
+      
+      // Reload templates
+      const updatedTemplates = optimizedStorage.getTemplateGallery();
+      setTemplates(updatedTemplates);
+
+      setShowAddTemplateModal(false);
+      setSelectedProject(null);
+      setTemplateForm({
+        category: 'business',
+        price: 0,
+        isPremium: false,
+        tags: '',
+      });
+
+      toast.success('Template added to gallery successfully!');
+    } catch (error) {
+      console.error('❌ Error creating template:', error);
+      toast.error('Failed to create template');
+    }
+  };
+
   // CRUD Operations
   const handleToggleTemplate = async (project: AdminProject) => {
     try {
@@ -373,6 +458,20 @@ const SuperAdmin: React.FC = () => {
     } catch (error) {
       console.error('Error deleting project:', error);
       toast.error('Failed to delete project');
+    }
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    if (window.confirm('Are you sure you want to delete this template?')) {
+      try {
+        const updatedTemplates = templates.filter(t => t.id !== templateId);
+        optimizedStorage.saveToStorage('templates_uz_templates', updatedTemplates);
+        setTemplates(updatedTemplates);
+        toast.success('Template deleted successfully');
+      } catch (error) {
+        console.error('❌ Error deleting template:', error);
+        toast.error('Failed to delete template');
+      }
     }
   };
 
@@ -445,16 +544,41 @@ const SuperAdmin: React.FC = () => {
   };
 
   const tabs = [
+    { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'statistics', label: 'Platform Statistics', icon: BarChart3 },
     { id: 'themes', label: 'Themes Management', icon: Palette },
     { id: 'icons', label: 'Icons Management', icon: Star },
     { id: 'users', label: 'Users Management', icon: Users },
     { id: 'categories', label: 'Website Categories', icon: Tag },
     { id: 'websites', label: 'Websites Management', icon: Globe },
+    { id: 'projects', label: 'Projects', icon: Globe },
     { id: 'templates', label: 'Templates Gallery', icon: Layout },
+    { id: 'analytics', label: 'Analytics', icon: Activity },
+    { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const COLORS = useMemo(() => ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'], []);
+
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.userName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || project.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredTemplates = templates.filter(template => {
+    const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.userName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const stats = [
+    { label: 'Total Users', value: users.length, icon: Users, color: 'bg-blue-100 text-blue-600' },
+    { label: 'Total Projects', value: projects.length, icon: Globe, color: 'bg-green-100 text-green-600' },
+    { label: 'Published Sites', value: projects.filter(p => p.isPublished).length, icon: Eye, color: 'bg-purple-100 text-purple-600' },
+    { label: 'Templates', value: templates.length, icon: Star, color: 'bg-yellow-100 text-yellow-600' },
+  ];
 
   if (!isAuthorized) {
     return (
@@ -475,11 +599,11 @@ const SuperAdmin: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <CommonHeader />
 
       {/* Page Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white/95 backdrop-blur-xl border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -487,22 +611,28 @@ const SuperAdmin: React.FC = () => {
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 font-heading">SuperAdmin Panel</h1>
-                <p className="text-gray-600 font-primary">Manage the entire Templates.uz platform</p>
+                <h1 className="text-3xl font-bold text-gray-900 font-heading">SuperAdmin Dashboard</h1>
+                <p className="text-gray-600 font-primary">Manage users, projects, and platform settings</p>
               </div>
             </div>
             
-            {activeTab === 'statistics' && (
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-              >
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="90d">Last 90 days</option>
-              </select>
-            )}
+            <div className="flex items-center gap-3">
+              {activeTab === 'statistics' && (
+                <select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value as any)}
+                  className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="7d">Last 7 days</option>
+                  <option value="30d">Last 30 days</option>
+                  <option value="90d">Last 90 days</option>
+                </select>
+              )}
+              <div className="flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-700 rounded-xl border border-purple-200">
+                <Crown className="w-4 h-4" />
+                <span className="font-medium font-primary">SuperAdmin</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -525,6 +655,54 @@ const SuperAdmin: React.FC = () => {
             </button>
           ))}
         </div>
+
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {stats.map((stat) => {
+                const IconComponent = stat.icon;
+                return (
+                  <div key={stat.label} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-600 font-primary">{stat.label}</p>
+                        <p className="text-3xl font-bold text-gray-900 font-heading">{stat.value}</p>
+                      </div>
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
+                        <IconComponent className="w-6 h-6" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Recent Activity</h3>
+              <div className="space-y-4">
+                {projects.slice(0, 5).map((project) => (
+                  <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <Globe className="w-5 h-5 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 font-primary">{project.name}</p>
+                        <p className="text-sm text-gray-600 font-primary">by {project.userName}</p>
+                      </div>
+                    </div>
+                    <div className="text-sm text-gray-500 font-primary">
+                      {new Date(project.updatedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Statistics Tab */}
         {activeTab === 'statistics' && platformStats && (
@@ -704,6 +882,220 @@ const SuperAdmin: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Projects Tab */}
+        {activeTab === 'projects' && (
+          <div className="space-y-6">
+            {/* Filters */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search projects..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                  />
+                </div>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                >
+                  <option value="all">All Categories</option>
+                  {websiteCategories.map(category => (
+                    <option key={category.id} value={category.id}>{category.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Projects Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredProjects.map((project) => (
+                <div key={project.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1 font-heading">{project.name}</h3>
+                      <p className="text-sm text-gray-600 font-primary">by {project.userName}</p>
+                      <p className="text-xs text-gray-500 font-primary">{project.userEmail}</p>
+                    </div>
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      project.isPublished 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>
+                      {project.isPublished ? 'Published' : 'Draft'}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 font-primary">Category:</span>
+                      <span className="font-medium text-gray-900 font-primary capitalize">{project.category}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 font-primary">Sections:</span>
+                      <span className="font-medium text-gray-900 font-primary">{project.sectionsCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 font-primary">Views:</span>
+                      <span className="font-medium text-gray-900 font-primary">{project.viewsCount}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600 font-primary">Created:</span>
+                      <span className="font-medium text-gray-900 font-primary">{new Date(project.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
+                      className="flex-1 px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors font-medium font-primary"
+                    >
+                      <Eye className="w-4 h-4 inline mr-1" />
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleAddToTemplate(project)}
+                      className="flex-1 px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors font-medium font-primary"
+                    >
+                      <Plus className="w-4 h-4 inline mr-1" />
+                      Add to Templates
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Templates Tab */}
+        {activeTab === 'templates' && (
+          <div className="space-y-6">
+            {/* Templates Header */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 font-heading">Template Gallery Management</h3>
+                <div className="text-sm text-gray-600 font-primary">
+                  {templates.length} templates in gallery
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search templates..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                  />
+                </div>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                >
+                  <option value="all">All Categories</option>
+                  {websiteCategories.map(category => (
+                    <option key={category.id} value={category.id}>{category.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Templates Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {filteredTemplates.map((template) => (
+                <div key={template.id} className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                  <div className="relative h-48">
+                    <img
+                      src={template.thumbnail}
+                      alt={template.name}
+                      className="w-full h-full object-cover"
+                    />
+                    {template.isPremium && (
+                      <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white rounded-full text-xs font-medium">
+                        <Crown className="w-3 h-3" />
+                        Premium
+                      </div>
+                    )}
+                    <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-black/70 text-white rounded-full text-xs font-medium">
+                      ${template.price}
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1 font-heading">{template.name}</h3>
+                        <p className="text-sm text-gray-600 font-primary">by {template.userName}</p>
+                      </div>
+                      <div className="text-sm text-gray-500 font-primary capitalize">{template.category}</div>
+                    </div>
+
+                    <p className="text-gray-600 mb-4 text-sm leading-relaxed font-primary">
+                      {template.description}
+                    </p>
+
+                    {/* Stats */}
+                    <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Eye className="w-4 h-4" />
+                        <span className="font-primary">{template.viewsCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-4 h-4" />
+                        <span className="font-primary">{template.likesCount}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Download className="w-4 h-4" />
+                        <span className="font-primary">{template.downloads}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Coins className="w-4 h-4 text-yellow-500" />
+                        <span className="font-primary">{template.coinsCount}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => window.open(`/site/${template.websiteUrl}`, '_blank')}
+                        className="flex-1 px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors font-medium font-primary"
+                      >
+                        <Eye className="w-4 h-4 inline mr-1" />
+                        Preview
+                      </button>
+                      
+                      <button
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                        title="Delete Template"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredTemplates.length === 0 && (
+              <div className="text-center py-12">
+                <Star className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2 font-heading">No templates found</h3>
+                <p className="text-gray-600 font-primary">
+                  Add projects to the template gallery to get started.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
@@ -1133,99 +1525,119 @@ const SuperAdmin: React.FC = () => {
           </div>
         )}
 
-        {/* Templates Tab */}
-        {activeTab === 'templates' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-900 font-heading">Template Gallery Management</h2>
-                  <p className="text-gray-600 font-primary">Manage templates that appear in the public gallery</p>
-                </div>
-                <div className="text-sm text-gray-600 font-primary">
-                  {projects.filter(p => p.isTemplate).length} templates active
-                </div>
-              </div>
+        {/* Other tabs content */}
+        {activeTab === 'analytics' && (
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Platform Analytics</h3>
+            <div className="text-center py-8">
+              <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 font-primary">Advanced analytics dashboard coming soon...</p>
+            </div>
+          </div>
+        )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {projects
-                  .filter(p => p.isTemplate)
-                  .map((template) => (
-                    <motion.div
-                      key={template.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-gradient-to-br from-white to-gray-50 rounded-2xl p-6 border-2 border-purple-200 shadow-lg hover:shadow-xl transition-all"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
-                            <Layout className="w-5 h-5 text-purple-600" />
-                          </div>
-                          <div>
-                            <h3 className="font-semibold text-gray-900 font-heading">{template.name}</h3>
-                            <p className="text-sm text-gray-600 font-primary">by {template.userName}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Palette className="w-4 h-4 text-purple-600" />
-                          <span className="text-xs font-medium text-purple-600 font-primary">TEMPLATE</span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-900 font-primary">
-                            <Eye className="w-4 h-4 text-gray-600" />
-                            {template.viewsCount}
-                          </div>
-                          <div className="text-xs text-gray-600 font-primary">Views</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-900 font-primary">
-                            <Heart className="w-4 h-4 text-red-500" />
-                            {template.likesCount}
-                          </div>
-                          <div className="text-xs text-gray-600 font-primary">Likes</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-900 font-primary">
-                            <Coins className="w-4 h-4 text-yellow-500" />
-                            {template.coinsCount}
-                          </div>
-                          <div className="text-xs text-gray-600 font-primary">Coins</div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => window.open(`/site/${template.websiteUrl}`, '_blank')}
-                          className="flex-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors font-medium font-primary"
-                        >
-                          Preview
-                        </button>
-                        <button
-                          onClick={() => handleToggleTemplate(template)}
-                          className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors font-medium font-primary"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
-              </div>
-
-              {projects.filter(p => p.isTemplate).length === 0 && (
-                <div className="text-center py-12">
-                  <Layout className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 font-heading">No Templates</h3>
-                  <p className="text-gray-600 font-primary">No projects have been marked as templates yet.</p>
-                </div>
-              )}
+        {activeTab === 'settings' && (
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+            <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Platform Settings</h3>
+            <div className="text-center py-8">
+              <Settings className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-600 font-primary">Platform configuration settings coming soon...</p>
             </div>
           </div>
         )}
       </div>
+
+      {/* Add Template Modal */}
+      {showAddTemplateModal && selectedProject && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 font-heading">Add to Template Gallery</h3>
+              <button
+                onClick={() => setShowAddTemplateModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Project</label>
+                <div className="p-3 bg-gray-50 rounded-xl">
+                  <p className="font-medium text-gray-900 font-primary">{selectedProject.name}</p>
+                  <p className="text-sm text-gray-600 font-primary">by {selectedProject.userName}</p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category</label>
+                <select
+                  value={templateForm.category}
+                  onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                >
+                  {websiteCategories.map(category => (
+                    <option key={category.id} value={category.id}>{category.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Price ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={templateForm.price}
+                  onChange={(e) => setTemplateForm({ ...templateForm, price: parseFloat(e.target.value) || 0 })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                  placeholder="0.00"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Tags (comma separated)</label>
+                <input
+                  type="text"
+                  value={templateForm.tags}
+                  onChange={(e) => setTemplateForm({ ...templateForm, tags: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 font-primary"
+                  placeholder="modern, business, professional"
+                />
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="isPremium"
+                  checked={templateForm.isPremium}
+                  onChange={(e) => setTemplateForm({ ...templateForm, isPremium: e.target.checked })}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isPremium" className="ml-2 block text-sm text-gray-700 font-primary">
+                  Mark as Premium Template
+                </label>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowAddTemplateModal(false)}
+                className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateTemplate}
+                className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors font-medium font-primary"
+              >
+                Add Template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal for Add/Edit */}
       {showModal && (
