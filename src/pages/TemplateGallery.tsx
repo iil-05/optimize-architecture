@@ -44,6 +44,7 @@ interface TemplateItem {
   userId: string;
   userName: string;
   userEmail: string;
+  tags: string[];
   sectionsCount: number;
   viewsCount: number;
   likesCount: number;
@@ -51,6 +52,7 @@ interface TemplateItem {
   rating: number;
   downloads: number;
   isPremium: boolean;
+  price: number;
   isTemplate: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -90,36 +92,42 @@ const TemplateGallery: React.FC = () => {
   const loadTemplates = () => {
     setIsLoading(true);
     try {
-      // Get all projects marked as templates
-      const allProjects = optimizedStorage.getAllProjectsAdmin();
-      const templateProjects = allProjects
-        .filter(project => project.isTemplate && project.isPublished)
-        .map(project => ({
-          id: project.id,
-          name: project.name,
-          description: project.description || 'No description available',
-          category: project.category,
-          thumbnail: `https://images.pexels.com/photos/318${Math.floor(Math.random() * 10) + 4290}/pexels-photo-318${Math.floor(Math.random() * 10) + 4290}.jpeg?auto=compress&cs=tinysrgb&w=400&h=300&dpr=1`,
-          websiteUrl: project.websiteUrl,
-          userId: project.userId,
-          userName: project.userName,
-          userEmail: project.userEmail,
-          sectionsCount: project.sectionsCount,
-          viewsCount: project.viewsCount,
-          likesCount: project.likesCount,
-          coinsCount: project.coinsCount,
-          rating: 4.5 + Math.random() * 0.5, // Mock rating
-          downloads: Math.floor(Math.random() * 1000) + 100,
-          isPremium: Math.random() > 0.7,
-          isTemplate: project.isTemplate,
-          createdAt: project.createdAt,
-          updatedAt: project.updatedAt,
-        }));
+      // Load templates from the templates_uz_templates storage key
+      const templatesData = optimizedStorage.getTemplateGallery();
+      
+      console.log('📚 Loading templates from storage:', templatesData);
+      
+      // Transform the data to match our interface
+      const transformedTemplates: TemplateItem[] = templatesData.map(template => ({
+        id: template.id,
+        name: template.name,
+        description: template.description,
+        category: template.category,
+        thumbnail: template.thumbnail,
+        websiteUrl: template.websiteUrl,
+        userId: template.userId,
+        userName: template.userName,
+        userEmail: template.userEmail,
+        tags: template.tags || [],
+        sectionsCount: template.sectionsCount,
+        viewsCount: template.viewsCount,
+        likesCount: template.likesCount,
+        coinsCount: template.coinsCount,
+        rating: template.rating,
+        downloads: template.downloads,
+        isPremium: template.isPremium,
+        price: template.price || 0,
+        isTemplate: template.isTemplate,
+        createdAt: new Date(template.createdAt),
+        updatedAt: new Date(template.updatedAt),
+      }));
 
-      setTemplates(templateProjects);
+      setTemplates(transformedTemplates);
+      console.log('✅ Templates loaded successfully:', transformedTemplates.length);
     } catch (error) {
-      console.error('Error loading templates:', error);
+      console.error('❌ Error loading templates:', error);
       toast.error('Failed to load templates');
+      setTemplates([]);
     } finally {
       setIsLoading(false);
     }
@@ -146,16 +154,13 @@ const TemplateGallery: React.FC = () => {
       toast.success('Template added to favorites!');
       
       // Track template like
-      const template = templates.find(t => t.id === templateId);
-      if (template) {
-        optimizedStorage.trackTemplateLike(template.userId, templateId);
-      }
+      optimizedStorage.trackTemplateLike(templateId);
     }
 
     setLikedTemplates(updatedLikes);
     localStorage.setItem('liked_templates', JSON.stringify(updatedLikes));
 
-    // Update template likes count
+    // Update template likes count in local state
     setTemplates(prev => prev.map(template => 
       template.id === templateId 
         ? { ...template, likesCount: template.likesCount + (isLiked ? -1 : 1) }
@@ -168,9 +173,9 @@ const TemplateGallery: React.FC = () => {
     if (!template) return;
 
     // Track coin donation
-    optimizedStorage.trackTemplateCoinDonation(template.userId, templateId, amount);
+    optimizedStorage.trackTemplateCoins(templateId, amount);
 
-    // Update template coins count
+    // Update template coins count in local state
     setTemplates(prev => prev.map(t => 
       t.id === templateId 
         ? { ...t, coinsCount: t.coinsCount + amount }
@@ -183,7 +188,7 @@ const TemplateGallery: React.FC = () => {
   const handleUseTemplate = async (template: TemplateItem) => {
     try {
       // Track template download
-      optimizedStorage.trackTemplateDownload(template.userId, template.id);
+      optimizedStorage.trackTemplateDownload(template.id);
 
       // Create new project based on template
       const newProject = createProject(
@@ -193,7 +198,7 @@ const TemplateGallery: React.FC = () => {
         template.category
       );
 
-      // Update downloads count
+      // Update downloads count in local state
       setTemplates(prev => prev.map(t => 
         t.id === template.id 
           ? { ...t, downloads: t.downloads + 1 }
@@ -208,10 +213,29 @@ const TemplateGallery: React.FC = () => {
     }
   };
 
+  const handlePreviewTemplate = (template: TemplateItem) => {
+    // Open template preview in new tab
+    const previewUrl = `/site/${template.websiteUrl}`;
+    window.open(previewUrl, '_blank');
+    
+    // Track view
+    optimizedStorage.updateTemplate(template.id, { 
+      viewsCount: template.viewsCount + 1 
+    });
+    
+    // Update local state
+    setTemplates(prev => prev.map(t => 
+      t.id === template.id 
+        ? { ...t, viewsCount: t.viewsCount + 1 }
+        : t
+    ));
+  };
+
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       template.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.userName.toLowerCase().includes(searchTerm.toLowerCase());
+      template.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
     
@@ -221,7 +245,7 @@ const TemplateGallery: React.FC = () => {
   const sortedTemplates = [...filteredTemplates].sort((a, b) => {
     switch (sortBy) {
       case 'popular':
-        return (b.likesCount + b.downloads) - (a.likesCount + a.downloads);
+        return (b.likesCount + b.downloads + b.viewsCount) - (a.likesCount + a.downloads + a.viewsCount);
       case 'newest':
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       case 'rating':
@@ -330,6 +354,9 @@ const TemplateGallery: React.FC = () => {
           {categories.map(category => {
             const IconComponent = category.icon;
             const isSelected = selectedCategory === category.id;
+            const categoryCount = category.id === 'all' 
+              ? templates.length 
+              : templates.filter(t => t.category === category.id).length;
             
             return (
               <button
@@ -343,13 +370,11 @@ const TemplateGallery: React.FC = () => {
               >
                 <IconComponent className="w-4 h-4" />
                 <span className="font-primary">{category.name}</span>
-                {category.id !== 'all' && (
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    isSelected ? 'bg-white/20' : 'bg-gray-100'
-                  }`}>
-                    {templates.filter(t => t.category === category.id).length}
-                  </span>
-                )}
+                <span className={`text-xs px-2 py-1 rounded-full ${
+                  isSelected ? 'bg-white/20' : 'bg-gray-100'
+                }`}>
+                  {categoryCount}
+                </span>
               </button>
             );
           })}
@@ -404,7 +429,7 @@ const TemplateGallery: React.FC = () => {
                     {/* Quick Actions */}
                     <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => window.open(`/site/${template.websiteUrl}`, '_blank')}
+                        onClick={() => handlePreviewTemplate(template)}
                         className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center hover:bg-white transition-colors"
                         title="Preview"
                       >
@@ -436,25 +461,54 @@ const TemplateGallery: React.FC = () => {
                       {template.description}
                     </p>
 
+                    {/* Tags */}
+                    {template.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {template.tags.slice(0, 3).map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium font-primary"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                        {template.tags.length > 3 && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs font-medium font-primary">
+                            +{template.tags.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     {/* Stats */}
                     <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <Eye className="w-4 h-4" />
-                        <span className="font-primary">{template.viewsCount}</span>
+                        <span className="font-primary">{template.viewsCount.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Heart className={`w-4 h-4 ${isLiked ? 'fill-current text-red-500' : ''}`} />
-                        <span className="font-primary">{template.likesCount}</span>
+                        <span className="font-primary">{template.likesCount.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Download className="w-4 h-4" />
-                        <span className="font-primary">{template.downloads}</span>
+                        <span className="font-primary">{template.downloads.toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Coins className="w-4 h-4 text-yellow-500" />
-                        <span className="font-primary">{template.coinsCount}</span>
+                        <span className="font-primary">{template.coinsCount.toLocaleString()}</span>
                       </div>
                     </div>
+
+                    {/* Price */}
+                    {template.isPremium && template.price > 0 && (
+                      <div className="mb-4">
+                        <span className="text-lg font-bold text-purple-600 font-heading">
+                          ${template.price}
+                        </span>
+                        <span className="text-sm text-gray-600 ml-1 font-primary">one-time</span>
+                      </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex items-center gap-2">
@@ -483,7 +537,7 @@ const TemplateGallery: React.FC = () => {
                         </button>
                         
                         {/* Coin Donation Dropdown */}
-                        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
+                        <div className="absolute bottom-full right-0 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto z-10">
                           <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-3 min-w-[120px]">
                             <div className="text-xs text-gray-600 mb-2 font-primary">Donate coins</div>
                             <div className="flex gap-1">
@@ -514,7 +568,10 @@ const TemplateGallery: React.FC = () => {
             <Palette className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2 font-heading">No templates found</h3>
             <p className="text-gray-600 mb-6 font-primary">
-              Try adjusting your search terms or filters to find what you're looking for.
+              {templates.length === 0 
+                ? "No templates have been added yet. Check back soon for new templates!"
+                : "Try adjusting your search terms or filters to find what you're looking for."
+              }
             </p>
             <button
               onClick={() => {
