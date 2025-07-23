@@ -19,6 +19,7 @@ import Support from './pages/Support';
 import TemplateGallery from './pages/TemplateGallery';
 import SiteViewer from './pages/SiteViewer';
 import SiteAdmin from './pages/SiteAdmin';
+import SuperAdmin from './pages/SuperAdmin';
 
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -61,6 +62,16 @@ function App() {
                 element={
                   <AuthGuard requireProjectAccess={window.location.pathname.split('/')[2]}>
                     <SiteAdmin />
+                  </AuthGuard>
+                }
+              />
+
+              {/* SuperAdmin route */}
+              <Route
+                path="/superadmin"
+                element={
+                  <AuthGuard>
+                    <SuperAdmin />
                   </AuthGuard>
                 }
               />

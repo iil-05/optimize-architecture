@@ -13,7 +13,8 @@ import {
   HelpCircle,
   Palette,
   Menu,
-  X
+  X,
+  Shield
 } from 'lucide-react'
 
 interface Language {
@@ -31,6 +32,9 @@ const CommonHeader: React.FC = () => {
   const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  
+  // Check if user is superadmin
+  const isSuperAdmin = user?.role === 'superadmin'
 
   const languages: Language[] = [
     { code: 'en', name: t('header.language.english'), flag: '🇬🇧', flagIcon: '/images/flags/gb.svg' },
@@ -186,6 +190,12 @@ const CommonHeader: React.FC = () => {
                     <HelpCircle className="w-4 h-4 mr-3" />
                     {t('header.profile.support')}
                   </Link>
+                  {isSuperAdmin && (
+                    <Link to="/superadmin" className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors font-sans" onClick={() => setIsProfileDropdownOpen(false)}>
+                      <Shield className="w-4 h-4 mr-3" />
+                      SuperAdmin
+                    </Link>
+                  )}
                   <div className="border-t border-gray-200 my-1"></div>
                   <button onClick={handleLogout} className="flex items-center px-4 py-3 text-sm text-primary-600 hover:bg-primary-50 w-full text-left transition-colors font-sans">
                     <LogOut className="w-4 h-4 mr-3" />
@@ -263,6 +273,12 @@ const CommonHeader: React.FC = () => {
                   <IconComponent className="w-5 h-5" />
                   {item.label}
                 </Link>
+                {isSuperAdmin && (
+                  <Link to="/superadmin" className="flex items-center gap-3 px-4 py-3 text-base font-medium text-gray-700 hover:text-primary-600 hover:bg-gray-50 transition-colors rounded-xl" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Shield className="w-5 h-5" />
+                    SuperAdmin
+                  </Link>
+                )}
               )
             })}
 

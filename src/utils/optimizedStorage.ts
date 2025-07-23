@@ -196,6 +196,108 @@ export class OptimizedStorage {
     }
   }
 
+  // Get current user role for admin checks
+  private getCurrentUserRole(): string | null {
+    try {
+      const authData = localStorage.getItem('authData');
+      if (authData) {
+        const parsed = JSON.parse(authData);
+        return parsed.user?.role || 'user';
+      }
+      
+      return 'user';
+    } catch (error) {
+      console.error('Error getting current user role:', error);
+      return 'user';
+    }
+  }
+
+  // Check if current user is superadmin
+  public isSuperAdmin(): boolean {
+    return this.getCurrentUserRole() === 'superadmin';
+  }
+
+  // SuperAdmin methods - only accessible by superadmin users
+  public getAllUsersAdmin(): AdminUser[] {
+    if (!this.isSuperAdmin()) {
+      console.warn('🔒 Access denied: SuperAdmin privileges required');
+      return [];
+    }
+    
+    // In a real app, this would fetch from API
+    // For now, return mock data
+    return this.generateMockUsers();
+  }
+
+  public getAllProjectsAdmin(): AdminProject[] {
+    if (!this.isSuperAdmin()) {
+      console.warn('🔒 Access denied: SuperAdmin privileges required');
+      return [];
+    }
+    
+    const allProjects = this.loadFromStorage(this.STORAGE_KEYS.PROJECTS) || [];
+    return allProjects.map((project: StoredProject) => ({
+      id: project.id,
+      name: project.name,
+      description: project.description,
+      websiteUrl: project.websiteUrl,
+      category: project.category,
+      userId: project.userId,
+      userName: 'User Name', // Would be fetched from user data
+      userEmail: 'user@example.com', // Would be fetched from user data
+      themeId: project.themeId,
+      isPublished: project.isPublished,
+      sectionsCount: project.sections.length,
+      viewsCount: Math.floor(Math.random() * 1000),
+      likesCount: Math.floor(Math.random() * 100),
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+    }));
+  }
+
+  private generateMockUsers(): AdminUser[] {
+    return [
+      {
+        id: '1',
+        name: 'John Doe',
+        email: 'john@example.com',
+        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1',
+        role: 'pro',
+        status: 'active',
+        plan: 'pro',
+        createdAt: new Date('2024-01-15'),
+        lastLoginAt: new Date(),
+        projectsCount: 5,
+        storageUsed: 250,
+      },
+      {
+        id: '2',
+        name: 'Sarah Johnson',
+        email: 'sarah@example.com',
+        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1',
+        role: 'enterprise',
+        status: 'active',
+        plan: 'enterprise',
+        createdAt: new Date('2024-01-10'),
+        lastLoginAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        projectsCount: 12,
+        storageUsed: 850,
+      },
+      {
+        id: '3',
+        name: 'Mike Chen',
+        email: 'mike@example.com',
+        role: 'user',
+        status: 'active',
+        plan: 'free',
+        createdAt: new Date('2024-02-01'),
+        lastLoginAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        projectsCount: 2,
+        storageUsed: 45,
+      },
+    ];
+  }
+
   // Ensure user has access to resource
   private checkUserAccess(resourceUserId: string): boolean {
     const currentUserId = this.getCurrentUserId();
