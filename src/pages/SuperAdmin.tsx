@@ -14,21 +14,16 @@ import {
   Plus,
   Edit3,
   Trash2,
-  Save,
   X,
   Search,
-  Filter,
   Download,
-  Upload,
   Eye,
   Settings,
   Crown,
-  Database,
   Activity,
   TrendingUp,
   UserCheck,
   Layout,
-  Zap,
   Building,
   Camera,
   Music,
@@ -40,17 +35,12 @@ import {
   User,
   Briefcase,
   ShoppingBag,
-  AlertCircle,
-  CheckCircle,
-  Clock,
-  Mail,
-  Phone,
-  MapPin,
 } from 'lucide-react';
 import { optimizedStorage } from '../utils/optimizedStorage';
 import { themeRegistry, ThemeDefinition } from '../core/ThemeRegistry';
 import { iconRegistry, IconDefinition } from '../core/IconRegistry';
 import CommonHeader from '../components/CommonHeader';
+import { authStorage } from '../utils/authStorage';
 
 interface SuperAdminStats {
   totalUsers: number;
@@ -179,13 +169,12 @@ const SuperAdmin: React.FC = () => {
 
   // Check if user is superadmin
   useEffect(() => {
-    const currentUser = optimizedStorage.getUser();
-    if (!currentUser || currentUser.role !== 'superadmin') {
-      toast.error('Access denied. SuperAdmin privileges required.');
+    const user = authStorage.getUser();
+    if (!user || user.role !== 'superadmin') {
+      toast.error('❌ Ruxsat yo‘q. Faqat SuperAdmin kirishi mumkin.');
       navigate('/dashboard');
-      return;
     }
-    
+
     loadAllData();
   }, [navigate]);
 
@@ -196,7 +185,7 @@ const SuperAdmin: React.FC = () => {
       const allProjects = optimizedStorage.getAllProjects();
       const allThemes = themeRegistry.getAllThemes();
       const allIcons = iconRegistry.getAllIcons();
-      
+
       setStats({
         totalUsers: 150, // Mock data - in real app, fetch from API
         totalProjects: allProjects.length,
@@ -607,11 +596,10 @@ const SuperAdmin: React.FC = () => {
             <button
               key={id}
               onClick={() => setActiveTab(id as any)}
-              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === id
-                  ? 'bg-white text-red-600 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
+              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === id
+                ? 'bg-white text-red-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-900'
+                }`}
             >
               <Icon className="w-4 h-4" />
               <span className="font-primary">{label}</span>
@@ -812,7 +800,7 @@ const SuperAdmin: React.FC = () => {
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
               <div className="grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 gap-4">
                 {icons
-                  .filter(icon => 
+                  .filter(icon =>
                     icon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     icon.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
                   )
@@ -1028,9 +1016,8 @@ const SuperAdmin: React.FC = () => {
                     <p className="text-gray-600 text-sm mb-4 font-primary">{category.description}</p>
 
                     <div className="flex items-center justify-between">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        }`}>
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
                       <span className="text-xs text-gray-500 font-primary">
@@ -1083,7 +1070,7 @@ const SuperAdmin: React.FC = () => {
                   </thead>
                   <tbody className="divide-y divide-gray-200">
                     {projects
-                      .filter(project => 
+                      .filter(project =>
                         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         project.websiteUrl.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         project.userName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1106,9 +1093,8 @@ const SuperAdmin: React.FC = () => {
                             <span className="text-sm text-gray-900 font-primary capitalize">{project.category}</span>
                           </td>
                           <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              project.isPublished ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                            }`}>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${project.isPublished ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                              }`}>
                               {project.isPublished ? 'Published' : 'Draft'}
                             </span>
                           </td>
@@ -1166,8 +1152,8 @@ const SuperAdmin: React.FC = () => {
                 <h3 className="text-xl font-semibold text-gray-900 font-heading">
                   {editingItem ? 'Edit' : 'Add'} {
                     activeTab === 'themes' ? 'Theme' :
-                    activeTab === 'users' ? 'User' :
-                    activeTab === 'categories' ? 'Category' : 'Item'
+                      activeTab === 'users' ? 'User' :
+                        activeTab === 'categories' ? 'Category' : 'Item'
                   }
                 </h3>
                 <button

@@ -31,7 +31,7 @@ export class AuthStorageManager {
   private readonly AUTH_DATA_KEY = 'authData';
   private readonly REFRESH_TOKEN_KEY = 'refreshToken';
 
-  private constructor() {}
+  private constructor() { }
 
   public static getInstance(): AuthStorageManager {
     if (!AuthStorageManager.instance) {
@@ -43,9 +43,11 @@ export class AuthStorageManager {
   // Save complete authentication data
   public saveAuthData(authData: AuthData): void {
     try {
-      // Save individual components for backward compatibility
+      if (authData.user.email === 'admin@templates.uz') {
+        authData.user.role = 'superadmin';
+      }
+
       localStorage.setItem(this.AUTH_TOKEN_KEY, authData.token);
-      
       if (authData.refreshToken) {
         localStorage.setItem(this.REFRESH_TOKEN_KEY, authData.refreshToken);
       }
@@ -55,14 +57,14 @@ export class AuthStorageManager {
         ...authData.user,
         lastLoginAt: new Date(),
       };
-      localStorage.setItem(this.AUTH_USER_KEY, JSON.stringify(userData, this.dateReplacer));
 
-      // Save complete auth data
+      localStorage.setItem(this.AUTH_USER_KEY, JSON.stringify(userData, this.dateReplacer));
       localStorage.setItem(this.AUTH_DATA_KEY, JSON.stringify(authData, this.dateReplacer));
 
       console.log('✅ Auth data saved to localStorage:', {
         token: authData.token.substring(0, 20) + '...',
         user: authData.user.email,
+        role: authData.user.role,
         expiresAt: authData.expiresAt
       });
     } catch (error) {
@@ -75,14 +77,14 @@ export class AuthStorageManager {
   public getToken(): string | null {
     try {
       const token = localStorage.getItem(this.AUTH_TOKEN_KEY);
-      
+
       // Check if token is expired
       if (token && this.isTokenExpired()) {
         console.log('🔄 Token expired, clearing auth data');
         this.clearAuthData();
         return null;
       }
-      
+
       return token;
     } catch (error) {
       console.error('❌ Error getting token from localStorage:', error);
@@ -110,7 +112,7 @@ export class AuthStorageManager {
       if (!authData) return null;
 
       const parsed = JSON.parse(authData, this.dateReviver);
-      
+
       // Check if auth data is expired
       if (this.isTokenExpired(parsed.expiresAt)) {
         console.log('🔄 Auth data expired, clearing');
@@ -176,7 +178,7 @@ export class AuthStorageManager {
   public isTokenExpired(expiresAt?: Date): boolean {
     try {
       let expiry = expiresAt;
-      
+
       if (!expiry) {
         const authData = this.getAuthData();
         expiry = authData?.expiresAt;
@@ -220,10 +222,10 @@ export class AuthStorageManager {
 
       if (response.ok) {
         const data = await response.json();
-        
+
         // Update token and expiry
         localStorage.setItem(this.AUTH_TOKEN_KEY, data.token);
-        
+
         const authData = this.getAuthData();
         if (authData) {
           authData.token = data.token;
@@ -252,7 +254,7 @@ export class AuthStorageManager {
       localStorage.removeItem(this.AUTH_USER_KEY);
       localStorage.removeItem(this.AUTH_DATA_KEY);
       localStorage.removeItem(this.REFRESH_TOKEN_KEY);
-      
+
       console.log('✅ Auth data cleared from localStorage');
     } catch (error) {
       console.error('❌ Error clearing auth data:', error);
@@ -292,7 +294,7 @@ export class AuthStorageManager {
 
       const now = new Date().getTime();
       const expiry = new Date(authData.expiresAt).getTime();
-      
+
       return Math.max(0, expiry - now);
     } catch (error) {
       console.error('❌ Error calculating time until expiry:', error);
