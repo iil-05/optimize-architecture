@@ -421,7 +421,10 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     if (fontCollection) {
       setCurrentTheme(prev => ({
         ...prev,
-        fonts: fontCollection.fonts
+        fonts: {
+          ...prev.fonts,
+          ...fontCollection.fonts
+        }
       }));
     }
   };
