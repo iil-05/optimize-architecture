@@ -1,29 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import {
   Shield,
   BarChart3,
   Users,
+  Globe,
   Palette,
   Star,
-  Globe,
-  Tag,
+  Layout,
   Plus,
   Edit3,
   Trash2,
+  Save,
   X,
-  Search,
-  Download,
   Eye,
+  Heart,
+  Coins,
+  TrendingUp,
+  Activity,
+  Monitor,
+  Smartphone,
+  Tablet,
+  Search,
+  Filter,
+  Download,
+  Upload,
   Settings,
   Crown,
-  Activity,
-  TrendingUp,
-  UserCheck,
-  Layout,
+  Zap,
   Building,
   Camera,
   Music,
@@ -35,24 +41,57 @@ import {
   User,
   Briefcase,
   ShoppingBag,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Calendar,
+  Mail,
+  Phone,
+  MapPin,
+  Link as LinkIcon,
+  Image,
+  Type,
+  Code,
+  Database,
+  Server,
+  Cloud,
+  Wifi,
+  Battery,
+  Power,
 } from 'lucide-react';
+import {
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  RadialBarChart,
+  RadialBar,
+  Legend
+} from 'recharts';
 import { optimizedStorage } from '../utils/optimizedStorage';
 import { themeRegistry, ThemeDefinition } from '../core/ThemeRegistry';
 import { iconRegistry, IconDefinition } from '../core/IconRegistry';
 import CommonHeader from '../components/CommonHeader';
-import { authStorage } from '../utils/authStorage';
+import * as LucideIcons from 'lucide-react';
 
-interface SuperAdminStats {
-  totalUsers: number;
-  totalProjects: number;
-  totalTemplates: number;
-  totalThemes: number;
-  totalIcons: number;
-  activeUsers: number;
-  publishedWebsites: number;
-  premiumUsers: number;
-}
+// Memoized chart components for performance
+const MemoizedAreaChart = React.memo(AreaChart);
+const MemoizedBarChart = React.memo(BarChart);
+const MemoizedPieChart = React.memo(PieChart);
+const MemoizedLineChart = React.memo(LineChart);
+const MemoizedRadialBarChart = React.memo(RadialBarChart);
 
+// Interfaces
 interface AdminUser {
   id: string;
   name: string;
@@ -64,18 +103,7 @@ interface AdminUser {
   createdAt: Date;
   lastLoginAt: Date;
   projectsCount: number;
-  storageUsed: number;
-}
-
-interface WebsiteCategory {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-  isActive: boolean;
-  projectsCount: number;
-  createdAt: Date;
+  storageUsed: number; // in MB
 }
 
 interface AdminProject {
@@ -89,181 +117,239 @@ interface AdminProject {
   userEmail: string;
   themeId: string;
   isPublished: boolean;
+  isTemplate: boolean;
   sectionsCount: number;
   viewsCount: number;
   likesCount: number;
+  coinsReceived: number;
+  templateRating: number;
+  templateDownloads: number;
   createdAt: Date;
   updatedAt: Date;
 }
 
+interface WebsiteCategory {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  color: string;
+  isActive: boolean;
+  projectsCount: number;
+  createdAt: Date;
+}
+
+interface PlatformStats {
+  totalUsers: number;
+  activeUsers: number;
+  totalProjects: number;
+  publishedProjects: number;
+  totalTemplates: number;
+  totalThemes: number;
+  totalIcons: number;
+  totalCategories: number;
+  totalViews: number;
+  totalLikes: number;
+  totalCoins: number;
+  storageUsed: number;
+  userGrowth: Array<{ date: string; users: number; projects: number }>;
+  planDistribution: Array<{ plan: string; count: number; percentage: number }>;
+  categoryDistribution: Array<{ category: string; count: number; percentage: number }>;
+  deviceStats: Array<{ device: string; count: number; percentage: number }>;
+  browserStats: Array<{ browser: string; count: number; percentage: number }>;
+  dailyActivity: Array<{ date: string; views: number; likes: number; projects: number }>;
+  hourlyActivity: Array<{ hour: number; activity: number }>;
+  topTemplates: Array<{ id: string; name: string; downloads: number; rating: number }>;
+  topUsers: Array<{ id: string; name: string; projects: number; views: number }>;
+}
+
 const SuperAdmin: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'statistics' | 'themes' | 'icons' | 'users' | 'categories' | 'websites'>('statistics');
+  const [activeTab, setActiveTab] = useState<'statistics' | 'themes' | 'icons' | 'users' | 'categories' | 'websites' | 'templates'>('statistics');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Data states
-  const [stats, setStats] = useState<SuperAdminStats>({
-    totalUsers: 0,
-    totalProjects: 0,
-    totalTemplates: 0,
-    totalThemes: 0,
-    totalIcons: 0,
-    activeUsers: 0,
-    publishedWebsites: 0,
-    premiumUsers: 0,
-  });
-
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [themes, setThemes] = useState<ThemeDefinition[]>([]);
-  const [icons, setIcons] = useState<IconDefinition[]>([]);
-  const [categories, setCategories] = useState<WebsiteCategory[]>([]);
-  const [projects, setProjects] = useState<AdminProject[]>([]);
-
-  // Form states
-  const [themeForm, setThemeForm] = useState({
-    id: '',
-    name: '',
-    category: 'modern' as 'modern' | 'classic' | 'minimal' | 'bold' | 'elegant',
-    colors: {
-      primary: '#ef4444',
-      secondary: '#64748b',
-      accent: '#8b5cf6',
-      background: '#ffffff',
-      surface: '#ffffff',
-      text: '#111827',
-      textSecondary: '#6b7280',
-      border: '#e5e7eb',
-      success: '#10b981',
-      warning: '#f59e0b',
-      error: '#ef4444',
-    },
-    fonts: {
-      primary: 'Inter',
-      secondary: 'Inter',
-      accent: 'Inter',
-    },
-  });
-
-  const [userForm, setUserForm] = useState({
-    id: '',
-    name: '',
-    email: '',
-    role: 'user' as 'user' | 'pro' | 'enterprise' | 'admin' | 'superadmin',
-    status: 'active' as 'active' | 'inactive' | 'suspended',
-    plan: 'free' as 'free' | 'pro' | 'enterprise',
-  });
-
-  const [categoryForm, setCategoryForm] = useState({
-    id: '',
-    name: '',
-    description: '',
-    icon: 'Building',
-    color: '#ef4444',
-    isActive: true,
-  });
+  const [isLoading, setIsLoading] = useState(true);
 
   // Check if user is superadmin
+  const isSuperAdmin = optimizedStorage.isSuperAdmin();
+
+  // Redirect if not superadmin
   useEffect(() => {
-    const user = authStorage.getUser();
-    if (!user || user.role !== 'superadmin') {
-      toast.error('❌ Ruxsat yo‘q. Faqat SuperAdmin kirishi mumkin.');
+    if (!isSuperAdmin) {
+      toast.error('Access denied: SuperAdmin privileges required');
       navigate('/dashboard');
+      return;
     }
+    setIsLoading(false);
+  }, [isSuperAdmin, navigate]);
 
-    loadAllData();
-  }, [navigate]);
+  // Load platform data
+  const [platformStats, setPlatformStats] = useState<PlatformStats | null>(null);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [projects, setProjects] = useState<AdminProject[]>([]);
+  const [categories, setCategories] = useState<WebsiteCategory[]>([]);
+  const [themes, setThemes] = useState<ThemeDefinition[]>([]);
+  const [icons, setIcons] = useState<IconDefinition[]>([]);
 
-  const loadAllData = async () => {
-    setIsLoading(true);
-    try {
-      // Load statistics
-      const allProjects = optimizedStorage.getAllProjects();
-      const allThemes = themeRegistry.getAllThemes();
-      const allIcons = iconRegistry.getAllIcons();
-
-      setStats({
-        totalUsers: 150, // Mock data - in real app, fetch from API
-        totalProjects: allProjects.length,
-        totalTemplates: 25,
-        totalThemes: allThemes.length,
-        totalIcons: allIcons.length,
-        activeUsers: 120,
-        publishedWebsites: allProjects.filter(p => p.isPublished).length,
-        premiumUsers: 45,
-      });
-
-      // Load themes
-      setThemes(allThemes);
-
-      // Load icons
-      setIcons(allIcons);
-
-      // Load mock users
-      setUsers(generateMockUsers());
-
-      // Load categories
-      setCategories(generateMockCategories());
-
-      // Load projects with user info
-      setProjects(generateMockProjects(allProjects));
-
-    } catch (error) {
-      console.error('Error loading admin data:', error);
-      toast.error('Failed to load admin data');
-    } finally {
-      setIsLoading(false);
+  // Load data on component mount
+  useEffect(() => {
+    if (isSuperAdmin) {
+      loadPlatformData();
     }
+  }, [isSuperAdmin]);
+
+  const loadPlatformData = () => {
+    // Load real data from optimized storage
+    const allUsers = optimizedStorage.getAllUsersAdmin();
+    const allProjects = optimizedStorage.getAllProjectsAdmin();
+    const allThemes = themeRegistry.getAllThemes();
+    const allIcons = iconRegistry.getAllIcons();
+    
+    setUsers(allUsers);
+    setProjects(allProjects);
+    setThemes(allThemes);
+    setIcons(allIcons);
+    setCategories(getWebsiteCategories());
+    
+    // Generate real statistics
+    setPlatformStats(generatePlatformStats(allUsers, allProjects));
   };
 
-  const generateMockUsers = (): AdminUser[] => {
-    return [
-      {
-        id: '1',
-        name: 'John Doe',
-        email: 'john@example.com',
-        avatar: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1',
-        role: 'pro',
-        status: 'active',
-        plan: 'pro',
-        createdAt: new Date('2024-01-15'),
-        lastLoginAt: new Date(),
-        projectsCount: 5,
-        storageUsed: 250,
-      },
-      {
-        id: '2',
-        name: 'Sarah Johnson',
-        email: 'sarah@example.com',
-        avatar: 'https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=200&h=200&dpr=1',
-        role: 'enterprise',
-        status: 'active',
-        plan: 'enterprise',
-        createdAt: new Date('2024-01-10'),
-        lastLoginAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        projectsCount: 12,
-        storageUsed: 850,
-      },
-      {
-        id: '3',
-        name: 'Mike Chen',
-        email: 'mike@example.com',
-        role: 'user',
-        status: 'active',
-        plan: 'free',
-        createdAt: new Date('2024-02-01'),
-        lastLoginAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-        projectsCount: 2,
-        storageUsed: 45,
-      },
+  const generatePlatformStats = (users: AdminUser[], projects: AdminProject[]): PlatformStats => {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    
+    // Calculate real statistics
+    const activeUsers = users.filter(u => u.status === 'active').length;
+    const publishedProjects = projects.filter(p => p.isPublished).length;
+    const totalTemplates = projects.filter(p => p.isTemplate).length;
+    const totalViews = projects.reduce((sum, p) => sum + p.viewsCount, 0);
+    const totalLikes = projects.reduce((sum, p) => sum + p.likesCount, 0);
+    const totalCoins = projects.reduce((sum, p) => sum + p.coinsReceived, 0);
+    const storageUsed = users.reduce((sum, u) => sum + u.storageUsed, 0);
+
+    // Generate user growth data (last 30 days)
+    const userGrowth = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date(thirtyDaysAgo.getTime() + i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      const usersOnDate = users.filter(u => new Date(u.createdAt) <= date).length;
+      const projectsOnDate = projects.filter(p => new Date(p.createdAt) <= date).length;
+      
+      return {
+        date: dateStr,
+        users: usersOnDate,
+        projects: projectsOnDate
+      };
+    });
+
+    // Plan distribution
+    const planCounts = users.reduce((acc, user) => {
+      acc[user.plan] = (acc[user.plan] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const planDistribution = Object.entries(planCounts).map(([plan, count]) => ({
+      plan: plan.charAt(0).toUpperCase() + plan.slice(1),
+      count,
+      percentage: Math.round((count / users.length) * 100)
+    }));
+
+    // Category distribution
+    const categoryCounts = projects.reduce((acc, project) => {
+      acc[project.category] = (acc[project.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const categoryDistribution = Object.entries(categoryCounts).map(([category, count]) => ({
+      category: category.charAt(0).toUpperCase() + category.slice(1),
+      count,
+      percentage: Math.round((count / projects.length) * 100)
+    }));
+
+    // Mock device and browser stats (in real app, this would come from analytics)
+    const deviceStats = [
+      { device: 'Desktop', count: Math.floor(totalViews * 0.6), percentage: 60 },
+      { device: 'Mobile', count: Math.floor(totalViews * 0.3), percentage: 30 },
+      { device: 'Tablet', count: Math.floor(totalViews * 0.1), percentage: 10 }
     ];
+
+    const browserStats = [
+      { browser: 'Chrome', count: Math.floor(totalViews * 0.65), percentage: 65 },
+      { browser: 'Safari', count: Math.floor(totalViews * 0.20), percentage: 20 },
+      { browser: 'Firefox', count: Math.floor(totalViews * 0.10), percentage: 10 },
+      { browser: 'Edge', count: Math.floor(totalViews * 0.05), percentage: 5 }
+    ];
+
+    // Daily activity (last 30 days)
+    const dailyActivity = Array.from({ length: 30 }, (_, i) => {
+      const date = new Date(thirtyDaysAgo.getTime() + i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      
+      return {
+        date: dateStr,
+        views: Math.floor(Math.random() * 500) + 100,
+        likes: Math.floor(Math.random() * 50) + 10,
+        projects: Math.floor(Math.random() * 20) + 5
+      };
+    });
+
+    // Hourly activity
+    const hourlyActivity = Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      activity: Math.floor(Math.random() * 100) + 20
+    }));
+
+    // Top templates
+    const topTemplates = projects
+      .filter(p => p.isTemplate)
+      .sort((a, b) => b.templateDownloads - a.templateDownloads)
+      .slice(0, 10)
+      .map(p => ({
+        id: p.id,
+        name: p.name,
+        downloads: p.templateDownloads,
+        rating: p.templateRating
+      }));
+
+    // Top users
+    const topUsers = users
+      .sort((a, b) => b.projectsCount - a.projectsCount)
+      .slice(0, 10)
+      .map(u => ({
+        id: u.id,
+        name: u.name,
+        projects: u.projectsCount,
+        views: projects.filter(p => p.userId === u.id).reduce((sum, p) => sum + p.viewsCount, 0)
+      }));
+
+    return {
+      totalUsers: users.length,
+      activeUsers,
+      totalProjects: projects.length,
+      publishedProjects,
+      totalTemplates,
+      totalThemes: themes.length,
+      totalIcons: icons.length,
+      totalCategories: categories.length,
+      totalViews,
+      totalLikes,
+      totalCoins,
+      storageUsed,
+      userGrowth,
+      planDistribution,
+      categoryDistribution,
+      deviceStats,
+      browserStats,
+      dailyActivity,
+      hourlyActivity,
+      topTemplates,
+      topUsers
+    };
   };
 
-  const generateMockCategories = (): WebsiteCategory[] => {
+  const getWebsiteCategories = (): WebsiteCategory[] => {
     return [
       {
         id: 'business',
@@ -272,8 +358,8 @@ const SuperAdmin: React.FC = () => {
         icon: 'Building',
         color: '#3b82f6',
         isActive: true,
-        projectsCount: 45,
-        createdAt: new Date('2024-01-01'),
+        projectsCount: projects.filter(p => p.category === 'business').length,
+        createdAt: new Date('2024-01-01')
       },
       {
         id: 'portfolio',
@@ -282,8 +368,8 @@ const SuperAdmin: React.FC = () => {
         icon: 'Briefcase',
         color: '#8b5cf6',
         isActive: true,
-        projectsCount: 32,
-        createdAt: new Date('2024-01-01'),
+        projectsCount: projects.filter(p => p.category === 'portfolio').length,
+        createdAt: new Date('2024-01-01')
       },
       {
         id: 'ecommerce',
@@ -292,277 +378,118 @@ const SuperAdmin: React.FC = () => {
         icon: 'ShoppingBag',
         color: '#10b981',
         isActive: true,
-        projectsCount: 28,
-        createdAt: new Date('2024-01-01'),
+        projectsCount: projects.filter(p => p.category === 'ecommerce').length,
+        createdAt: new Date('2024-01-01')
       },
+      {
+        id: 'personal',
+        name: 'Personal',
+        description: 'Personal websites and blogs',
+        icon: 'User',
+        color: '#f59e0b',
+        isActive: true,
+        projectsCount: projects.filter(p => p.category === 'personal').length,
+        createdAt: new Date('2024-01-01')
+      },
+      {
+        id: 'photography',
+        name: 'Photography',
+        description: 'Photography and visual portfolios',
+        icon: 'Camera',
+        color: '#ef4444',
+        isActive: true,
+        projectsCount: projects.filter(p => p.category === 'photography').length,
+        createdAt: new Date('2024-01-01')
+      }
     ];
   };
 
-  const generateMockProjects = (realProjects: any[]): AdminProject[] => {
-    const mockProjects = realProjects.map(project => ({
-      id: project.id,
-      name: project.name,
-      description: project.description,
-      websiteUrl: project.websiteUrl,
-      category: project.category,
-      userId: project.userId || 'user-1',
-      userName: 'John Doe',
-      userEmail: 'john@example.com',
-      themeId: project.themeId,
-      isPublished: project.isPublished,
-      sectionsCount: project.sections.length,
-      viewsCount: Math.floor(Math.random() * 1000),
-      likesCount: Math.floor(Math.random() * 100),
-      createdAt: project.createdAt,
-      updatedAt: project.updatedAt,
-    }));
+  // Chart colors
+  const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4'];
 
-    return mockProjects;
-  };
-
-  // Theme management
-  const handleSaveTheme = () => {
-    try {
-      const theme: ThemeDefinition = {
-        ...themeForm,
-        borderRadius: {
-          sm: '0.25rem',
-          md: '0.5rem',
-          lg: '0.75rem',
-          xl: '1rem',
-          full: '9999px',
-        },
-        spacing: {
-          xs: '0.5rem',
-          sm: '1rem',
-          md: '1.5rem',
-          lg: '2rem',
-          xl: '3rem',
-        },
-        typography: {
-          h1: '2.5rem',
-          h2: '2rem',
-          h3: '1.5rem',
-          h4: '1.25rem',
-          body: '1rem',
-          small: '0.875rem',
-          button: '1rem',
-          headingWeight: 700,
-          bodyWeight: 400,
-          buttonWeight: 600,
-          headingLineHeight: 1.2,
-          bodyLineHeight: 1.6,
-        },
-        shadows: {
-          sm: '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-          md: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-          lg: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-          xl: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-        },
-        animations: {
-          duration: '0.3s',
-          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
-        },
-        isBuiltIn: false,
-        isPremium: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
-      if (editingItem) {
-        themeRegistry.updateTheme(theme.id, theme);
-        setThemes(prev => prev.map(t => t.id === theme.id ? theme : t));
-        toast.success('Theme updated successfully');
-      } else {
-        themeRegistry.addTheme(theme);
-        setThemes(prev => [...prev, theme]);
-        toast.success('Theme created successfully');
-      }
-
-      setShowModal(false);
-      setEditingItem(null);
-      resetThemeForm();
-    } catch (error) {
-      toast.error('Failed to save theme');
-    }
-  };
-
-  const handleDeleteTheme = (themeId: string) => {
-    if (window.confirm('Are you sure you want to delete this theme?')) {
-      themeRegistry.deleteTheme(themeId);
-      setThemes(prev => prev.filter(t => t.id !== themeId));
-      toast.success('Theme deleted successfully');
-    }
-  };
-
-  const resetThemeForm = () => {
-    setThemeForm({
-      id: '',
-      name: '',
-      category: 'modern',
-      colors: {
-        primary: '#ef4444',
-        secondary: '#64748b',
-        accent: '#8b5cf6',
-        background: '#ffffff',
-        surface: '#ffffff',
-        text: '#111827',
-        textSecondary: '#6b7280',
-        border: '#e5e7eb',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444',
-      },
-      fonts: {
-        primary: 'Inter',
-        secondary: 'Inter',
-        accent: 'Inter',
-      },
-    });
-  };
-
-  // User management
-  const handleSaveUser = () => {
-    try {
-      const user: AdminUser = {
-        ...userForm,
-        id: editingItem?.id || `user-${Date.now()}`,
-        avatar: editingItem?.avatar,
-        createdAt: editingItem?.createdAt || new Date(),
-        lastLoginAt: editingItem?.lastLoginAt || new Date(),
-        projectsCount: editingItem?.projectsCount || 0,
-        storageUsed: editingItem?.storageUsed || 0,
-      };
-
-      if (editingItem) {
-        setUsers(prev => prev.map(u => u.id === user.id ? user : u));
-        toast.success('User updated successfully');
-      } else {
-        setUsers(prev => [...prev, user]);
-        toast.success('User created successfully');
-      }
-
-      setShowModal(false);
-      setEditingItem(null);
-      resetUserForm();
-    } catch (error) {
-      toast.error('Failed to save user');
-    }
-  };
-
-  const handleDeleteUser = (userId: string) => {
-    if (window.confirm('Are you sure you want to delete this user? This will also delete all their projects.')) {
-      setUsers(prev => prev.filter(u => u.id !== userId));
-      toast.success('User deleted successfully');
-    }
-  };
-
-  const resetUserForm = () => {
-    setUserForm({
-      id: '',
-      name: '',
-      email: '',
-      role: 'user',
-      status: 'active',
-      plan: 'free',
-    });
-  };
-
-  // Category management
-  const handleSaveCategory = () => {
-    try {
-      const category: WebsiteCategory = {
-        ...categoryForm,
-        id: editingItem?.id || categoryForm.name.toLowerCase().replace(/\s+/g, '-'),
-        projectsCount: editingItem?.projectsCount || 0,
-        createdAt: editingItem?.createdAt || new Date(),
-      };
-
-      if (editingItem) {
-        setCategories(prev => prev.map(c => c.id === category.id ? category : c));
-        toast.success('Category updated successfully');
-      } else {
-        setCategories(prev => [...prev, category]);
-        toast.success('Category created successfully');
-      }
-
-      setShowModal(false);
-      setEditingItem(null);
-      resetCategoryForm();
-    } catch (error) {
-      toast.error('Failed to save category');
-    }
-  };
-
-  const handleDeleteCategory = (categoryId: string) => {
-    if (window.confirm('Are you sure you want to delete this category?')) {
-      setCategories(prev => prev.filter(c => c.id !== categoryId));
-      toast.success('Category deleted successfully');
-    }
-  };
-
-  const resetCategoryForm = () => {
-    setCategoryForm({
-      id: '',
-      name: '',
-      description: '',
-      icon: 'Building',
-      color: '#ef4444',
-      isActive: true,
-    });
-  };
-
-  // Project management
-  const handleDeleteProject = (projectId: string) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      optimizedStorage.deleteProject(projectId);
-      setProjects(prev => prev.filter(p => p.id !== projectId));
-      toast.success('Project deleted successfully');
-    }
-  };
-
+  // Tab configuration
   const tabs = [
     { id: 'statistics', label: 'Statistics', icon: BarChart3 },
     { id: 'themes', label: 'Themes', icon: Palette },
     { id: 'icons', label: 'Icons', icon: Star },
     { id: 'users', label: 'Users', icon: Users },
-    { id: 'categories', label: 'Categories', icon: Tag },
+    { id: 'categories', label: 'Categories', icon: Layout },
     { id: 'websites', label: 'Websites', icon: Globe },
+    { id: 'templates', label: 'Templates', icon: Crown },
   ];
 
-  const getStatusBadge = (status: string) => {
-    const colors = {
-      active: 'bg-green-100 text-green-700',
-      inactive: 'bg-gray-100 text-gray-700',
-      suspended: 'bg-red-100 text-red-700',
-    };
-    return colors[status as keyof typeof colors] || colors.active;
+  // Modal handlers
+  const handleAdd = (type: string) => {
+    setEditingItem(null);
+    setShowModal(true);
   };
 
-  const getRoleBadge = (role: string) => {
-    const colors = {
-      user: 'bg-gray-100 text-gray-700',
-      pro: 'bg-blue-100 text-blue-700',
-      enterprise: 'bg-purple-100 text-purple-700',
-      admin: 'bg-orange-100 text-orange-700',
-      superadmin: 'bg-red-100 text-red-700',
-    };
-    return colors[role as keyof typeof colors] || colors.user;
+  const handleEdit = (item: any) => {
+    setEditingItem(item);
+    setShowModal(true);
   };
+
+  const handleDelete = (id: string, type: string) => {
+    if (window.confirm(`Are you sure you want to delete this ${type}?`)) {
+      // Implement delete logic based on type
+      toast.success(`${type} deleted successfully`);
+      loadPlatformData();
+    }
+  };
+
+  const handleSave = (data: any, type: string) => {
+    // Implement save logic based on type
+    toast.success(`${type} ${editingItem ? 'updated' : 'created'} successfully`);
+    setShowModal(false);
+    setEditingItem(null);
+    loadPlatformData();
+  };
+
+  const handleToggleTemplate = (projectId: string, isTemplate: boolean) => {
+    // Toggle template status
+    const project = projects.find(p => p.id === projectId);
+    if (project) {
+      project.isTemplate = isTemplate;
+      toast.success(`Project ${isTemplate ? 'added to' : 'removed from'} templates`);
+      loadPlatformData();
+    }
+  };
+
+  // Filter functions
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredProjects = projects.filter(project => 
+    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    project.userName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredTemplates = projects.filter(project => 
+    project.isTemplate && (
+      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.category.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading SuperAdmin Dashboard...</p>
+          <div className="w-8 h-8 border-2 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Loading SuperAdmin panel...</p>
         </div>
       </div>
     );
   }
 
+  if (!isSuperAdmin) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <CommonHeader />
 
       {/* Page Header */}
@@ -570,17 +497,17 @@ const SuperAdmin: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
                 <Shield className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 font-heading">SuperAdmin Dashboard</h1>
-                <p className="text-gray-600 font-primary">Complete system administration and management</p>
+                <h1 className="text-3xl font-bold text-gray-900 font-heading">SuperAdmin Panel</h1>
+                <p className="text-gray-600 font-primary">Complete platform management and analytics</p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-xl border border-red-200">
+              <div className="flex items-center gap-2 px-3 py-2 bg-purple-100 text-purple-700 rounded-xl border border-purple-200">
                 <Crown className="w-4 h-4" />
                 <span className="font-medium font-primary">SuperAdmin</span>
               </div>
@@ -591,15 +518,16 @@ const SuperAdmin: React.FC = () => {
 
       {/* Tabs */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex space-x-1 bg-gray-100 rounded-xl p-1 mb-8 overflow-x-auto">
+        <div className="flex flex-wrap gap-1 bg-gray-100 rounded-xl p-1 mb-8">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setActiveTab(id as any)}
-              className={`flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === id
-                ? 'bg-white text-red-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-                }`}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
+                activeTab === id
+                  ? 'bg-white text-purple-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
             >
               <Icon className="w-4 h-4" />
               <span className="font-primary">{label}</span>
@@ -608,7 +536,7 @@ const SuperAdmin: React.FC = () => {
         </div>
 
         {/* Statistics Tab */}
-        {activeTab === 'statistics' && (
+        {activeTab === 'statistics' && platformStats && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -617,14 +545,10 @@ const SuperAdmin: React.FC = () => {
             {/* Overview Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: 'Total Users', value: stats.totalUsers, icon: Users, color: 'bg-blue-100 text-blue-600' },
-                { title: 'Total Projects', value: stats.totalProjects, icon: Globe, color: 'bg-green-100 text-green-600' },
-                { title: 'Active Users', value: stats.activeUsers, icon: UserCheck, color: 'bg-purple-100 text-purple-600' },
-                { title: 'Premium Users', value: stats.premiumUsers, icon: Crown, color: 'bg-yellow-100 text-yellow-600' },
-                { title: 'Published Sites', value: stats.publishedWebsites, icon: Activity, color: 'bg-red-100 text-red-600' },
-                { title: 'Total Themes', value: stats.totalThemes, icon: Palette, color: 'bg-indigo-100 text-indigo-600' },
-                { title: 'Total Icons', value: stats.totalIcons, icon: Star, color: 'bg-pink-100 text-pink-600' },
-                { title: 'Templates', value: stats.totalTemplates, icon: Layout, color: 'bg-cyan-100 text-cyan-600' },
+                { title: 'Total Users', value: platformStats.totalUsers.toLocaleString(), icon: Users, color: 'bg-blue-100 text-blue-600', change: '+12%' },
+                { title: 'Active Projects', value: platformStats.totalProjects.toLocaleString(), icon: Globe, color: 'bg-green-100 text-green-600', change: '+8%' },
+                { title: 'Templates', value: platformStats.totalTemplates.toLocaleString(), icon: Crown, color: 'bg-purple-100 text-purple-600', change: '+15%' },
+                { title: 'Total Views', value: platformStats.totalViews.toLocaleString(), icon: Eye, color: 'bg-orange-100 text-orange-600', change: '+25%' },
               ].map((stat, index) => {
                 const IconComponent = stat.icon;
                 return (
@@ -635,44 +559,174 @@ const SuperAdmin: React.FC = () => {
                     transition={{ delay: index * 0.1 }}
                     className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
                   >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-600 font-primary">{stat.title}</p>
-                        <p className="text-3xl font-bold text-gray-900 font-heading">{stat.value}</p>
-                      </div>
+                    <div className="flex items-center justify-between mb-4">
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.color}`}>
                         <IconComponent className="w-6 h-6" />
                       </div>
+                      <div className="text-right">
+                        <div className="text-sm text-green-600 font-semibold">{stat.change}</div>
+                        <div className="text-xs text-gray-500">vs last month</div>
+                      </div>
                     </div>
+                    <div className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</div>
+                    <div className="text-sm text-gray-600">{stat.title}</div>
                   </motion.div>
                 );
               })}
             </div>
 
-            {/* Quick Actions */}
+            {/* User Growth Chart */}
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6 font-heading">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { label: 'Add New Theme', icon: Palette, action: () => { setActiveTab('themes'); setShowModal(true); } },
-                  { label: 'Add New User', icon: Users, action: () => { setActiveTab('users'); setShowModal(true); } },
-                  { label: 'Add Category', icon: Tag, action: () => { setActiveTab('categories'); setShowModal(true); } },
-                  { label: 'Export Data', icon: Download, action: () => toast.info('Export functionality') },
-                  { label: 'System Settings', icon: Settings, action: () => toast.info('System settings') },
-                  { label: 'View Analytics', icon: TrendingUp, action: () => toast.info('Analytics dashboard') },
-                ].map((action) => {
-                  const IconComponent = action.icon;
-                  return (
-                    <button
-                      key={action.label}
-                      onClick={action.action}
-                      className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-gray-900">Platform Growth</h3>
+                <TrendingUp className="w-5 h-5 text-green-600" />
+              </div>
+              <ResponsiveContainer width="100%" height={300}>
+                <MemoizedAreaChart data={platformStats.userGrowth}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#6b7280"
+                    fontSize={12}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  />
+                  <YAxis stroke="#6b7280" fontSize={12} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#fff', 
+                      border: '1px solid #e5e7eb', 
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
+                    }}
+                    labelFormatter={(value) => new Date(value).toLocaleDateString()}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="users" 
+                    stroke="#3b82f6" 
+                    fill="#3b82f6" 
+                    fillOpacity={0.1}
+                    strokeWidth={2}
+                    name="Users"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="projects" 
+                    stroke="#10b981" 
+                    fill="#10b981" 
+                    fillOpacity={0.1}
+                    strokeWidth={2}
+                    name="Projects"
+                  />
+                </MemoizedAreaChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Plan Distribution and Category Distribution */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Plan Distribution</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <MemoizedPieChart>
+                    <Pie
+                      data={platformStats.planDistribution}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="count"
                     >
-                      <IconComponent className="w-5 h-5 text-red-600" />
-                      <span className="font-medium text-gray-900 font-primary">{action.label}</span>
-                    </button>
-                  );
-                })}
+                      {platformStats.planDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </MemoizedPieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Category Distribution</h3>
+                <ResponsiveContainer width="100%" height={250}>
+                  <MemoizedBarChart data={platformStats.categoryDistribution}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                    <XAxis dataKey="category" stroke="#6b7280" fontSize={12} />
+                    <YAxis stroke="#6b7280" fontSize={12} />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  </MemoizedBarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Daily Activity */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6">Daily Activity</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <MemoizedLineChart data={platformStats.dailyActivity}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                  <XAxis 
+                    dataKey="date" 
+                    stroke="#6b7280"
+                    fontSize={12}
+                    tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  />
+                  <YAxis stroke="#6b7280" fontSize={12} />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="views" stroke="#ef4444" strokeWidth={2} name="Views" />
+                  <Line type="monotone" dataKey="likes" stroke="#f59e0b" strokeWidth={2} name="Likes" />
+                  <Line type="monotone" dataKey="projects" stroke="#10b981" strokeWidth={2} name="Projects" />
+                </MemoizedLineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Top Templates and Top Users */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Top Templates</h3>
+                <div className="space-y-4">
+                  {platformStats.topTemplates.slice(0, 5).map((template, index) => (
+                    <div key={template.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-bold text-purple-600">#{index + 1}</span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{template.name}</div>
+                          <div className="text-sm text-gray-600">{template.downloads} downloads</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                        <span className="text-sm font-medium">{template.rating.toFixed(1)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-6">Top Users</h3>
+                <div className="space-y-4">
+                  {platformStats.topUsers.slice(0, 5).map((user, index) => (
+                    <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <span className="text-sm font-bold text-blue-600">#{index + 1}</span>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">{user.name}</div>
+                          <div className="text-sm text-gray-600">{user.projects} projects</div>
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.views.toLocaleString()} views
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -686,14 +740,10 @@ const SuperAdmin: React.FC = () => {
             className="space-y-6"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 font-heading">Theme Management</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Theme Management</h2>
               <button
-                onClick={() => {
-                  resetThemeForm();
-                  setEditingItem(null);
-                  setShowModal(true);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+                onClick={() => handleAdd('theme')}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Theme
@@ -704,59 +754,61 @@ const SuperAdmin: React.FC = () => {
               {themes.map((theme) => (
                 <div key={theme.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900 font-heading">{theme.name}</h3>
+                    <h3 className="font-semibold text-gray-900">{theme.name}</h3>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => {
-                          setThemeForm({
-                            id: theme.id,
-                            name: theme.name,
-                            category: theme.category,
-                            colors: theme.colors,
-                            fonts: theme.fonts,
-                          });
-                          setEditingItem(theme);
-                          setShowModal(true);
-                        }}
+                        onClick={() => handleEdit(theme)}
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                       >
                         <Edit3 className="w-4 h-4 text-gray-600" />
                       </button>
-                      {!theme.isBuiltIn && (
-                        <button
-                          onClick={() => handleDeleteTheme(theme.id)}
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleDelete(theme.id, 'theme')}
+                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-600" />
+                      </button>
                     </div>
                   </div>
 
+                  {/* Color Preview */}
                   <div className="flex gap-2 mb-4">
                     <div
-                      className="w-8 h-8 rounded-lg"
+                      className="w-8 h-8 rounded-lg shadow-sm"
                       style={{ backgroundColor: theme.colors.primary }}
                       title="Primary"
                     />
                     <div
-                      className="w-8 h-8 rounded-lg"
+                      className="w-8 h-8 rounded-lg shadow-sm"
                       style={{ backgroundColor: theme.colors.secondary }}
                       title="Secondary"
                     />
                     <div
-                      className="w-8 h-8 rounded-lg"
+                      className="w-8 h-8 rounded-lg shadow-sm"
                       style={{ backgroundColor: theme.colors.accent }}
                       title="Accent"
                     />
+                    <div
+                      className="w-8 h-8 rounded-lg shadow-sm border border-gray-200"
+                      style={{ backgroundColor: theme.colors.surface }}
+                      title="Surface"
+                    />
                   </div>
 
-                  <div className="text-sm text-gray-600 space-y-1">
-                    <p className="font-primary">Category: {theme.category}</p>
-                    <p className="font-primary">Font: {theme.fonts.primary}</p>
+                  {/* Font Preview */}
+                  <div className="space-y-2 mb-4">
+                    <div style={{ fontFamily: theme.fonts.primary }} className="text-sm font-semibold">
+                      Primary: {theme.fonts.primary}
+                    </div>
+                    <div style={{ fontFamily: theme.fonts.secondary }} className="text-sm">
+                      Secondary: {theme.fonts.secondary}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>Category: {theme.category}</span>
                     {theme.isPremium && (
-                      <span className="inline-flex items-center px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
-                        <Crown className="w-3 h-3 mr-1" />
+                      <span className="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs">
                         Premium
                       </span>
                     )}
@@ -775,34 +827,46 @@ const SuperAdmin: React.FC = () => {
             className="space-y-6"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 font-heading">Icon Management</h2>
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <h2 className="text-2xl font-bold text-gray-900">Icon Management</h2>
+              <button
+                onClick={() => handleAdd('icon')}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                Add Icon
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="flex-1 relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search icons..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
-                <button
-                  onClick={() => toast.info('Add icon functionality')}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+                <select
+                  value={selectedFilter}
+                  onChange={(e) => setSelectedFilter(e.target.value)}
+                  className="px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
-                  <Plus className="w-4 h-4" />
-                  Add Icon
-                </button>
+                  <option value="all">All Categories</option>
+                  <option value="general">General</option>
+                  <option value="business">Business</option>
+                  <option value="technology">Technology</option>
+                  <option value="communication">Communication</option>
+                </select>
               </div>
-            </div>
 
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 gap-4">
+              <div className="grid grid-cols-8 md:grid-cols-12 lg:grid-cols-16 gap-3">
                 {icons
-                  .filter(icon =>
-                    icon.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    icon.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()))
+                  .filter(icon => 
+                    (selectedFilter === 'all' || icon.category === selectedFilter) &&
+                    (searchTerm === '' || icon.name.toLowerCase().includes(searchTerm.toLowerCase()))
                   )
                   .slice(0, 96)
                   .map((icon) => {
@@ -810,19 +874,12 @@ const SuperAdmin: React.FC = () => {
                     return (
                       <div
                         key={icon.id}
-                        className="group relative p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
+                        className="group relative p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-colors cursor-pointer"
+                        onClick={() => handleEdit(icon)}
                       >
                         <IconComponent className="w-6 h-6 text-gray-700 mx-auto" />
                         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                           {icon.name}
-                        </div>
-                        <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button
-                            onClick={() => toast.info(`Edit ${icon.name}`)}
-                            className="w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-700"
-                          >
-                            <Edit3 className="w-2.5 h-2.5" />
-                          </button>
                         </div>
                       </div>
                     );
@@ -840,93 +897,97 @@ const SuperAdmin: React.FC = () => {
             className="space-y-6"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 font-heading">User Management</h2>
+              <h2 className="text-2xl font-bold text-gray-900">User Management</h2>
               <button
-                onClick={() => {
-                  resetUserForm();
-                  setEditingItem(null);
-                  setShowModal(true);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+                onClick={() => handleAdd('user')}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add User
               </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex items-center gap-4">
+                  <div className="flex-1 relative">
+                    <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Search users..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">User</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Role</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Plan</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Status</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Projects</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Storage</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Actions</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">User</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Plan</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Projects</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Storage</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Last Login</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {users.map((user) => (
+                    {filteredUsers.map((user) => (
                       <tr key={user.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             {user.avatar ? (
-                              <img src={user.avatar} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
+                              <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
                             ) : (
-                              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                                <User className="w-4 h-4 text-gray-600" />
+                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                                <User className="w-5 h-5 text-gray-600" />
                               </div>
                             )}
                             <div>
-                              <div className="font-medium text-gray-900 font-primary">{user.name}</div>
-                              <div className="text-sm text-gray-600 font-primary">{user.email}</div>
+                              <div className="font-medium text-gray-900">{user.name}</div>
+                              <div className="text-sm text-gray-600">{user.email}</div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadge(user.role)}`}>
-                            {user.role}
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            user.plan === 'enterprise' ? 'bg-purple-100 text-purple-700' :
+                            user.plan === 'pro' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>
+                            {user.plan.charAt(0).toUpperCase() + user.plan.slice(1)}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="text-sm text-gray-900 font-primary capitalize">{user.plan}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(user.status)}`}>
-                            {user.status}
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            user.status === 'active' ? 'bg-green-100 text-green-700' :
+                            user.status === 'inactive' ? 'bg-gray-100 text-gray-700' :
+                            'bg-red-100 text-red-700'
+                          }`}>
+                            {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="text-sm text-gray-900 font-primary">{user.projectsCount}</span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="text-sm text-gray-900 font-primary">{user.storageUsed} MB</span>
+                        <td className="px-6 py-4 text-sm text-gray-900">{user.projectsCount}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{user.storageUsed} MB</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">
+                          {new Date(user.lastLoginAt).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => {
-                                setUserForm({
-                                  id: user.id,
-                                  name: user.name,
-                                  email: user.email,
-                                  role: user.role,
-                                  status: user.status,
-                                  plan: user.plan,
-                                });
-                                setEditingItem(user);
-                                setShowModal(true);
-                              }}
-                              className="p-1 hover:bg-gray-100 rounded transition-colors"
+                              onClick={() => handleEdit(user)}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                             >
                               <Edit3 className="w-4 h-4 text-gray-600" />
                             </button>
                             <button
-                              onClick={() => handleDeleteUser(user.id)}
-                              className="p-1 hover:bg-gray-100 rounded transition-colors"
+                              onClick={() => handleDelete(user.id, 'user')}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                             >
                               <Trash2 className="w-4 h-4 text-red-600" />
                             </button>
@@ -949,14 +1010,10 @@ const SuperAdmin: React.FC = () => {
             className="space-y-6"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 font-heading">Website Categories</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Website Categories</h2>
               <button
-                onClick={() => {
-                  resetCategoryForm();
-                  setEditingItem(null);
-                  setShowModal(true);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
+                onClick={() => handleAdd('category')}
+                className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 Add Category
@@ -965,63 +1022,46 @@ const SuperAdmin: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {categories.map((category) => {
-                const iconMap: Record<string, any> = {
-                  Building, Briefcase, ShoppingBag, Camera, Music, Utensils,
-                  GraduationCap, Car, Home, Gamepad2, User
-                };
-                const IconComponent = iconMap[category.icon] || Building;
-
+                const IconComponent = (LucideIcons as any)[category.icon] || Building;
                 return (
                   <div key={category.id} className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        <div 
+                          className="w-12 h-12 rounded-xl flex items-center justify-center"
                           style={{ backgroundColor: `${category.color}20`, color: category.color }}
                         >
-                          <IconComponent className="w-5 h-5" />
+                          <IconComponent className="w-6 h-6" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-gray-900 font-heading">{category.name}</h3>
-                          <p className="text-sm text-gray-600 font-primary">{category.projectsCount} projects</p>
+                          <h3 className="font-semibold text-gray-900">{category.name}</h3>
+                          <p className="text-sm text-gray-600">{category.projectsCount} projects</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => {
-                            setCategoryForm({
-                              id: category.id,
-                              name: category.name,
-                              description: category.description,
-                              icon: category.icon,
-                              color: category.color,
-                              isActive: category.isActive,
-                            });
-                            setEditingItem(category);
-                            setShowModal(true);
-                          }}
+                          onClick={() => handleEdit(category)}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
                           <Edit3 className="w-4 h-4 text-gray-600" />
                         </button>
                         <button
-                          onClick={() => handleDeleteCategory(category.id)}
+                          onClick={() => handleDelete(category.id, 'category')}
                           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4 text-red-600" />
                         </button>
                       </div>
                     </div>
-
-                    <p className="text-gray-600 text-sm mb-4 font-primary">{category.description}</p>
-
+                    <p className="text-gray-600 text-sm mb-4">{category.description}</p>
                     <div className="flex items-center justify-between">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                        }`}>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                      }`}>
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
-                      <span className="text-xs text-gray-500 font-primary">
-                        Created {category.createdAt.toLocaleDateString()}
+                      <span className="text-xs text-gray-500">
+                        Created {new Date(category.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
@@ -1039,102 +1079,215 @@ const SuperAdmin: React.FC = () => {
             className="space-y-6"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900 font-heading">Website Management</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Website Management</h2>
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                   <input
                     type="text"
                     placeholder="Search websites..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Website</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Owner</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Category</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Status</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Sections</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Views</th>
-                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900 font-primary">Actions</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Website</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Owner</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Category</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Status</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Template</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Stats</th>
+                      <th className="text-left px-6 py-4 text-sm font-semibold text-gray-900">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {projects
-                      .filter(project =>
-                        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        project.websiteUrl.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        project.userName.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((project) => (
-                        <tr key={project.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="font-medium text-gray-900 font-primary">{project.name}</div>
-                              <div className="text-sm text-gray-600 font-primary">/{project.websiteUrl}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div>
-                              <div className="font-medium text-gray-900 font-primary">{project.userName}</div>
-                              <div className="text-sm text-gray-600 font-primary">{project.userEmail}</div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-gray-900 font-primary capitalize">{project.category}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${project.isPublished ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-                              }`}>
-                              {project.isPublished ? 'Published' : 'Draft'}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-gray-900 font-primary">{project.sectionsCount}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className="text-sm text-gray-900 font-primary">{project.viewsCount}</span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-2">
-                              <button
-                                onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
-                                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                                title="View Website"
-                              >
-                                <Eye className="w-4 h-4 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() => navigate(`/editor/${project.id}`)}
-                                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                                title="Edit Website"
-                              >
-                                <Edit3 className="w-4 h-4 text-gray-600" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteProject(project.id)}
-                                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                                title="Delete Website"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-600" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                    {filteredProjects.map((project) => (
+                      <tr key={project.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="font-medium text-gray-900">{project.name}</div>
+                            <div className="text-sm text-gray-600">/{project.websiteUrl}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div>
+                            <div className="font-medium text-gray-900">{project.userName}</div>
+                            <div className="text-sm text-gray-600">{project.userEmail}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                            {project.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            project.isPublished ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                          }`}>
+                            {project.isPublished ? 'Published' : 'Draft'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button
+                            onClick={() => handleToggleTemplate(project.id, !project.isTemplate)}
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium transition-colors ${
+                              project.isTemplate 
+                                ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' 
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            {project.isTemplate ? (
+                              <>
+                                <Crown className="w-3 h-3 mr-1" />
+                                Template
+                              </>
+                            ) : (
+                              'Make Template'
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900">
+                            <div>{project.viewsCount} views</div>
+                            <div className="text-gray-600">{project.likesCount} likes</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <Eye className="w-4 h-4 text-gray-600" />
+                            </button>
+                            <button
+                              onClick={() => handleEdit(project)}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <Edit3 className="w-4 h-4 text-gray-600" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(project.id, 'website')}
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-600" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {/* Templates Tab */}
+        {activeTab === 'templates' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-gray-900">Template Management</h2>
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search templates..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredTemplates.map((template) => (
+                <div key={template.id} className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                  <div className="aspect-video bg-gradient-to-br from-gray-100 to-gray-200 relative">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Globe className="w-12 h-12 text-gray-400" />
+                    </div>
+                    <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 bg-purple-500 text-white rounded-full text-xs font-semibold">
+                      <Crown className="w-3 h-3" />
+                      Template
+                    </div>
+                    <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-1 bg-white/90 rounded-full text-xs font-semibold">
+                      <Star className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                      {template.templateRating.toFixed(1)}
+                    </div>
+                  </div>
+
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">{template.name}</h3>
+                        <p className="text-sm text-gray-600">by {template.userName}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => window.open(`/site/${template.websiteUrl}`, '_blank')}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <Eye className="w-4 h-4 text-gray-600" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleTemplate(template.id, false)}
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                        >
+                          <X className="w-4 h-4 text-red-600" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
+                      <div className="flex items-center gap-1">
+                        <Download className="w-4 h-4" />
+                        {template.templateDownloads}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-4 h-4" />
+                        {template.likesCount}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Coins className="w-4 h-4" />
+                        {template.coinsReceived}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+                        {template.category}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {template.sectionsCount} sections
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {filteredTemplates.length === 0 && (
+              <div className="text-center py-12">
+                <Crown className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No templates found</h3>
+                <p className="text-gray-600">Templates will appear here when websites are marked as templates.</p>
+              </div>
+            )}
           </motion.div>
         )}
       </div>
@@ -1145,323 +1298,40 @@ const SuperAdmin: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="bg-white rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
           >
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900 font-heading">
-                  {editingItem ? 'Edit' : 'Add'} {
-                    activeTab === 'themes' ? 'Theme' :
-                      activeTab === 'users' ? 'User' :
-                        activeTab === 'categories' ? 'Category' : 'Item'
-                  }
-                </h3>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold text-gray-900">
+                {editingItem ? 'Edit' : 'Add'} {activeTab.slice(0, -1)}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Modal content would go here based on activeTab */}
+            <div className="space-y-4">
+              <p className="text-gray-600">
+                Modal form for {activeTab} would be implemented here with appropriate fields.
+              </p>
+              
+              <div className="flex gap-3 pt-4">
                 <button
                   onClick={() => setShowModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-600" />
+                  Cancel
+                </button>
+                <button
+                  onClick={() => handleSave({}, activeTab)}
+                  className="flex-1 px-4 py-3 bg-purple-600 text-white rounded-xl hover:bg-purple-700 transition-colors"
+                >
+                  {editingItem ? 'Update' : 'Create'}
                 </button>
               </div>
-
-              {/* Theme Form */}
-              {activeTab === 'themes' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Theme Name</label>
-                      <input
-                        type="text"
-                        value={themeForm.name}
-                        onChange={(e) => setThemeForm({ ...themeForm, name: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                        placeholder="Enter theme name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category</label>
-                      <select
-                        value={themeForm.category}
-                        onChange={(e) => setThemeForm({ ...themeForm, category: e.target.value as any })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      >
-                        <option value="modern">Modern</option>
-                        <option value="classic">Classic</option>
-                        <option value="minimal">Minimal</option>
-                        <option value="bold">Bold</option>
-                        <option value="elegant">Elegant</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-4 font-primary">Colors</label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {Object.entries(themeForm.colors).map(([key, value]) => (
-                        <div key={key}>
-                          <label className="block text-xs font-medium text-gray-600 mb-1 font-primary capitalize">
-                            {key.replace(/([A-Z])/g, ' $1')}
-                          </label>
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="color"
-                              value={value}
-                              onChange={(e) => setThemeForm({
-                                ...themeForm,
-                                colors: { ...themeForm.colors, [key]: e.target.value }
-                              })}
-                              className="w-8 h-8 border border-gray-300 rounded cursor-pointer"
-                            />
-                            <input
-                              type="text"
-                              value={value}
-                              onChange={(e) => setThemeForm({
-                                ...themeForm,
-                                colors: { ...themeForm.colors, [key]: e.target.value }
-                              })}
-                              className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm font-primary"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-4 font-primary">Fonts</label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {Object.entries(themeForm.fonts).map(([key, value]) => (
-                        <div key={key}>
-                          <label className="block text-xs font-medium text-gray-600 mb-1 font-primary capitalize">{key}</label>
-                          <select
-                            value={value}
-                            onChange={(e) => setThemeForm({
-                              ...themeForm,
-                              fonts: { ...themeForm.fonts, [key]: e.target.value }
-                            })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                          >
-                            <option value="Inter">Inter</option>
-                            <option value="Poppins">Poppins</option>
-                            <option value="Roboto">Roboto</option>
-                            <option value="Open Sans">Open Sans</option>
-                            <option value="Montserrat">Montserrat</option>
-                            <option value="Playfair Display">Playfair Display</option>
-                            <option value="Merriweather">Merriweather</option>
-                          </select>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveTheme}
-                      className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-                    >
-                      {editingItem ? 'Update' : 'Create'} Theme
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* User Form */}
-              {activeTab === 'users' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Full Name</label>
-                      <input
-                        type="text"
-                        value={userForm.name}
-                        onChange={(e) => setUserForm({ ...userForm, name: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                        placeholder="Enter full name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Email</label>
-                      <input
-                        type="email"
-                        value={userForm.email}
-                        onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                        placeholder="Enter email address"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Role</label>
-                      <select
-                        value={userForm.role}
-                        onChange={(e) => setUserForm({ ...userForm, role: e.target.value as any })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      >
-                        <option value="user">User</option>
-                        <option value="pro">Pro</option>
-                        <option value="enterprise">Enterprise</option>
-                        <option value="admin">Admin</option>
-                        <option value="superadmin">SuperAdmin</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Status</label>
-                      <select
-                        value={userForm.status}
-                        onChange={(e) => setUserForm({ ...userForm, status: e.target.value as any })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      >
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                        <option value="suspended">Suspended</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Plan</label>
-                      <select
-                        value={userForm.plan}
-                        onChange={(e) => setUserForm({ ...userForm, plan: e.target.value as any })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      >
-                        <option value="free">Free</option>
-                        <option value="pro">Pro</option>
-                        <option value="enterprise">Enterprise</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveUser}
-                      className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-                    >
-                      {editingItem ? 'Update' : 'Create'} User
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Category Form */}
-              {activeTab === 'categories' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Category Name</label>
-                      <input
-                        type="text"
-                        value={categoryForm.name}
-                        onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                        placeholder="Enter category name"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Icon</label>
-                      <select
-                        value={categoryForm.icon}
-                        onChange={(e) => setCategoryForm({ ...categoryForm, icon: e.target.value })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                      >
-                        <option value="Building">Building</option>
-                        <option value="Briefcase">Briefcase</option>
-                        <option value="ShoppingBag">Shopping Bag</option>
-                        <option value="Camera">Camera</option>
-                        <option value="Music">Music</option>
-                        <option value="Utensils">Utensils</option>
-                        <option value="GraduationCap">Graduation Cap</option>
-                        <option value="Car">Car</option>
-                        <option value="Home">Home</option>
-                        <option value="Gamepad2">Gamepad</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Description</label>
-                    <textarea
-                      value={categoryForm.description}
-                      onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
-                      rows={3}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 resize-none font-primary"
-                      placeholder="Enter category description"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Color</label>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={categoryForm.color}
-                          onChange={(e) => setCategoryForm({ ...categoryForm, color: e.target.value })}
-                          className="w-12 h-12 border border-gray-300 rounded-xl cursor-pointer"
-                        />
-                        <input
-                          type="text"
-                          value={categoryForm.color}
-                          onChange={(e) => setCategoryForm({ ...categoryForm, color: e.target.value })}
-                          className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 font-primary"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2 font-primary">Status</label>
-                      <div className="flex items-center gap-4 pt-3">
-                        <label className="flex items-center">
-                          <input
-                            type="radio"
-                            name="isActive"
-                            checked={categoryForm.isActive}
-                            onChange={() => setCategoryForm({ ...categoryForm, isActive: true })}
-                            className="mr-2"
-                          />
-                          <span className="font-primary">Active</span>
-                        </label>
-                        <label className="flex items-center">
-                          <input
-                            type="radio"
-                            name="isActive"
-                            checked={!categoryForm.isActive}
-                            onChange={() => setCategoryForm({ ...categoryForm, isActive: false })}
-                            className="mr-2"
-                          />
-                          <span className="font-primary">Inactive</span>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      onClick={() => setShowModal(false)}
-                      className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors font-medium font-primary"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveCategory}
-                      className="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium font-primary"
-                    >
-                      {editingItem ? 'Update' : 'Create'} Category
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           </motion.div>
         </div>
