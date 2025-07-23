@@ -20,6 +20,7 @@ export interface StoredProject {
   themeId: string;
   sections: SectionInstance[];
   isPublished: boolean;
+  isTemplate?: boolean;
   publishUrl?: string;
   thumbnail?: string;
   createdAt: Date;
