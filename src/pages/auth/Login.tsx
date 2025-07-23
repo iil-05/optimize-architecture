@@ -36,6 +36,7 @@ const Login: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        setLoading(true);
         const success = await login({
             email: formData.email,
             password: formData.password,
@@ -44,7 +45,10 @@ const Login: React.FC = () => {
         
         if (success) {
             navigate('/dashboard');
+        } else {
+            // Error handling is done in the useAuth hook via toast
         }
+        setLoading(false);
     };
 
     return (

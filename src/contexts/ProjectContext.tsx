@@ -364,6 +364,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     const currentUserId = getCurrentUserId();
     if (!currentUserId) {
       console.error('🔒 Cannot clear data: No authenticated user');
+      toast.error('Cannot clear data: Please log in');
       return;
     }
     
@@ -377,6 +378,7 @@ export const ProjectProvider: React.FC<{ children: ReactNode }> = ({ children })
     setCurrentProject(null);
     
     console.log('✅ User data cleared successfully');
+    toast.success('User data cleared successfully');
   };
 
   return (

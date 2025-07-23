@@ -39,6 +39,7 @@ const Register: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
+        setLoading(true);
         const success = await register({
             name: formData.fullName,
             email: formData.email,
@@ -48,7 +49,10 @@ const Register: React.FC = () => {
         
         if (success) {
             navigate('/dashboard');
+        } else {
+            // Error handling is done in the useAuth hook via toast
         }
+        setLoading(false);
     };
 
     const passwordRequirements = [

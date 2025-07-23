@@ -1059,6 +1059,7 @@ export class OptimizedStorage {
     const currentUserId = this.getCurrentUserId();
     if (!currentUserId) {
       console.error('🔒 Cannot clear data: No authenticated user');
+      // Note: Don't show toast here as this is a utility function
       return;
     }
     

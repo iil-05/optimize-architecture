@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Sparkles } from 'lucide-react';
+import { toast } from 'react-toastify';
 import { SectionInstance } from '../types';
 import { useProject } from '../contexts/ProjectContext';
 import SectionControls from './SectionControls';
