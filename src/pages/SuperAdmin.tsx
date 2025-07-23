@@ -8,10 +8,8 @@ import {
   Globe,
   BarChart3,
   Settings,
-  Database,
   Palette,
   Search,
-  Filter,
   Eye,
   Heart,
   Coins,
@@ -20,13 +18,8 @@ import {
   Trash2,
   Plus,
   X,
-  Check,
   Crown,
-  TrendingUp,
   Activity,
-  Clock,
-  AlertCircle,
-  CheckCircle,
   Building,
   User,
   Briefcase,
@@ -38,19 +31,9 @@ import {
   Utensils,
   Car,
   Home,
-  Save,
-  Upload,
   Download,
-  Copy,
-  Zap,
   Layout,
-  Type,
-  Image,
   Tag,
-  Monitor,
-  Smartphone,
-  Tablet,
-  UserCheck
 } from 'lucide-react';
 import {
   LineChart,
@@ -76,10 +59,8 @@ import { iconRegistry, IconDefinition } from '../core/IconRegistry';
 import CommonHeader from '../components/CommonHeader';
 
 // Memoized chart components for better performance
-const MemoizedAreaChart = React.memo(AreaChart);
 const MemoizedBarChart = React.memo(BarChart);
 const MemoizedPieChart = React.memo(PieChart);
-const MemoizedLineChart = React.memo(LineChart);
 const MemoizedComposedChart = React.memo(ComposedChart);
 
 interface AdminUser {
@@ -129,11 +110,11 @@ interface PlatformStats {
   totalThemes: number;
   totalIcons: number;
   totalCategories: number;
-  dailyStats: Array<{ 
-    date: string; 
-    users: number; 
-    projects: number; 
-    views: number; 
+  dailyStats: Array<{
+    date: string;
+    users: number;
+    projects: number;
+    views: number;
     likes: number;
     coins: number;
   }>;
@@ -258,27 +239,27 @@ const SuperAdmin: React.FC = () => {
   }, [timeRange]);
 
   const calculateRealPlatformStats = (
-    users: AdminUser[], 
-    projects: AdminProject[], 
-    themes: ThemeDefinition[], 
-    icons: IconDefinition[], 
+    users: AdminUser[],
+    projects: AdminProject[],
+    themes: ThemeDefinition[],
+    icons: IconDefinition[],
     categories: WebsiteCategory[]
   ): PlatformStats => {
     const now = new Date();
     const daysToShow = timeRange === '7d' ? 7 : timeRange === '30d' ? 30 : 90;
-    
+
     // Generate daily stats based on real data
     const dailyStats = [];
     for (let i = daysToShow - 1; i >= 0; i--) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
       const dateStr = date.toISOString().split('T')[0];
-      
+
       // Count real data for this date
-      const dayUsers = users.filter(u => 
+      const dayUsers = users.filter(u =>
         new Date(u.createdAt).toDateString() === date.toDateString()
       ).length;
-      
-      const dayProjects = projects.filter(p => 
+
+      const dayProjects = projects.filter(p =>
         new Date(p.createdAt).toDateString() === date.toDateString()
       ).length;
 
@@ -399,7 +380,7 @@ const SuperAdmin: React.FC = () => {
       };
 
       optimizedStorage.addTemplate(newTemplate as TemplateGalleryItem);
-      
+
       // Reload templates
       const updatedTemplates = optimizedStorage.getTemplateGallery();
       setTemplates(updatedTemplates);
@@ -430,14 +411,14 @@ const SuperAdmin: React.FC = () => {
       };
 
       await updateProject(project.id, { isTemplate: updatedProject.isTemplate });
-      
-      setProjects(prev => prev.map(p => 
+
+      setProjects(prev => prev.map(p =>
         p.id === project.id ? updatedProject : p
       ));
 
       toast.success(
-        updatedProject.isTemplate 
-          ? 'Project added to template gallery!' 
+        updatedProject.isTemplate
+          ? 'Project added to template gallery!'
           : 'Project removed from template gallery!'
       );
     } catch (error) {
@@ -496,7 +477,7 @@ const SuperAdmin: React.FC = () => {
 
   const handleDeleteTheme = (themeId: string) => {
     if (!window.confirm('Are you sure you want to delete this theme?')) return;
-    
+
     try {
       themeRegistry.deleteTheme(themeId);
       setThemes(prev => prev.filter(t => t.id !== themeId));
@@ -550,7 +531,6 @@ const SuperAdmin: React.FC = () => {
     { id: 'icons', label: 'Icons Management', icon: Star },
     { id: 'users', label: 'Users Management', icon: Users },
     { id: 'categories', label: 'Website Categories', icon: Tag },
-    { id: 'websites', label: 'Websites Management', icon: Globe },
     { id: 'projects', label: 'Projects', icon: Globe },
     { id: 'templates', label: 'Templates Gallery', icon: Layout },
     { id: 'analytics', label: 'Analytics', icon: Activity },
@@ -615,7 +595,7 @@ const SuperAdmin: React.FC = () => {
                 <p className="text-gray-600 font-primary">Manage users, projects, and platform settings</p>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-3">
               {activeTab === 'statistics' && (
                 <select
@@ -644,11 +624,10 @@ const SuperAdmin: React.FC = () => {
             <button
               key={id}
               onClick={() => setActiveTab(id as any)}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${
-                activeTab === id
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg font-medium transition-all whitespace-nowrap ${activeTab === id
                   ? 'bg-white text-purple-600 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4" />
               <span className="font-primary">{label}</span>
@@ -745,17 +724,17 @@ const SuperAdmin: React.FC = () => {
               <ResponsiveContainer width="100%" height={400}>
                 <MemoizedComposedChart data={platformStats.dailyStats}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                  <XAxis 
-                    dataKey="date" 
+                  <XAxis
+                    dataKey="date"
                     stroke="#6b7280"
                     fontSize={12}
                     tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   />
                   <YAxis stroke="#6b7280" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#fff', 
-                      border: '1px solid #e5e7eb', 
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#fff',
+                      border: '1px solid #e5e7eb',
                       borderRadius: '12px',
                       boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'
                     }}
@@ -796,8 +775,8 @@ const SuperAdmin: React.FC = () => {
                   <div className="space-y-3">
                     {platformStats.deviceStats.map((device, index) => (
                       <div key={device.device} className="flex items-center gap-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
+                        <div
+                          className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         />
                         <div>
@@ -817,17 +796,17 @@ const SuperAdmin: React.FC = () => {
                   {platformStats.planStats.map((plan, index) => (
                     <div key={plan.plan} className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div 
-                          className="w-3 h-3 rounded-full" 
+                        <div
+                          className="w-3 h-3 rounded-full"
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}
                         />
                         <span className="text-sm font-medium text-gray-900 capitalize">{plan.plan}</span>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="w-24 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full" 
-                            style={{ 
+                          <div
+                            className="h-2 rounded-full"
+                            style={{
                               width: `${plan.percentage}%`,
                               backgroundColor: COLORS[index % COLORS.length]
                             }}
@@ -848,8 +827,8 @@ const SuperAdmin: React.FC = () => {
                 <ResponsiveContainer width="100%" height={200}>
                   <MemoizedBarChart data={platformStats.hourlyStats}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
-                    <XAxis 
-                      dataKey="hour" 
+                    <XAxis
+                      dataKey="hour"
                       stroke="#6b7280"
                       fontSize={12}
                       tickFormatter={(value) => `${value}:00`}
@@ -870,8 +849,8 @@ const SuperAdmin: React.FC = () => {
                       <span className="text-sm font-medium text-gray-900 capitalize">{category.category}</span>
                       <div className="flex items-center gap-2">
                         <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full bg-purple-500" 
+                          <div
+                            className="h-2 rounded-full bg-purple-500"
                             style={{ width: `${category.percentage}%` }}
                           />
                         </div>
@@ -924,11 +903,10 @@ const SuperAdmin: React.FC = () => {
                       <p className="text-sm text-gray-600 font-primary">by {project.userName}</p>
                       <p className="text-xs text-gray-500 font-primary">{project.userEmail}</p>
                     </div>
-                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      project.isPublished 
-                        ? 'bg-green-100 text-green-700' 
+                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${project.isPublished
+                        ? 'bg-green-100 text-green-700'
                         : 'bg-yellow-100 text-yellow-700'
-                    }`}>
+                      }`}>
                       {project.isPublished ? 'Published' : 'Draft'}
                     </div>
                   </div>
@@ -985,7 +963,7 @@ const SuperAdmin: React.FC = () => {
                   {templates.length} templates in gallery
                 </div>
               </div>
-              
+
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -1073,7 +1051,7 @@ const SuperAdmin: React.FC = () => {
                         <Eye className="w-4 h-4 inline mr-1" />
                         Preview
                       </button>
-                      
+
                       <button
                         onClick={() => handleDeleteTemplate(template.id)}
                         className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
@@ -1142,7 +1120,7 @@ const SuperAdmin: React.FC = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="flex gap-2 mb-3">
                       <div
                         className="w-6 h-6 rounded-lg"
@@ -1160,7 +1138,7 @@ const SuperAdmin: React.FC = () => {
                         title="Accent"
                       />
                     </div>
-                    
+
                     <p className="text-sm text-gray-600 mb-2">Primary Font: {theme.fonts.primary}</p>
                     <p className="text-sm text-gray-600">Category: {theme.category}</p>
                   </div>
@@ -1298,20 +1276,18 @@ const SuperAdmin: React.FC = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.plan === 'enterprise' ? 'bg-purple-100 text-purple-700' :
-                            user.plan === 'pro' ? 'bg-blue-100 text-blue-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.plan === 'enterprise' ? 'bg-purple-100 text-purple-700' :
+                              user.plan === 'pro' ? 'bg-blue-100 text-blue-700' :
+                                'bg-gray-100 text-gray-700'
+                            }`}>
                             {user.plan}
                           </span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            user.status === 'active' ? 'bg-green-100 text-green-700' :
-                            user.status === 'suspended' ? 'bg-red-100 text-red-700' :
-                            'bg-gray-100 text-gray-700'
-                          }`}>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.status === 'active' ? 'bg-green-100 text-green-700' :
+                              user.status === 'suspended' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-700'
+                            }`}>
                             {user.status}
                           </span>
                         </td>
@@ -1366,7 +1342,7 @@ const SuperAdmin: React.FC = () => {
                   <div key={category.id} className="border border-gray-200 rounded-xl p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div 
+                        <div
                           className="w-10 h-10 rounded-xl flex items-center justify-center"
                           style={{ backgroundColor: `${category.color}20` }}
                         >
@@ -1394,132 +1370,13 @@ const SuperAdmin: React.FC = () => {
                     </div>
                     <p className="text-sm text-gray-600 mb-3">{category.description}</p>
                     <div className="flex items-center justify-between">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${category.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        }`}>
                         {category.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Websites Tab */}
-        {activeTab === 'websites' && (
-          <div className="space-y-6">
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 font-heading">Websites Management</h2>
-                <div className="flex items-center gap-4">
-                  <div className="flex gap-4">
-                    <div className="relative">
-                      <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Search websites..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      />
-                    </div>
-                    <select
-                      value={filterStatus}
-                      onChange={(e) => setFilterStatus(e.target.value)}
-                      className="px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    >
-                      <option value="all">All Websites</option>
-                      <option value="published">Published</option>
-                      <option value="templates">Templates</option>
-                      <option value="drafts">Drafts</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {projects
-                  .filter(project => {
-                    const matchesSearch = project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      project.userName.toLowerCase().includes(searchTerm.toLowerCase());
-                    const matchesFilter = filterStatus === 'all' || 
-                      (filterStatus === 'published' && project.isPublished) ||
-                      (filterStatus === 'templates' && project.isTemplate) ||
-                      (filterStatus === 'drafts' && !project.isPublished);
-                    return matchesSearch && matchesFilter;
-                  })
-                  .map((project) => (
-                    <motion.div
-                      key={project.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="bg-white rounded-2xl p-6 shadow-lg border border-gray-200"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 mb-1">{project.name}</h3>
-                          <p className="text-sm text-gray-600">by {project.userName}</p>
-                          <p className="text-xs text-gray-500">{project.userEmail}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {project.isPublished && (
-                            <div className="w-2 h-2 bg-green-500 rounded-full" title="Published" />
-                          )}
-                          {project.isTemplate && (
-                            <div className="w-2 h-2 bg-purple-500 rounded-full" title="Template" />
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Category:</span>
-                          <span className="font-medium text-gray-900 capitalize">{project.category}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Sections:</span>
-                          <span className="font-medium text-gray-900">{project.sectionsCount}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Views:</span>
-                          <span className="font-medium text-gray-900">{project.viewsCount}</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600">Likes:</span>
-                          <span className="font-medium text-gray-900">{project.likesCount}</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleToggleTemplate(project)}
-                          className={`flex-1 px-3 py-2 rounded-lg font-medium transition-colors ${
-                            project.isTemplate
-                              ? 'bg-purple-100 text-purple-700 hover:bg-purple-200'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {project.isTemplate ? 'Remove from Templates' : 'Add to Templates'}
-                        </button>
-                        <button
-                          onClick={() => window.open(`/site/${project.websiteUrl}`, '_blank')}
-                          className="p-2 hover:bg-gray-100 rounded-lg"
-                          title="View Site"
-                        >
-                          <Eye className="w-4 h-4 text-gray-600" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProject(project.id)}
-                          className="p-2 hover:bg-red-100 rounded-lg"
-                          title="Delete Project"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-600" />
-                        </button>
-                      </div>
-                    </motion.div>
-                  ))}
               </div>
             </div>
           </div>
@@ -1664,32 +1521,32 @@ const SuperAdmin: React.FC = () => {
 
             {/* Modal content based on active tab */}
             {activeTab === 'themes' && (
-              <ThemeForm 
-                theme={editingItem} 
+              <ThemeForm
+                theme={editingItem}
                 onSave={handleSaveTheme}
                 onCancel={() => setShowModal(false)}
               />
             )}
-            
+
             {activeTab === 'icons' && (
-              <IconForm 
-                icon={editingItem} 
+              <IconForm
+                icon={editingItem}
                 onSave={handleSaveIcon}
                 onCancel={() => setShowModal(false)}
               />
             )}
-            
+
             {activeTab === 'categories' && (
-              <CategoryForm 
-                category={editingItem} 
+              <CategoryForm
+                category={editingItem}
                 onSave={handleSaveCategory}
                 onCancel={() => setShowModal(false)}
               />
             )}
-            
+
             {activeTab === 'users' && (
-              <UserForm 
-                user={editingItem} 
+              <UserForm
+                user={editingItem}
                 onSave={(user) => {
                   // Handle user save
                   setShowModal(false);
