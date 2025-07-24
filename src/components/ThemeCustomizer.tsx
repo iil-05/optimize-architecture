@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Palette, Type, Sparkles, Check, Eye, Zap } from 'lucide-react';
+import { X, Palette, Sparkles, Check, Eye, Type } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { themeRegistry, ThemeDefinition } from '../core/ThemeRegistry';
 import { optimizedStorage } from '../core/OptimizedStorage';
@@ -17,12 +17,6 @@ const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ onClose }) => {
     currentProject ? themeRegistry.getTheme(currentProject.themeId) : optimizedStorage.getSelectedTheme()
   );
   const [availableThemes] = useState<ThemeDefinition[]>(themeRegistry.getAllThemes());
-  const [activeTab, setActiveTab] = useState<'colors' | 'fonts'>('colors');
-
-  const tabs = [
-    { id: 'colors', label: t('themeCustomizer.colors'), icon: Palette },
-    { id: 'fonts', label: t('themeCustomizer.fonts'), icon: Type },
-  ];
 
   const handleThemeSelect = (themeId: string) => {
     const theme = themeRegistry.getTheme(themeId);
@@ -87,148 +81,155 @@ const ThemeCustomizer: React.FC<ThemeCustomizerProps> = ({ onClose }) => {
             </button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex border-b border-gray-200 flex-shrink-0">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as 'colors' | 'fonts')}
-                  className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 font-medium transition-colors font-sans text-sm sm:text-base ${activeTab === tab.id
-                    ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                    }`}
-                >
-                  <Icon className="w-3 h-3 sm:w-4 sm:h-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </div>
-
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
             <div className="p-4 sm:p-6">
-              {activeTab === 'colors' && (
-                <div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 font-display">{t('themeCustomizer.colorThemes')}</h3>
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 font-sans">
-                      <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>{t('themeCustomizer.previewChanges')}</span>
-                    </div>
+              <div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
+                  <div className="flex items-center gap-3">
+                    <Palette className="w-5 h-5 text-primary-600" />
+                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 font-display">Theme & Typography</h3>
                   </div>
-                  
-                  {/* Theme Categories */}
-                  {['modern', 'elegant', 'minimal', 'bold', 'classic'].map(category => {
-                    const categoryThemes = getThemesByCategory(category);
-                    if (categoryThemes.length === 0) return null;
-                    
-                    return (
-                      <div key={category} className="mb-6">
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3 capitalize font-display">
-                          {category} Themes
-                        </h4>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                          {categoryThemes.map((theme) => (
-                            <motion.div
-                              key={theme.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className={`relative p-3 sm:p-4 border-2 rounded-2xl cursor-pointer transition-all hover:shadow-elegant ${
-                                currentTheme?.id === theme.id
-                                  ? 'border-primary-500 bg-primary-50 shadow-glow ring-2 ring-primary-300 scale-105'
-                                  : 'border-gray-200 hover:border-gray-300'
-                              }`}
-                              onClick={() => handleThemeSelect(theme.id)}
-                              whileHover={{ scale: currentTheme?.id === theme.id ? 1.05 : 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                            >
-                              {currentTheme?.id === theme.id && (
-                                <motion.div
-                                  initial={{ scale: 0, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full flex items-center justify-center shadow-glow"
-                                >
-                                  <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
-                                </motion.div>
-                              )}
-
-                              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-3 font-display text-sm sm:text-base">{theme.name}</h4>
-
-                              {/* Color Preview */}
-                              <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                                <div
-                                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg shadow-elegant"
-                                  style={{ backgroundColor: theme.colors.primary }}
-                                  title="Primary"
-                                ></div>
-                                <div
-                                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg shadow-elegant"
-                                  style={{ backgroundColor: theme.colors.secondary }}
-                                  title="Secondary"
-                                ></div>
-                                <div
-                                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg shadow-elegant"
-                                  style={{ backgroundColor: theme.colors.accent }}
-                                  title="Accent"
-                                ></div>
-                                <div
-                                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg border border-gray-200 shadow-elegant"
-                                  style={{ backgroundColor: theme.colors.surface }}
-                                  title="Surface"
-                                ></div>
-                              </div>
-
-                              {/* Sample Text */}
-                              <div className="space-y-1">
-                                <div
-                                  className="h-2 sm:h-3 rounded"
-                                  style={{ backgroundColor: theme.colors.primary, width: '80%' }}
-                                ></div>
-                                <div
-                                  className="h-1.5 sm:h-2 rounded"
-                                  style={{ backgroundColor: theme.colors.textSecondary, width: '60%' }}
-                                ></div>
-                                <div
-                                  className="h-1.5 sm:h-2 rounded"
-                                  style={{ backgroundColor: theme.colors.textSecondary, width: '40%' }}
-                                ></div>
-                              </div>
-
-                              {/* Theme Info */}
-                              <div className="mt-2 sm:mt-3 flex flex-wrap gap-1">
-                                <span className="text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-100 text-gray-600 rounded font-sans">
-                                  {theme.fonts.primary}
-                                </span>
-                                {theme.isPremium && (
-                                  <span className="text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-100 text-yellow-600 rounded font-sans">
-                                    Premium
-                                  </span>
-                                )}
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })}
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 font-sans">
+                    <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>{t('themeCustomizer.previewChanges')}</span>
+                  </div>
                 </div>
-              )}
-
-              {activeTab === 'fonts' && (
-                <div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2">
-                    <h3 className="text-base sm:text-lg font-semibold text-gray-900 font-display">Font Combinations</h3>
-                    <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 font-sans">
-                      <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>Google Fonts</span>
-                    </div>
-                  </div>
+                
+                {/* Theme Categories */}
+                {['modern', 'elegant', 'minimal', 'bold', 'classic'].map(category => {
+                  const categoryThemes = getThemesByCategory(category);
+                  if (categoryThemes.length === 0) return null;
                   
-                  <div className="space-y-4">
-                    {availableThemes.map((theme) => (
+                  return (
+                    <div key={category} className="mb-8">
+                      <h4 className="text-sm font-semibold text-gray-700 mb-4 capitalize font-display flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary-500"></div>
+                        {category} Themes
+                      </h4>
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                        {categoryThemes.map((theme) => (
+                          <motion.div
+                            key={theme.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`relative p-4 sm:p-6 border-2 rounded-2xl cursor-pointer transition-all hover:shadow-elegant ${
+                              currentTheme?.id === theme.id
+                                ? 'border-primary-500 bg-primary-50 shadow-glow ring-2 ring-primary-300 scale-105'
+                                : 'border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => handleThemeSelect(theme.id)}
+                            whileHover={{ scale: currentTheme?.id === theme.id ? 1.05 : 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            {currentTheme?.id === theme.id && (
+                              <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-glow"
+                              >
+                                <Check className="w-3 h-3 text-white" />
+                              </motion.div>
+                            )}
+
+                            <div className="mb-4">
+                              <h4 className="text-lg font-semibold text-gray-900 mb-2 font-display">{theme.name}</h4>
+                              <p className="text-sm text-gray-600 font-sans">Complete design system with colors & typography</p>
+                            </div>
+
+                            {/* Color Preview */}
+                            <div className="flex gap-2 mb-4">
+                              <div
+                                className="w-8 h-8 rounded-lg shadow-elegant border border-gray-200"
+                                style={{ backgroundColor: theme.colors.primary }}
+                                title="Primary"
+                              ></div>
+                              <div
+                                className="w-8 h-8 rounded-lg shadow-elegant border border-gray-200"
+                                style={{ backgroundColor: theme.colors.secondary }}
+                                title="Secondary"
+                              ></div>
+                              <div
+                                className="w-8 h-8 rounded-lg shadow-elegant border border-gray-200"
+                                style={{ backgroundColor: theme.colors.accent }}
+                                title="Accent"
+                              ></div>
+                              <div
+                                className="w-8 h-8 rounded-lg shadow-elegant border border-gray-200"
+                                style={{ backgroundColor: theme.colors.surface }}
+                                title="Surface"
+                              ></div>
+                            </div>
+
+                            {/* Font Preview */}
+                            <div className="space-y-3 mb-4">
+                              <div style={{ fontFamily: theme.fonts.primary }}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <Type className="w-3 h-3 text-primary-600" />
+                                  <span className="text-xs font-medium text-primary-600 bg-primary-100 px-2 py-0.5 rounded font-sans">PRIMARY</span>
+                                  <span className="text-xs text-gray-500 font-sans">{theme.fonts.primary}</span>
+                                </div>
+                                <div className="text-lg font-bold text-gray-900">Beautiful Heading</div>
+                              </div>
+
+                              <div style={{ fontFamily: theme.fonts.secondary }}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-medium text-secondary-600 bg-secondary-100 px-2 py-0.5 rounded font-sans">BODY</span>
+                                  <span className="text-xs text-gray-500 font-sans">{theme.fonts.secondary}</span>
+                                </div>
+                                <div className="text-sm text-gray-700">This is body text that flows naturally and is easy to read.</div>
+                              </div>
+
+                              <div style={{ fontFamily: theme.fonts.accent }}>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-xs font-medium text-green-600 bg-green-100 px-2 py-0.5 rounded font-sans">ACCENT</span>
+                                  <span className="text-xs text-gray-500 font-sans">{theme.fonts.accent}</span>
+                                </div>
+                                <div className="text-sm text-gray-600 font-mono">Code & Special Text</div>
+                              </div>
+                            </div>
+
+                            {/* Theme Info */}
+                            <div className="flex flex-wrap gap-1">
+                              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded font-sans">
+                                {category.charAt(0).toUpperCase() + category.slice(1)}
+                              </span>
+                              {theme.isPremium && (
+                                <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded font-sans">
+                                  Premium
+                                </span>
+                              )}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 font-sans">
+              <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+              {t('themeCustomizer.currentTheme')}: <span className="font-medium">{currentTheme?.name || 'None'}</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="px-4 sm:px-6 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition-colors font-medium shadow-glow font-display text-sm sm:text-base"
+            >
+              {t('themeCustomizer.done')}
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+export default ThemeCustomizer;
                       <motion.div
                         key={theme.id}
                         initial={{ opacity: 0, y: 20 }}

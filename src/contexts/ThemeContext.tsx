@@ -4,22 +4,9 @@ import { ThemeConfig } from '../types';
 interface ThemeContextType {
   currentTheme: ThemeConfig;
   availableThemes: ThemeConfig[];
-  availableFonts: FontCollection[];
   updateTheme: (themeId: string) => void;
-  updateFonts: (fontCollectionId: string) => void;
   applyCustomColors: (colors: Partial<ThemeConfig['colors']>) => void;
   getCSSVariables: () => Record<string, string>;
-}
-
-interface FontCollection {
-  id: string;
-  name: string;
-  fonts: {
-    primary: string;
-    secondary: string;
-    accent: string;
-  };
-  description: string;
 }
 
 // Expanded Color Collections
@@ -47,7 +34,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#fdf4ff',
       accent200: '#fae8ff',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Inter', secondary: 'Inter', accent: 'JetBrains Mono' },
     shadows: {
       sm: '0 2px 8px rgba(0, 0, 0, 0.04)',
       md: '0 4px 16px rgba(0, 0, 0, 0.08)',
@@ -78,7 +65,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#fdf4ff',
       accent200: '#fae8ff',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Fira Code', secondary: 'Roboto', accent: 'Space Mono' },
     shadows: {
       sm: '0 2px 8px rgba(0, 0, 0, 0.3)',
       md: '0 4px 16px rgba(0, 0, 0, 0.3)',
@@ -109,7 +96,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#fffbeb',
       accent200: '#fef3c7',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Playfair Display', secondary: 'Lora', accent: 'Dancing Script' },
     shadows: {
       sm: '0 2px 8px rgba(139, 92, 246, 0.1)',
       md: '0 4px 16px rgba(139, 92, 246, 0.15)',
@@ -140,7 +127,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#fffbeb',
       accent200: '#fef3c7',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Merriweather', secondary: 'Open Sans', accent: 'Crimson Text' },
     shadows: {
       sm: '0 2px 8px rgba(5, 150, 105, 0.1)',
       md: '0 4px 16px rgba(5, 150, 105, 0.15)',
@@ -171,7 +158,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#f3e8ff',
       accent200: '#e9d5ff',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Oswald', secondary: 'Raleway', accent: 'Pacifico' },
     shadows: {
       sm: '0 2px 8px rgba(234, 88, 12, 0.1)',
       md: '0 4px 16px rgba(234, 88, 12, 0.15)',
@@ -202,7 +189,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#fffbeb',
       accent200: '#fef3c7',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Montserrat', secondary: 'Source Sans Pro', accent: 'Quicksand' },
     shadows: {
       sm: '0 2px 8px rgba(225, 29, 72, 0.1)',
       md: '0 4px 16px rgba(225, 29, 72, 0.15)',
@@ -233,7 +220,7 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#fffbeb',
       accent200: '#fef3c7',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Roboto Slab', secondary: 'Nunito', accent: 'Orbitron' },
     shadows: {
       sm: '0 2px 8px rgba(29, 78, 216, 0.1)',
       md: '0 4px 16px rgba(29, 78, 216, 0.15)',
@@ -264,97 +251,13 @@ const colorCollections: ThemeConfig[] = [
       accent100: '#f3e8ff',
       accent200: '#e9d5ff',
     },
-    fonts: { primary: 'Inter', secondary: 'Poppins', accent: 'Inter' },
+    fonts: { primary: 'Poppins', secondary: 'Karla', accent: 'Comfortaa' },
     shadows: {
       sm: '0 2px 8px rgba(16, 185, 129, 0.1)',
       md: '0 4px 16px rgba(16, 185, 129, 0.15)',
       lg: '0 8px 32px rgba(16, 185, 129, 0.2)',
       xl: '0 16px 64px rgba(16, 185, 129, 0.25)',
     },
-  },
-];
-
-// Expanded Font Collections
-const fontCollections: FontCollection[] = [
-  {
-    id: 'modern-clean',
-    name: 'Modern Clean',
-    fonts: {
-      primary: 'Inter',
-      secondary: 'Poppins',
-      accent: 'Roboto',
-    },
-    description: 'Clean, modern fonts perfect for tech and business websites',
-  },
-  {
-    id: 'elegant-serif',
-    name: 'Elegant Serif',
-    fonts: {
-      primary: 'Playfair Display',
-      secondary: 'Merriweather',
-      accent: 'Lora',
-    },
-    description: 'Sophisticated serif fonts for premium brands and editorial content',
-  },
-  {
-    id: 'friendly-rounded',
-    name: 'Friendly Rounded',
-    fonts: {
-      primary: 'Nunito',
-      secondary: 'Quicksand',
-      accent: 'Comfortaa',
-    },
-    description: 'Warm, approachable fonts for lifestyle and creative brands',
-  },
-  {
-    id: 'professional-corporate',
-    name: 'Professional Corporate',
-    fonts: {
-      primary: 'Source Sans Pro',
-      secondary: 'Open Sans',
-      accent: 'Montserrat',
-    },
-    description: 'Professional fonts ideal for corporate and business websites',
-  },
-  {
-    id: 'creative-artistic',
-    name: 'Creative Artistic',
-    fonts: {
-      primary: 'Oswald',
-      secondary: 'Raleway',
-      accent: 'Dancing Script',
-    },
-    description: 'Bold, creative fonts for artistic and design-focused websites',
-  },
-  {
-    id: 'minimal-geometric',
-    name: 'Minimal Geometric',
-    fonts: {
-      primary: 'Work Sans',
-      secondary: 'Karla',
-      accent: 'Space Mono',
-    },
-    description: 'Clean geometric fonts for minimal and modern designs',
-  },
-  {
-    id: 'classic-traditional',
-    name: 'Classic Traditional',
-    fonts: {
-      primary: 'Crimson Text',
-      secondary: 'Libre Baskerville',
-      accent: 'Old Standard TT',
-    },
-    description: 'Traditional serif fonts for classic and timeless designs',
-  },
-  {
-    id: 'tech-futuristic',
-    name: 'Tech Futuristic',
-    fonts: {
-      primary: 'Orbitron',
-      secondary: 'Exo 2',
-      accent: 'Rajdhani',
-    },
-    description: 'Futuristic fonts perfect for tech and gaming websites',
   },
 ];
 
@@ -416,19 +319,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   };
 
-  const updateFonts = (fontCollectionId: string) => {
-    const fontCollection = fontCollections.find(f => f.id === fontCollectionId);
-    if (fontCollection) {
-      setCurrentTheme(prev => ({
-        ...prev,
-        fonts: {
-          ...prev.fonts,
-          ...fontCollection.fonts
-        }
-      }));
-    }
-  };
-
   const applyCustomColors = (colors: Partial<ThemeConfig['colors']>) => {
     setCurrentTheme(prev => ({
       ...prev,
@@ -471,9 +361,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     <ThemeContext.Provider value={{
       currentTheme,
       availableThemes: colorCollections,
-      availableFonts: fontCollections,
       updateTheme,
-      updateFonts,
       applyCustomColors,
       getCSSVariables
     }}>
